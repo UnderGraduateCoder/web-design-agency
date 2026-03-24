@@ -278,25 +278,26 @@ nav {
   pointer-events: none;
 }
 
-.scroll-hint {
-  text-align: center;
-  margin-top: 16px;
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
+.hero-scroll {
+  position: absolute;
+  bottom: clamp(24px, 4vw, 40px);
+  left: 50%;
+  transform: translateX(-50%);
   color: var(--c-muted);
-  opacity: 0.7;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s var(--ease-spring);
+  z-index: 2;
 }
-.scroll-hint-arrow {
-  display: inline-block;
-  margin-left: 6px;
-  animation: bounce-y 1.8s ease-in-out infinite;
-  animation-delay: 2s;
-  will-change: transform;
-}
-@keyframes bounce-y {
+.hero-scroll:hover { color: var(--c-accent); transform: translateX(-50%) translateY(-3px); }
+.hero-scroll:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 4px; border-radius: 12px; }
+@keyframes scroll-bounce {
   0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(5px); }
+  50%       { transform: translateY(6px); }
+}
+.hero-scroll-dot {
+  animation: scroll-bounce 1.8s ease-in-out infinite;
+  animation-delay: 1.5s;
+  will-change: transform;
 }
 
 /* ============================================================
@@ -612,7 +613,7 @@ nav {
   display: block;
 }
 .service-icon {
-  width: 42px; height: 42px;
+  width: 44px; height: 44px;
   border-radius: 10px;
   background: rgba(196,163,90,0.1);
   border: 1px solid rgba(196,163,90,0.15);
@@ -680,7 +681,7 @@ nav {
 
 .collections-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: clamp(12px, 2vw, 20px);
   max-width: 1200px;
   margin: 0 auto;
@@ -927,7 +928,13 @@ nav {
 .field-input:focus { border-color: rgba(196,163,90,0.5); background: rgba(196,163,90,0.03); }
 .field-input:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
 textarea.field-input { resize: vertical; min-height: 96px; line-height: 1.5; padding-top: 22px; }
-select.field-input { cursor: pointer; padding-right: 32px; }
+select.field-input {
+  cursor: pointer;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a746c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+}
 
 .field-label {
   position: absolute;
@@ -1068,6 +1075,21 @@ footer {
 .reveal-delay-2 { transition-delay: 0.2s; }
 .reveal-delay-3 { transition-delay: 0.3s; }
 .reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .hero-eyebrow, .hero-heading, .hero-sub, .hero-actions, #hero-3d-wrap {
+    opacity: 1 !important; animation: none !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -1124,11 +1146,16 @@ footer {
         <div class="fabric-label">Final Cloth</div>
       </div>
     </div>
-    <p class="scroll-hint">
-      Scroll to explore layers
-      <span class="scroll-hint-arrow" aria-hidden="true">↓</span>
-    </p>
-  </div>
+    </div>
+
+  <a href="#intro" class="hero-scroll" aria-label="Scroll down">
+    <span class="hero-scroll-inner">
+      <svg width="20" height="32" viewBox="0 0 20 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="1" y="1" width="18" height="30" rx="9" stroke="currentColor" stroke-width="1.5"/>
+        <circle class="hero-scroll-dot" cx="10" cy="9" r="3" fill="currentColor"/>
+      </svg>
+    </span>
+  </a>
 </section>
 
 <!-- ============================================================
@@ -1213,7 +1240,7 @@ footer {
   </div>
 
   <ul class="services-grid" role="list">
-    <li class="service-card reveal">
+    <li class="service-card reveal" role="article">
       <span class="service-num">01</span>
       <div class="service-icon" aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
@@ -1222,7 +1249,7 @@ footer {
       <p class="service-body">Woven, knitted, and non-woven textiles produced to your exact specification. Minimum runs from 50m. Delivered to spec or reproduced free of charge.</p>
     </li>
 
-    <li class="service-card reveal reveal-delay-1">
+    <li class="service-card reveal reveal-delay-1" role="article">
       <span class="service-num">02</span>
       <div class="service-icon" aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
@@ -1231,7 +1258,7 @@ footer {
       <p class="service-body">Production-ready samples in 5–7 working days. Iterate as many times as needed before committing. Full colour matching included.</p>
     </li>
 
-    <li class="service-card reveal reveal-delay-2">
+    <li class="service-card reveal reveal-delay-2" role="article">
       <span class="service-num">03</span>
       <div class="service-icon" aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -1240,7 +1267,7 @@ footer {
       <p class="service-body">Full ISO-compliant testing at our in-house lab. Certificate of conformity with every batch. Independent third-party audits available on request.</p>
     </li>
 
-    <li class="service-card reveal">
+    <li class="service-card reveal" role="article">
       <span class="service-num">04</span>
       <div class="service-icon" aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -1249,7 +1276,7 @@ footer {
       <p class="service-body">600+ fabric codes for same-week dispatch. Linen, cotton, modal, and technical blends held in inventory at all times.</p>
     </li>
 
-    <li class="service-card reveal reveal-delay-1">
+    <li class="service-card reveal reveal-delay-1" role="article">
       <span class="service-num">05</span>
       <div class="service-icon" aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"/></svg>
@@ -1258,7 +1285,7 @@ footer {
       <p class="service-body">Your brand on our fabric. Custom selvedge, care labels, and packaging fully white-labelled. NDA standard on all private-label relationships.</p>
     </li>
 
-    <li class="service-card reveal reveal-delay-2">
+    <li class="service-card reveal reveal-delay-2" role="article">
       <span class="service-num">06</span>
       <div class="service-icon" aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -1313,6 +1340,20 @@ footer {
       <div class="swatch-meta">
         <span class="swatch-name">Meridian</span>
         <span class="swatch-tag">Technical stretch woven</span>
+      </div>
+    </div>
+    <div class="swatch-card fabric-texture-overlay reveal reveal-delay-2" tabindex="0" role="button" aria-label="Soleil — Lightweight linen gauze" style="background: linear-gradient(135deg, #6b4c1e 0%, #9a7035 50%, #c8a878 100%);">
+      <div class="swatch-overlay"></div>
+      <div class="swatch-meta">
+        <span class="swatch-name">Soleil</span>
+        <span class="swatch-tag">Lightweight linen gauze</span>
+      </div>
+    </div>
+    <div class="swatch-card fabric-texture-overlay reveal reveal-delay-3" tabindex="0" role="button" aria-label="Grisaille — Wool flannel" style="background: linear-gradient(135deg, #2e2e2e 0%, #4a4a4a 50%, #3a3a3a 100%);">
+      <div class="swatch-overlay"></div>
+      <div class="swatch-meta">
+        <span class="swatch-name">Grisaille</span>
+        <span class="swatch-tag">Wool flannel</span>
       </div>
     </div>
   </div>
@@ -1377,20 +1418,20 @@ footer {
       <p class="contact-body reveal reveal-delay-2">
         Tell us what you're making, how many metres you need, and your timeline. We'll respond within one business day.
       </p>
-      <div class="contact-stats reveal reveal-delay-3">
+      <dl class="contact-stats reveal reveal-delay-3">
         <div class="contact-stat">
-          <span class="contact-stat-label">Response time</span>
-          <span class="contact-stat-value"><strong>1</strong> business day</span>
+          <dt class="contact-stat-label">Response time</dt>
+          <dd class="contact-stat-value"><strong>1</strong> business day</dd>
         </div>
         <div class="contact-stat">
-          <span class="contact-stat-label">Minimum order</span>
-          <span class="contact-stat-value"><strong>50</strong> metres</span>
+          <dt class="contact-stat-label">Minimum order</dt>
+          <dd class="contact-stat-value"><strong>50</strong> metres</dd>
         </div>
         <div class="contact-stat">
-          <span class="contact-stat-label">Countries served</span>
-          <span class="contact-stat-value"><strong>38</strong> countries</span>
+          <dt class="contact-stat-label">Countries served</dt>
+          <dd class="contact-stat-value"><strong>38</strong> countries</dd>
         </div>
-      </div>
+      </dl>
     </div>
 
     <div class="form-wrap reveal reveal-delay-1">
@@ -1557,6 +1598,38 @@ footer {
   }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
   revealEls.forEach(el => observer.observe(el));
+
+
+  /* ── Count-up on stat numbers ──────────────────────────────── */
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!prefersReducedMotion) {
+    const statNums = document.querySelectorAll('.stat-num');
+    const countObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el    = e.target;
+        const raw   = el.textContent.trim();
+        const suffix = raw.replace(/[\d,]/g, '');
+        const num   = parseFloat(raw.replace(/[^0-9.]/g, ''));
+        if (isNaN(num)) return;
+        const duration = 1400;
+        const start    = performance.now();
+        const isFloat  = raw.includes('–') || raw.includes('-');
+        if (isFloat) return; // skip ranges like "5–7"
+        function step(now) {
+          const p = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - p, 3); // ease-out cubic
+          const val  = Math.round(ease * num);
+          el.textContent = val + suffix;
+          if (p < 1) requestAnimationFrame(step);
+          else el.textContent = raw;
+        }
+        requestAnimationFrame(step);
+        countObserver.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    statNums.forEach(el => countObserver.observe(el));
+  }
 
 
   /* ── Nav active state on scroll ───────────────────────────── */
