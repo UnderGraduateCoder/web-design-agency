@@ -75,12 +75,24 @@ python tools/build_website.py
 
 **What it does:**
 - Reads `.tmp/business_info.json` and `.tmp/website_copy.json`
-- Generates `output/index.html` with Tailwind CSS (CDN), Google Fonts (Inter), and inline SVG icons
+- Generates `output/index.html` with Tailwind CSS (CDN), Google Fonts, and inline SVG icons
+- **Multi-axis variant system**: uses a deterministic hash of the business name to assign from:
+  - **5 font pairings** (Classic, Editorial, Refined, Geometric, Warm)
+  - **4 page layouts** (Classic, Story-first, Services-focused, Minimal) — each reorders sections differently
+  - **4 hero styles** (Centered, Left-aligned, Diagonal clip-path, Split two-column)
+  - **4 service layouts** (Card grid, Alternating rows, Compact list, Featured + grid)
+  - **5 visual personalities** (Minimal, Bold, Warm/Artisanal, Corporate, Modern) — each with distinct CSS
+  - Total: **1,600 unique combinations**. Same business name always produces the same design
+- **Textile-specific trust badges** that vary by business type (embroidery, home textiles, sewing, fashion, B2B)
 - **Adapts automatically** to any optional enrichment data present in `business_info.json`:
   - `google_places` → renders a real Google review cards section + real rating in stats
   - `brand.logo_local_path` → shows brand logo image in nav instead of text
   - `brand.primary_color` → overrides Claude-generated primary color with real brand color
   - `hero_image_path` → uses AI-generated photo as hero background with dark overlay (instead of CSS gradient)
+  - `hero_video_url` → uses mp4 video as hero background (autoplay, muted, loop). Takes priority over `hero_image_path` when both are set
+  - `hero_video_poster` → optional static poster image displayed before the video loads; falls back to `hero_image_path` if not set
+  - `business_type` → influences trust badge selection and, optionally, personality override
+  - `personality` → if set (e.g., "bold", "minimal"), overrides the hash-based personality selection
 
 **Output:** `output/index.html` (~50–120 KB, opens directly in any browser, no server needed)
 
@@ -164,6 +176,43 @@ python tools/generate_catalog_images.py
 3. Already-existing images are skipped (idempotent)
 
 **When to run:** Any time the website has a catalog or product grid section that benefits from real photographic imagery instead of color gradients. Edit prompts in the script to match the specific product categories.
+
+---
+
+### Step 1e — Find Hero Video (stock footage)
+**Tool:** `tools/find_hero_video.py`
+**New API key required:** `PEXELS_API_KEY` in `.env`
+**Sign up:** pexels.com/api (completely free, 200 req/hour)
+
+```bash
+# Auto-selects query based on industry in business_info.json
+python tools/find_hero_video.py
+
+# Or override with a custom search query
+python tools/find_hero_video.py --query "textile fabric weaving"
+```
+
+**What it does:**
+1. Reads `industry` from `.tmp/business_info.json`
+2. Maps the industry to an optimised video search query (30+ industries mapped; generic fallback for others)
+3. Searches Pexels Video API for HD/4K landscape stock footage
+4. **Smart selection**: filters by minimum 1920×1080, landscape orientation, 3–30s duration (ideal for looping)
+5. Downloads the best match to `output/assets/<slug>_hero.mp4`
+6. Downloads a poster thumbnail to `output/assets/<slug>_hero_poster.jpg`
+7. Writes `hero_video_url` and `hero_video_poster` into `business_info.json`
+
+**Effect on final site:**
+- Hero section plays a full-width looping background video instead of a static image
+- `hero_video_url` takes priority over `hero_image_path` when both are present
+- Poster image shown before the video loads (better perceived performance)
+
+**Edge cases:**
+- `PEXELS_API_KEY` not set → error printed; script exits; pipeline continues without video
+- No videos match quality criteria → warning printed; try `--query` with broader terms
+- Downloaded file too small (< 500 KB) → treated as corrupted, removed automatically
+- Both `hero_video_url` and `hero_image_path` set → video takes priority; image used as fallback poster
+
+**When to run:** After Step 1c (hero image). The hero image serves as a fallback if video fails to load. Use `--query` to fine-tune relevance for niche industries not in the default mapping.
 
 **Effect on final site:** Catalog section cards use the AI-generated photos as backgrounds with color-tinted overlays.
 

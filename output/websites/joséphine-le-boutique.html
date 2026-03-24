@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joséphine le Boutique | Moda Mujer y Confección en Alcoi</title>
+  <meta name="description" content="Boutique de moda femenina en Alcoi con confección a medida, asesoramiento de imagen y arreglos de ropa. Descubre prendas con personalidad y atención personalizada. Visítanos.">
+  <meta property="og:title" content="Joséphine le Boutique | Moda Mujer y Confección en Alcoi">
+  <meta property="og:description" content="Boutique de moda femenina en Alcoi con confección a medida, asesoramiento de imagen y arreglos de ropa. Descubre prendas con personalidad y atención personalizada. Visítanos.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_ES">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Joséphine le Boutique",
+  "description": "Boutique de moda femenina en Alcoi con confección a medida, asesoramiento de imagen y arreglos de ropa. Descubre prendas con personalidad y atención personalizada. Visítanos.",
+  "telephone": "642 41 52 55",
+  "email": "info@josephineleboutique.es",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Carrer els Alçamora, 11, 03802 Alcoi, Alicante, España"
+  }
+}
+</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, h4 { font-family: 'DM Serif Display', serif; }
+
+    :root {
+      --primary: #2d2d2d;
+      --primary-dark: #4c4c4c;
+      --primary-text: #ffffff;
+      --secondary: #faf7f4;
+      --secondary-text: #1a1a1a;
+      --accent: #c47a5a;
+      --font-heading: 'DM Serif Display', serif;
+      --font-body: 'DM Sans', sans-serif;
+      --primary-50: #f7f7f7;
+      --primary-100: #ededed;
+      --primary-200: #dddddd;
+      --primary-300: #bfbfbf;
+      --primary-400: #9e9e9e;
+      --primary-500: #7f7f7f;
+      --primary-600: #666666;
+      --primary-700: #4c4c4c;
+      --primary-800: #383838;
+      --primary-900: #262626;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      padding: 0.875rem 2rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(196,122,90,0.35);
+    }
+
+    .btn-outline {
+      display: inline-block;
+      border: 2px solid rgba(255,255,255,0.6);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      padding: calc(0.875rem - 2px) calc(2rem - 2px);
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-outline:hover {
+      background-color: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.9);
+    }
+
+    .nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: rgba(255,255,255,0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .hero-bg {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    }
+
+    .dot-pattern {
+      background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-family: inherit;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(196,122,90,0.12);
+    }
+    .form-input::placeholder { color: #9ca3af; }
+
+    .service-card {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    .review-card {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .review-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.10);
+    }
+    .hero-video {
+      z-index: 0;
+    }
+    .hero-video-overlay {
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.6) 100%);
+      z-index: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-video {
+        animation-play-state: paused !important;
+      }
+    }
+
+    
+    /* Personality: Modern — gradients, glass, depth */
+    h1, h2, h3 { letter-spacing: -0.03em; }
+    .service-card { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.4); border-radius: 1rem; }
+    .service-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); background: rgba(255,255,255,0.95); }
+    .btn-primary { border-radius: 0.75rem; background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%); }
+    .btn-outline { border-radius: 0.75rem; }
+    .review-card { border-radius: 1rem; backdrop-filter: blur(8px); }
+    .nav-bar { background-color: rgba(255,255,255,0.7); }
+    
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+</head>
+
+<body class="text-gray-800 bg-white">
+
+  
+  <nav class="nav-bar">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#" class="text-xl font-bold tracking-tight" style="color: var(--primary);">Joséphine le Boutique</a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#services" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Servicios</a>
+        <a href="#about" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Nosotros</a>
+        <a href="#contact" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Contacto</a>
+        <a href="#contact" class="btn-primary !py-2.5 !px-5 !text-sm">Descubre Nuestra Colección</a>
+      </div>
+      <button
+        class="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+        onclick="const m = document.getElementById('mobile-nav'); m.classList.toggle('hidden');"
+        aria-label="Abrir men&uacute;"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    <div id="mobile-nav" class="hidden md:hidden border-t border-gray-100 px-6 py-4 space-y-3">
+      <a href="#services" class="block text-sm font-medium text-gray-700 py-1.5">Servicios</a>
+      <a href="#about" class="block text-sm font-medium text-gray-700 py-1.5">Nosotros</a>
+      <a href="#contact" class="block text-sm font-medium text-gray-700 py-1.5">Contacto</a>
+      <a href="#contact" class="btn-primary block text-center mt-4 !text-sm">Descubre Nuestra Colección</a>
+    </div>
+  </nav>
+
+
+  
+  <div style="clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);">
+    <section class="relative overflow-hidden py-32 md:py-44 pb-44 md:pb-56" style="background:#000;">
+      <video class="hero-video absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline poster="assets/joséphine-le-boutique_hero_poster.jpg"><source src="../assets/joséphine-le-boutique_hero.mp4" type="video/mp4"></video><div class="hero-video-overlay absolute inset-0"></div>
+      <div class="relative max-w-5xl mx-auto px-6 text-center text-white" style="z-index:2;">
+        <div class="inline-flex items-center gap-2 bg-white bg-opacity-15 border border-white border-opacity-20 text-white text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-8">
+          <span style="color: var(--accent);">&#9679;</span>
+          Moda con alma, estilo que te define
+        </div>
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6">
+          Tu estilo empieza aquí, en el corazón de Alcoi
+        </h1>
+        <p class="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" style="color: rgba(255,255,255,0.82);">
+          Encontrar ropa que realmente te represente no debería ser difícil. En Joséphine le Boutique, cada prenda está elegida o creada pensando en ti — en tu cuerpo, tu personalidad y la vida que llevas.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="#contact" class="btn-primary">Descubre Nuestra Colección</a>
+          <a href="#services" class="btn-outline">Visita la Tienda</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="bg-gray-50 border-b border-gray-100 py-2.5">
+    <div class="max-w-6xl mx-auto px-6 flex items-center justify-center gap-8 flex-wrap">
+      <div class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"><span style="color:#c47a5a;"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></span>Producci&oacute;n Local</div><div class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"><span style="color:#c47a5a;"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg></span>Tendencias Actuales</div><div class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"><span style="color:#c47a5a;"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></span>Atenci&oacute;n Personalizada</div>
+    </div>
+  </div>
+
+  <section id="services" class="py-24 md:py-32 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16" data-aos="fade-up">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Lo que ofrecemos</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Nuestros Servicios</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <div class="service-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100 group" data-aos="fade-up" data-aos-delay="0">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300" style="background-color: rgba(196,122,90,0.12); color: #c47a5a;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Moda actual que encaja contigo</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Nuestra selección de prendas femeninas se renueva con las tendencias de temporada, pero siempre con criterio — solo entra lo que realmente se puede llevar. Aquí encuentras piezas para el día a día, el trabajo y las noches especiales, sin tener que buscar en cien sitios distintos.</p>
+        </div>
+        <div class="service-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100 group" data-aos="fade-up" data-aos-delay="100">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300" style="background-color: rgba(196,122,90,0.12); color: #c47a5a;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Prendas hechas para tu cuerpo</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Diseñamos y confeccionamos prendas únicas adaptadas a tus medidas exactas, tus gustos y tu forma de vestir. El resultado es una prenda que te queda perfecta desde el primer momento — porque fue creada para ti y para nadie más.</p>
+        </div>
+        <div class="service-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100 group" data-aos="fade-up" data-aos-delay="200">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300" style="background-color: rgba(196,122,90,0.12); color: #c47a5a;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Descubre el estilo que ya llevas dentro</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Nuestro equipo te ayuda a identificar los colores, cortes y combinaciones que mejor van con tu figura y tu personalidad, sin convertirte en otra persona. Sales de la boutique con ideas claras y con la seguridad de saber qué ponerte — y por qué te sienta bien.</p>
+        </div>
+        <div class="service-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100 group" data-aos="fade-up" data-aos-delay="300">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300" style="background-color: rgba(196,122,90,0.12); color: #c47a5a;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Que tus prendas favoritas vuelvan a ser tuyas</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">A veces la prenda perfecta solo necesita un pequeño ajuste para serlo del todo. Realizamos todo tipo de arreglos — desde bajos y entradas hasta transformaciones más complejas — con la precisión y el cuidado que cada pieza merece.</p>
+        </div>
+        <div class="service-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100 group" data-aos="fade-up" data-aos-delay="400">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300" style="background-color: rgba(196,122,90,0.12); color: #c47a5a;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">El conjunto que recordarás toda la vida</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Para bodas, comuniones, graduaciones y cualquier celebración que lo merezca, te ayudamos a encontrar o crear el look exacto que imaginas. Trabajamos contigo desde el primer boceto hasta el último detalle para que ese día te sientas exactamente como querías.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="py-24 md:py-32" style="background: var(--primary);">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div data-aos="fade-right">
+          <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Nuestra Historia</div>
+          <h2 class="text-3xl md:text-4xl font-bold mb-8" style="color: var(--primary-text);">Qui&eacute;nes Somos</h2>
+          <p class="leading-relaxed mb-5 last:mb-0" style="color: var(--primary-text);" data-aos="fade-up">Joséphine le Boutique nació de una convicción sencilla pero poderosa: cada mujer merece ropa que cuente su historia. Nos instalamos en el corazón de Alcoi con una selección cuidada de prendas actuales y un taller de confección propio, porque creímos que la moda de verdad no debería estar reservada para unas pocas.</p>
+<p class="leading-relaxed mb-5 last:mb-0" style="color: var(--primary-text);" data-aos="fade-up">Lo que nos diferencia no es solo la ropa que encontrarás en nuestra tienda — es la manera en que te atendemos. Nuestro equipo te conoce por tu nombre, entiende tu estilo de vida y trabaja contigo hasta que el resultado te encanta. Combinamos tendencias reales con la artesanía de la confección a medida, algo que muy pocas boutiques en la zona pueden ofrecer.</p>
+<p class="leading-relaxed mb-5 last:mb-0" style="color: var(--primary-text);" data-aos="fade-up">Te prometemos una experiencia de compra sin prisas, sin presión y completamente centrada en ti. Ya sea que busques una prenda especial para un evento, quieras renovar tu armario o necesites arreglar tu vestido favorito, estamos aquí con la dedicación y el criterio que mereces.</p>
+          <a href="#contact" class="btn-primary mt-8 inline-block">Descubre Nuestra Colección</a>
+        </div>
+        <div class="relative" data-aos="fade-left">
+          <div class="rounded-3xl p-12 flex items-center justify-center min-h-80" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);">
+            <div class="text-center text-white">
+              <svg class="w-20 h-20 mx-auto mb-5 opacity-30" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+              <p class="text-2xl font-bold mb-2" style="color: var(--primary-text);">Joséphine le Boutique</p>
+              <p class="text-sm font-medium" style="color: var(--primary-text); opacity: 0.6;">Moda con alma, estilo que te define</p>
+            </div>
+          </div>
+          <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-2xl -z-10" style="background-color: var(--accent); opacity: 0.25;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 md:py-28 hero-bg">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-14" data-aos="fade-up">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4" style="color: var(--primary-text);">La confianza de nuestras clientas</h2>
+        <p class="max-w-2xl mx-auto leading-relaxed" style="color: var(--primary-text); opacity: 0.82;">Llevamos años vistiendo a mujeres de Alcoi y toda la comarca en sus momentos más importantes — y en los del día a día. Cada clienta que repite es la mejor señal de que lo estamos haciendo bien.</p>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-0 divide-y sm:divide-y-0 sm:divide-x divide-white divide-opacity-15">
+        
+        
+        <div class="text-center px-8">
+          <div class="text-5xl font-extrabold mb-3" style="color: #c47a5a;">800+</div>
+          <div class="text-gray-300 text-sm uppercase tracking-widest font-medium">Clientas satisfechas en la comarca</div>
+        </div>
+
+        <div class="text-center px-8">
+          <div class="text-5xl font-extrabold mb-3" style="color: #c47a5a;">200+</div>
+          <div class="text-gray-300 text-sm uppercase tracking-widest font-medium">Prendas a medida confeccionadas</div>
+        </div>
+
+        <div class="text-center px-8">
+          <div class="text-5xl font-extrabold mb-3" style="color: #c47a5a;">5★</div>
+          <div class="text-gray-300 text-sm uppercase tracking-widest font-medium">Valoración media de nuestras clientas</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 md:py-28 bg-white">
+    <div class="max-w-3xl mx-auto px-6 text-center" data-aos="fade-up">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Tu próximo look favorito está esperándote aquí</h2>
+      <p class="text-gray-500 text-lg mb-10 leading-relaxed">Ven sin compromiso — te atendemos con calma, te escuchamos y juntas encontramos lo que buscas.</p>
+      <a href="#contact" class="btn-primary text-base">Pide Tu Cita</a>
+    </div>
+  </section>
+
+  <section class="py-20 md:py-28 bg-white">
+    <div class="max-w-3xl mx-auto px-6">
+      <div class="text-center mb-12" data-aos="fade-up">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Preguntas Frecuentes</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Lo que necesitas saber</h2>
+      </div>
+      <div class="space-y-3">
+        
+        <div class="faq-item border border-gray-100 rounded-xl overflow-hidden" data-aos="fade-up" data-aos-delay="0">
+          <button
+            class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+            onclick="toggleFaq(this)"
+            aria-expanded="false"
+          >
+            <span>¿Necesito pedir cita para visitar la boutique o puedo entrar directamente?</span>
+            <svg class="faq-icon w-5 h-5 flex-shrink-0 transition-transform duration-200 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-5">
+            <p class="text-gray-600 leading-relaxed text-sm">Puedes pasarte por la tienda cuando quieras durante nuestro horario de apertura — siempre eres bienvenida sin cita previa. Si quieres una sesión de asesoramiento de imagen o una consulta de confección a medida más tranquila y detallada, te recomendamos reservar cita para que podamos dedicarte todo el tiempo que mereces.</p>
+          </div>
+        </div>
+        <div class="faq-item border border-gray-100 rounded-xl overflow-hidden" data-aos="fade-up" data-aos-delay="60">
+          <button
+            class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+            onclick="toggleFaq(this)"
+            aria-expanded="false"
+          >
+            <span>¿Cuánto tarda en estar lista una prenda confeccionada a medida?</span>
+            <svg class="faq-icon w-5 h-5 flex-shrink-0 transition-transform duration-200 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-5">
+            <p class="text-gray-600 leading-relaxed text-sm">El plazo depende de la complejidad de la prenda, pero en la mayoría de los casos trabajamos en un plazo de dos a cuatro semanas. Si tienes un evento con fecha fija, cuéntanoslo desde el principio — organizamos el proceso para que tu prenda esté lista con tiempo de sobra y sin estrés.</p>
+          </div>
+        </div>
+        <div class="faq-item border border-gray-100 rounded-xl overflow-hidden" data-aos="fade-up" data-aos-delay="120">
+          <button
+            class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+            onclick="toggleFaq(this)"
+            aria-expanded="false"
+          >
+            <span>¿Puedo traer una prenda comprada en otro sitio para que me la arregleis?</span>
+            <svg class="faq-icon w-5 h-5 flex-shrink-0 transition-transform duration-200 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-5">
+            <p class="text-gray-600 leading-relaxed text-sm">Por supuesto. Realizamos arreglos y ajustes en todo tipo de prendas, independientemente de dónde las hayas comprado. Trae la prenda a la boutique, te hacemos una valoración sin compromiso y te explicamos exactamente qué se puede hacer y en cuánto tiempo.</p>
+          </div>
+        </div>
+        <div class="faq-item border border-gray-100 rounded-xl overflow-hidden" data-aos="fade-up" data-aos-delay="180">
+          <button
+            class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+            onclick="toggleFaq(this)"
+            aria-expanded="false"
+          >
+            <span>¿Trabajáis con presupuestos ajustados o solo con prendas de lujo?</span>
+            <svg class="faq-icon w-5 h-5 flex-shrink-0 transition-transform duration-200 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-5">
+            <p class="text-gray-600 leading-relaxed text-sm">Nuestra boutique tiene opciones para diferentes presupuestos — no trabajamos en un único rango de precio porque nuestras clientas tampoco son todas iguales. Lo que sí te garantizamos es que, sea cual sea tu presupuesto, la atención y el criterio con el que te asesoramos son siempre los mismos.</p>
+          </div>
+        </div>
+        <div class="faq-item border border-gray-100 rounded-xl overflow-hidden" data-aos="fade-up" data-aos-delay="240">
+          <button
+            class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+            onclick="toggleFaq(this)"
+            aria-expanded="false"
+          >
+            <span>¿Me podéis ayudar a encontrar un look para una boda si no sé muy bien qué quiero?</span>
+            <svg class="faq-icon w-5 h-5 flex-shrink-0 transition-transform duration-200 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-5">
+            <p class="text-gray-600 leading-relaxed text-sm">Es precisamente para eso que estamos. Muchas de nuestras clientas llegan sin una idea clara y salen con el look perfecto — porque hacemos las preguntas correctas para entender qué te hace sentir bien. Cuéntanos la fecha, el tipo de celebración y cómo quieres sentirte ese día, y nos encargamos del resto.</p>
+          </div>
+        </div>
+        <div class="faq-item border border-gray-100 rounded-xl overflow-hidden" data-aos="fade-up" data-aos-delay="300">
+          <button
+            class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+            onclick="toggleFaq(this)"
+            aria-expanded="false"
+          >
+            <span>¿Hacéis envíos a domicilio o solo se puede comprar en tienda?</span>
+            <svg class="faq-icon w-5 h-5 flex-shrink-0 transition-transform duration-200 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-5">
+            <p class="text-gray-600 leading-relaxed text-sm">Nuestra propuesta está pensada para vivirse en persona — la experiencia de tocarte la ropa, ver los colores en directo y recibir asesoramiento es parte de lo que ofrecemos. Si tienes dificultades para acercarte a Alcoi, contacta con nosotras directamente y buscamos la mejor solución para ti.</p>
+          </div>
+        </div>
+        <div class="faq-item border border-gray-100 rounded-xl overflow-hidden" data-aos="fade-up" data-aos-delay="360">
+          <button
+            class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+            onclick="toggleFaq(this)"
+            aria-expanded="false"
+          >
+            <span>¿El asesoramiento de imagen tiene coste adicional o está incluido en la visita?</span>
+            <svg class="faq-icon w-5 h-5 flex-shrink-0 transition-transform duration-200 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer hidden px-6 pb-5">
+            <p class="text-gray-600 leading-relaxed text-sm">Una primera consulta orientativa en tienda es completamente gratuita y sin compromiso — queremos que te sientas cómoda antes de decidir nada. Para sesiones de asesoramiento más completas y personalizadas, te informamos del precio exacto antes de empezar para que no haya ninguna sorpresa.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="py-24 md:py-32" style="background-color: var(--secondary);">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16" data-aos="fade-up">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Ponte en Contacto</div>
+        <h2 class="text-3xl md:text-4xl font-bold" style="color: var(--secondary-text);">Cont&aacute;ctanos</h2>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div data-aos="fade-right">
+          <p class="leading-relaxed mb-10" style="color: var(--secondary-text); opacity: 0.75;">
+            Estaremos encantados de atenderte. Escr&iacute;benos o cont&aacute;ctanos por cualquiera de los canales a continuaci&oacute;n.
+          </p>
+          <div class="space-y-6">
+            
+      <div class="flex items-start gap-4">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(196,122,90,0.12); color: #c47a5a;"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Email</div>
+          <a href="mailto:info@josephineleboutique.es" class="text-gray-900 font-medium hover:underline">info@josephineleboutique.es</a>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-4">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(37,211,102,0.12); color: #25D366;"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.138.566 4.14 1.548 5.877L0 24l6.305-1.527A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.847 0-3.597-.487-5.126-1.34l-.367-.217-3.742.906.946-3.65-.237-.382A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg></div>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">WhatsApp</div>
+          <a href="https://wa.me/34642415255" class="font-medium hover:underline" style="color: #25D366;" target="_blank" rel="noopener noreferrer">642 41 52 55</a>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-4">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(196,122,90,0.12); color: #c47a5a;"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Direcci&oacute;n</div>
+          <div class="text-gray-900 font-medium">Carrer els Alçamora, 11, 03802 Alcoi, Alicante, España</div>
+        </div>
+      </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100" data-aos="fade-left">
+          <h3 class="text-xl font-semibold text-gray-900 mb-6">Env&iacute;anos un Mensaje</h3>
+          <form id="contact-form" class="space-y-4" onsubmit="handleFormSubmit(event)">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input type="text" name="nombre" placeholder="Nombre" class="form-input" required>
+              <input type="text" name="apellido" placeholder="Apellido" class="form-input" required>
+            </div>
+            <input type="email" name="email" placeholder="Correo electr&oacute;nico" class="form-input" required>
+            <input type="tel" name="telefono" placeholder="Tel&eacute;fono (opcional)" class="form-input">
+            <textarea name="mensaje" rows="4" placeholder="&iquest;C&oacute;mo podemos ayudarte?" class="form-input resize-none" required></textarea>
+            <button type="submit" class="btn-primary w-full text-center">
+              Pide Tu Cita
+            </button>
+            <div id="form-success" class="hidden text-center py-3 px-4 bg-green-50 text-green-700 rounded-lg text-sm font-medium">
+              &#10003; &iexcl;Mensaje enviado! Nos pondremos en contacto pronto.
+            </div>
+            <div id="form-error" class="hidden text-center py-3 px-4 bg-red-50 text-red-600 rounded-lg text-sm font-medium">
+              &#10007; Error al enviar. Por favor, int&eacute;ntalo de nuevo.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  
+  <footer class="hero-bg py-12">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white border-opacity-10">
+        <div>
+          <div class="text-xl font-bold mb-1" style="color: var(--primary-text);">Joséphine le Boutique</div>
+          <div class="text-sm font-medium" style="color: var(--primary-text); opacity: 0.65;">Cada prenda, una decisión de quererse.</div>
+        </div>
+        <nav class="flex gap-6">
+          <a href="#services" class="text-sm font-medium transition-opacity hover:opacity-100" style="color: var(--primary-text); opacity: 0.75;">Servicios</a>
+          <a href="#about" class="text-sm font-medium transition-opacity hover:opacity-100" style="color: var(--primary-text); opacity: 0.75;">Nosotros</a>
+          <a href="#contact" class="text-sm font-medium transition-opacity hover:opacity-100" style="color: var(--primary-text); opacity: 0.75;">Contacto</a>
+        </nav>
+        
+      </div>
+      <div class="pt-6 text-center text-xs" style="color: var(--primary-text); opacity: 0.45;">
+        &copy; 2026 Joséphine le Boutique. Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+
+
+  
+  <div class="fixed bottom-0 left-0 right-0 z-50 md:hidden" style="background-color: var(--accent);">
+    <a href="tel:642 41 52 55" class="flex items-center justify-center gap-3 py-4 text-white font-bold text-sm uppercase tracking-widest">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+      Llamar Ahora &mdash; 642 41 52 55
+    </a>
+  </div>
+  <div class="h-14 md:hidden"></div>
+
+
+  <script>
+    document.querySelectorAll('#mobile-nav a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('mobile-nav').classList.add('hidden');
+      });
+    });
+
+    function toggleFaq(btn) {
+      const answer = btn.nextElementSibling;
+      const icon = btn.querySelector('.faq-icon');
+      const isOpen = !answer.classList.contains('hidden');
+      document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
+      document.querySelectorAll('.faq-icon').forEach(i => { i.style.transform = ''; });
+      document.querySelectorAll('.faq-item button').forEach(b => b.setAttribute('aria-expanded', 'false'));
+      if (!isOpen) {
+        answer.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = form.querySelector('button[type="submit"]');
+      const successEl = document.getElementById('form-success');
+      const errorEl = document.getElementById('form-error');
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+      const endpoint = "";
+      if (endpoint) {
+        fetch(endpoint, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        })
+        .then(r => {
+          if (r.ok) {
+            form.style.display = 'none';
+            successEl.classList.remove('hidden');
+          } else {
+            btn.disabled = false;
+            btn.textContent = 'Pide Tu Cita';
+            errorEl.classList.remove('hidden');
+            setTimeout(() => errorEl.classList.add('hidden'), 5000);
+          }
+        })
+        .catch(() => {
+          btn.disabled = false;
+          btn.textContent = 'Pide Tu Cita';
+          errorEl.classList.remove('hidden');
+          setTimeout(() => errorEl.classList.add('hidden'), 5000);
+        });
+      } else {
+        setTimeout(() => {
+          form.style.display = 'none';
+          successEl.classList.remove('hidden');
+        }, 800);
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>AOS.init({ duration: 700, once: true, offset: 60 });</script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var v = document.querySelector('.hero-video');
+    if (v) v.play().catch(function(){});
+  });
+  </script>
+
+</body>
+</html>

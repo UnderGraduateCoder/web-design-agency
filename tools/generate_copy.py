@@ -41,7 +41,8 @@ Business Details:
 - Services:
 {services_list}
 {reviews_context}
-Write complete website copy for each section below. Make it feel like this business has a real personality and genuine expertise. Vary sentence length. Use active voice. Be direct.
+{specialty_context}
+Write complete website copy for each section below. Make it feel like this business has a real personality and genuine expertise. Vary sentence length. Use active voice. Be direct. Make the copy UNIQUE to this specific business — avoid generic phrases that could apply to any company.
 
 Return ONLY valid JSON with EXACTLY this structure (no markdown, no explanation):
 
@@ -98,7 +99,8 @@ Return ONLY valid JSON with EXACTLY this structure (no markdown, no explanation)
 
 Generate a service copy entry for each of these {service_count} services: {service_names}.
 Stats should be realistic and appropriate for a {industry} business.
-Generate 5–7 FAQ items — real questions this audience asks before hiring. Answers must be direct and build trust.
+Generate {faq_count} FAQ items — real questions this audience asks before hiring. Answers must be direct and build trust.
+{cta_style_instruction}
 Do not invent fake testimonials or quotes unless real reviews were provided above.{testimonials_instruction}"""
 
 
@@ -122,6 +124,47 @@ def main():
         f"  - {s['name']}: {s.get('description', '')}" for s in services
     )
     service_names = ", ".join(s["name"] for s in services)
+
+    # Build specialty context and CTA style from classification
+    specialty_context = ""
+    cta_style_instruction = ""
+    faq_count = "5-7"
+    cls_path = Path(".tmp/business_classification.json")
+    if cls_path.exists():
+        try:
+            with open(cls_path, encoding="utf-8") as f:
+                cls = json.load(f)
+            specialty = cls.get("specialty", "")
+            customer = cls.get("customer_focus", "")
+
+            specialty_hints = {
+                "embroidery": "This is an embroidery specialist. Emphasize precision, custom designs, industrial capacity, and artisan techniques. Use vocabulary related to thread, needlework, and decoration.",
+                "home_textiles": "This is a home textiles company. Emphasize comfort, quality fabrics, interior design, and creating warm living spaces. Use vocabulary about home, comfort, and materials.",
+                "sewing_workshop": "This is a sewing/confection workshop. Emphasize craftsmanship, pattern-making, tailoring, attention to detail, and custom work.",
+                "yarn_spinning": "This is a yarn/fiber company. Emphasize raw materials quality, fiber sourcing, spinning techniques, and supply chain reliability.",
+                "textile_finishing": "This is a textile finishing company. Emphasize technical processes, quality control, surface treatments, and industrial innovation.",
+                "fashion_retail": "This is a fashion/retail business. Emphasize trends, personal style, curated collections, and the shopping experience.",
+                "sample_making": "This is a textile sample-making workshop. Emphasize speed, accuracy, prototyping, and close collaboration with designers.",
+            }
+            specialty_context = specialty_hints.get(specialty, "")
+
+            cta_map = {
+                "b2b": "CTA buttons should use B2B language: 'Solicita Presupuesto', 'Pide Muestras', 'Contacta con Ventas'. Tone should be professional and results-oriented.",
+                "b2c": "CTA buttons should use consumer language: 'Descubre Nuestra Coleccion', 'Visita la Tienda', 'Pide Tu Presupuesto'. Tone should be warm and inviting.",
+                "mixed": "CTA buttons should balance professional and approachable: 'Hablemos de Tu Proyecto', 'Consulta Sin Compromiso', 'Pide Informacion'.",
+            }
+            cta_style_instruction = cta_map.get(customer, "")
+
+            # Vary FAQ count based on layout (some layouts skip FAQ)
+            import hashlib
+            seed = int(hashlib.md5(business_info.get("business_name", "").encode("utf-8")).hexdigest(), 16)
+            layout_id = (seed // 5) % 4
+            if layout_id == 3:  # minimal layout — fewer FAQs
+                faq_count = "3-4"
+            else:
+                faq_count = "5-7"
+        except (json.JSONDecodeError, IOError):
+            pass
 
     # Build optional reviews context block for testimonial synthesis
     reviews_context = ""
@@ -158,6 +201,9 @@ def main():
         reviews_context=reviews_context,
         testimonials_schema=testimonials_schema,
         testimonials_instruction=testimonials_instruction,
+        specialty_context=specialty_context,
+        cta_style_instruction=cta_style_instruction,
+        faq_count=faq_count,
     )
 
     client = anthropic.Anthropic(api_key=api_key)
@@ -172,6 +218,7 @@ def main():
     )
 
     raw = message.content[0].text.strip()
+    print(f"[TOKENS] input={message.usage.input_tokens} output={message.usage.output_tokens}")
 
     if raw.startswith("```"):
         lines = raw.split("\n")

@@ -9,12 +9,17 @@ a self-contained, responsive output/index.html using Tailwind CSS (CDN)
 and Google Fonts. No build step required.
 
 Run gather_business_info.py and generate_copy.py first.
+
+Multi-axis variant system: uses a deterministic hash of the business name
+to select from 5 font pairings x 4 layouts x 4 hero styles x 4 service
+layouts x 5 visual personalities = 1,600 unique combinations.
 """
 
 import sys
 import json
 import os
 import re
+import hashlib
 import colorsys
 import html as html_lib
 from pathlib import Path
@@ -102,107 +107,203 @@ def generate_color_palette(primary_hex: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Industry variant system
+# Multi-axis design variant system
 # ---------------------------------------------------------------------------
 
-VARIANT_KEYWORDS = {
-    "professional": [
-        "law", "legal", "abogad", "accounting", "contab", "consulting",
-        "medical", "dental", "insurance", "financial", "notari", "asesor",
-    ],
-    "trade": [
-        "hvac", "plumb", "fontaner", "electric", "roofing", "construction",
-        "construcc", "security", "landscaping", "jardin", "pest", "painting",
-        "carpinter", "cerrajer", "alarm", "instalac",
-    ],
-    "food": [
-        "restaurant", "restaurante", "cafe", "café", "bakery", "panaderi",
-        "catering", "cocina", "food", "comida",
-    ],
-    "tech": [
-        "software", "tech", "tecnolog", "marketing", "digital", "photography",
-        "fotograf", "design", "diseño", "agencia", "web", "app",
-    ],
-    "wellness": [
-        "fitness", "gym", "gimnas", "yoga", "spa", "beauty", "belleza",
-        "salon", "peluquer", "massage", "childcare", "pet", "mascota", "veterinar",
-    ],
-}
+def compute_design_seed(business_name: str) -> int:
+    """Deterministic seed from business name — same name always gives same design."""
+    return int(hashlib.md5(business_name.encode("utf-8")).hexdigest(), 16)
 
 
-def detect_variant(industry: str) -> str:
-    """Return the design variant that best matches the given industry string."""
-    industry_lower = industry.lower()
-    for variant, keywords in VARIANT_KEYWORDS.items():
-        if any(kw in industry_lower for kw in keywords):
-            return variant
-    return "professional"
-
-
-VARIANT_FONTS = {
-    "professional": {
+# Axis 1: Font pairings (5 options)
+FONT_PAIRINGS = [
+    {
         "url": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@300;400;500;600;700&display=swap",
         "heading": "'Playfair Display', serif",
         "body": "'Lato', sans-serif",
+        "label": "Classic",
     },
-    "trade": {
-        "url": "https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap",
-        "heading": "'Oswald', sans-serif",
-        "body": "'Open Sans', sans-serif",
+    {
+        "url": "https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap",
+        "heading": "'DM Serif Display', serif",
+        "body": "'DM Sans', sans-serif",
+        "label": "Editorial",
     },
-    "food": {
-        "url": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lato:wght@300;400;500;600;700&display=swap",
-        "heading": "'Playfair Display', serif",
-        "body": "'Lato', sans-serif",
+    {
+        "url": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Libre+Franklin:wght@300;400;500;600;700&display=swap",
+        "heading": "'Cormorant Garamond', serif",
+        "body": "'Libre Franklin', sans-serif",
+        "label": "Refined",
     },
-    "tech": {
-        "url": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap",
-        "heading": "'Space Grotesk', sans-serif",
-        "body": "'Inter', sans-serif",
+    {
+        "url": "https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@500;600;700&family=Work+Sans:wght@300;400;500;600&display=swap",
+        "heading": "'Josefin Sans', sans-serif",
+        "body": "'Work Sans', sans-serif",
+        "label": "Geometric",
     },
-    "wellness": {
-        "url": "https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap",
-        "heading": "'Nunito', sans-serif",
-        "body": "'Poppins', sans-serif",
+    {
+        "url": "https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap",
+        "heading": "'Bitter', serif",
+        "body": "'Source Sans 3', sans-serif",
+        "label": "Warm",
     },
-}
+]
 
-# Raw CSS strings — NOT f-strings. The { } here are literal CSS braces.
-VARIANT_CSS = {
-    "professional": """
-    /* Professional — elegant, serif, trust */
+# Axis 2: Page section order (4 layouts)
+LAYOUT_ORDERS = [
+    # Layout 0: Classic
+    ["hero", "trust", "services", "reviews", "testimonials", "about", "stats", "cta", "faq", "contact"],
+    # Layout 1: Story-first
+    ["hero", "about", "services", "reviews", "testimonials", "faq", "stats_cta", "contact"],
+    # Layout 2: Services-focused
+    ["hero", "trust", "services", "stats", "reviews", "testimonials", "about", "cta", "contact"],
+    # Layout 3: Minimal
+    ["hero", "about_brief", "services", "cta", "contact"],
+]
+
+# Axis 5: Visual personality CSS (5 options) — raw CSS, NOT f-strings
+PERSONALITY_CSS = [
+    # 0: Minimal
+    """
+    /* Personality: Minimal — airy, restrained */
+    .service-card { border: 1px solid #e5e7eb; box-shadow: none; border-radius: 0.5rem; }
+    .service-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .btn-primary { border-radius: 0.25rem; font-weight: 500; letter-spacing: 0.01em; }
+    .btn-outline { border-radius: 0.25rem; }
+    .review-card { border-radius: 0.5rem; }
     h1, h2, h3 { letter-spacing: -0.02em; }
-    .btn-primary { border-radius: 0.375rem; letter-spacing: 0.01em; }
-    .service-card { border-radius: 1rem; }""",
-
-    "trade": """
-    /* Trade — bold, high-contrast, action-oriented */
-    h1, h2, h3 { text-transform: uppercase; letter-spacing: 0.04em; }
-    .hero-bg { background: linear-gradient(180deg, var(--primary) 0%, var(--primary-900) 100%); }
-    .btn-primary { border-radius: 0.25rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
-    .service-card { border-left: 4px solid var(--accent); border-radius: 0.5rem; }""",
-
-    "food": """
-    /* Food — warm, rounded, editorial */
-    h1, h2, h3 { letter-spacing: -0.01em; }
-    .service-card { border-radius: 1.5rem; }
+    """,
+    # 1: Bold
+    """
+    /* Personality: Bold — dramatic, high-impact */
+    h1 { font-size: 4.5rem !important; }
+    @media (max-width: 768px) { h1 { font-size: 2.5rem !important; } }
+    h1, h2, h3 { text-transform: uppercase; letter-spacing: 0.03em; }
+    .btn-primary { font-size: 1.05rem; padding: 1.1rem 2.5rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; border-radius: 0.25rem; }
+    .btn-outline { border-radius: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .service-card { border-left: 5px solid var(--accent); border-radius: 0.25rem 0.75rem 0.75rem 0.25rem; }
+    .service-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+    .review-card { border-radius: 0.5rem; }
+    """,
+    # 2: Warm / Artisanal
+    """
+    /* Personality: Warm — crafted, organic feel */
+    h1, h2, h3 { letter-spacing: -0.01em; font-weight: 700; }
+    .service-card { border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.04); background: linear-gradient(165deg, #ffffff 0%, #faf8f5 100%); }
+    .service-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); }
     .btn-primary { border-radius: 9999px; }
-    .review-card { border-radius: 1.5rem; }""",
-
-    "tech": """
-    /* Tech — glassmorphism, dark hero, modern */
+    .btn-outline { border-radius: 9999px; }
+    .review-card { border-radius: 1.5rem; }
+    .form-input { border-radius: 0.75rem; }
+    .nav-bar { border-bottom: none; box-shadow: 0 1px 8px rgba(0,0,0,0.04); }
+    """,
+    # 3: Corporate
+    """
+    /* Personality: Corporate — structured, formal */
+    h1, h2, h3 { letter-spacing: 0.01em; }
+    .service-card { border-radius: 0.375rem; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .service-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.1); }
+    .btn-primary { border-radius: 0.375rem; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; font-size: 0.8125rem; }
+    .btn-outline { border-radius: 0.375rem; }
+    .review-card { border-radius: 0.375rem; }
+    .form-input { border-radius: 0.375rem; }
+    """,
+    # 4: Modern
+    """
+    /* Personality: Modern — gradients, glass, depth */
     h1, h2, h3 { letter-spacing: -0.03em; }
-    .hero-bg { background: linear-gradient(135deg, #0f0f1a 0%, var(--primary) 60%, var(--primary-dark) 100%); }
-    .service-card { background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%); border-radius: 1rem; }""",
+    .service-card { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.4); border-radius: 1rem; }
+    .service-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); background: rgba(255,255,255,0.95); }
+    .btn-primary { border-radius: 0.75rem; background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%); }
+    .btn-outline { border-radius: 0.75rem; }
+    .review-card { border-radius: 1rem; backdrop-filter: blur(8px); }
+    .nav-bar { background-color: rgba(255,255,255,0.7); }
+    """,
+]
 
-    "wellness": """
-    /* Wellness — soft, rounded, calming */
-    h1, h2, h3 { font-weight: 700; }
-    .hero-bg { background: linear-gradient(160deg, var(--primary-700) 0%, var(--primary) 100%); }
-    .service-card { border-radius: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-    .btn-primary { border-radius: 9999px; }
-    .review-card { border-radius: 1.5rem; }""",
+PERSONALITY_LABELS = ["Minimal", "Bold", "Warm", "Corporate", "Modern"]
+
+
+def compute_variant_axes(business_name: str) -> dict:
+    """Compute all design axes from business name. Deterministic."""
+    seed = compute_design_seed(business_name)
+    return {
+        "seed": seed,
+        "font_id": seed % 5,
+        "layout_id": (seed // 5) % 4,
+        "hero_id": (seed // 20) % 4,
+        "services_id": (seed // 80) % 4,
+        "personality_id": (seed // 320) % 5,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Textile trust badges (replaces law-firm badges)
+# ---------------------------------------------------------------------------
+
+TRUST_BADGE_SETS = {
+    "embroidery": [
+        ("Bordado a Medida", "shield"),
+        ("Maquinaria Industrial", "cog"),
+        ("Entrega Puntual", "clock"),
+    ],
+    "home_textiles": [
+        ("Tejidos Certificados", "shield"),
+        ("Calidad Garantizada", "star"),
+        ("Env&iacute;o a Domicilio", "truck"),
+    ],
+    "sewing": [
+        ("Patronaje Profesional", "scissors"),
+        ("Acabado Impecable", "star"),
+        ("Plazos Garantizados", "clock"),
+    ],
+    "fashion": [
+        ("Producci&oacute;n Local", "shield"),
+        ("Tendencias Actuales", "star"),
+        ("Atenci&oacute;n Personalizada", "heart"),
+    ],
+    "b2b": [
+        ("Pedidos al por Mayor", "truck"),
+        ("Muestras Gratuitas", "gift"),
+        ("Facturaci&oacute;n Flexible", "shield"),
+    ],
+    "default": [
+        ("Calidad Profesional", "shield"),
+        ("Experiencia Contrastada", "star"),
+        ("Compromiso y Garant&iacute;a", "clock"),
+    ],
 }
+
+BADGE_SVGS = {
+    "shield": '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>',
+    "clock": '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+    "star": '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>',
+    "truck": '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-1 2 1 2-1 2 1m0 0V6m0 10l2-1 2 1 2-1 2 1V6a1 1 0 00-1-1h-4a1 1 0 00-1 1"/></svg>',
+    "gift": '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a4 4 0 00-4-4c-1.5 0-2.8.8-3.5 2M12 8V6a4 4 0 014-4c1.5 0 2.8.8 3.5 2M6 8h12a2 2 0 012 2v2H4v-2a2 2 0 012-2zM4 12h16v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7z"/></svg>',
+    "heart": '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>',
+    "scissors": '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"/></svg>',
+    "cog": '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
+}
+
+
+def detect_badge_set(business_info: dict) -> str:
+    """Pick the best trust badge set based on business info."""
+    name_lower = (business_info.get("business_name", "") + " " + business_info.get("industry", "")).lower()
+    bt = business_info.get("business_type", {})
+    specialty = bt.get("specialty", "")
+    customer = bt.get("customer_focus", "")
+
+    if specialty == "embroidery" or "bordado" in name_lower:
+        return "embroidery"
+    if specialty == "home_textiles" or any(w in name_lower for w in ["hogar", "home", "ropa de cama"]):
+        return "home_textiles"
+    if specialty in ("sewing_workshop", "sample_making") or any(w in name_lower for w in ["confeccion", "costur", "corte"]):
+        return "sewing"
+    if specialty == "fashion_retail" or any(w in name_lower for w in ["moda", "boutique"]):
+        return "fashion"
+    if customer == "b2b":
+        return "b2b"
+    return "default"
 
 
 # ---------------------------------------------------------------------------
@@ -227,25 +328,8 @@ SOCIAL_ICONS = {
 
 
 # ---------------------------------------------------------------------------
-# HTML section builders
+# Shared section builders (unchanged from original)
 # ---------------------------------------------------------------------------
-
-def build_services_html(services: list, accent: str) -> str:
-    accent_bg = hex_to_rgba(accent, 0.12)
-    cards = []
-    for i, service in enumerate(services):
-        icon = ICONS[i % len(ICONS)]
-        delay = i * 100
-        cards.append(f"""
-        <div class="service-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100 group" data-aos="fade-up" data-aos-delay="{delay}">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300" style="background-color: {accent_bg}; color: {accent};">
-            {icon}
-          </div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-3">{service.get("headline", service.get("name", ""))}</h3>
-          <p class="text-gray-500 leading-relaxed text-sm">{service.get("description", "")}</p>
-        </div>""")
-    return "\n".join(cards)
-
 
 def build_stats_html(stats: list, accent: str) -> str:
     items = []
@@ -259,9 +343,7 @@ def build_stats_html(stats: list, accent: str) -> str:
 
 
 def is_spanish_mobile(phone: str) -> bool:
-    """Return True if phone appears to be a Spanish mobile number (6xx or 7xx).
-    WhatsApp only works with mobile numbers — never use it for landlines (9xx).
-    """
+    """Return True if phone appears to be a Spanish mobile number (6xx or 7xx)."""
     digits = re.sub(r"[\s\-\+\(\)]", "", phone or "")
     if digits.startswith("34"):
         digits = digits[2:]
@@ -367,8 +449,6 @@ def build_reviews_html(google_places: dict, accent: str) -> str:
     for r in reviews:
         stars = build_star_row(int(r.get("rating", 5)))
         raw_text = r.get("text", "").strip()
-        # IMPORTANT: Never invent or fill in review text.
-        # Only render the quote paragraph when real text exists.
         if raw_text:
             text = raw_text.replace('"', "&quot;")
             if len(text) > 200:
@@ -406,9 +486,6 @@ def build_reviews_html(google_places: dict, accent: str) -> str:
 
     cols = "lg:grid-cols-3" if len(cards) >= 3 else ("lg:grid-cols-2" if len(cards) == 2 else "lg:grid-cols-1")
     return f"""
-  <!-- ============================================================
-       GOOGLE REVIEWS
-  ============================================================ -->
   <section class="py-20 md:py-28" style="background-color: var(--secondary);">
     <div class="max-w-6xl mx-auto px-6">
       <div class="text-center mb-14" data-aos="fade-up">
@@ -425,25 +502,16 @@ def build_reviews_html(google_places: dict, accent: str) -> str:
 """
 
 
-def build_trust_badges(variant: str, accent: str) -> str:
-    """Render a trust bar below the nav (Professional variant only)."""
-    if variant != "professional":
-        return ""
-    shield = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>'
-    lock = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>'
-    clock = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-    badges = [
-        (shield, "Colegiado y Certificado"),
-        (lock, "Confidencialidad Total"),
-        (clock, "+15 A&ntilde;os de Experiencia"),
-    ]
+def build_trust_badges_html(business_info: dict, accent: str) -> str:
+    """Render textile-appropriate trust badges."""
+    badge_set_key = detect_badge_set(business_info)
+    badges = TRUST_BADGE_SETS.get(badge_set_key, TRUST_BADGE_SETS["default"])
     items = "".join(
         f'<div class="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">'
-        f'<span style="color:{accent};">{svg}</span>{label}</div>'
-        for svg, label in badges
+        f'<span style="color:{accent};">{BADGE_SVGS.get(icon, BADGE_SVGS["shield"])}</span>{label}</div>'
+        for label, icon in badges
     )
     return f"""
-  <!-- Trust Badges (Professional variant) -->
   <div class="bg-gray-50 border-b border-gray-100 py-2.5">
     <div class="max-w-6xl mx-auto px-6 flex items-center justify-center gap-8 flex-wrap">
       {items}
@@ -452,13 +520,12 @@ def build_trust_badges(variant: str, accent: str) -> str:
 """
 
 
-def build_emergency_bar(phone: str, variant: str) -> str:
-    """Render a sticky 'Call Now' bar at the bottom on mobile (Trade variant only)."""
-    if variant != "trade" or not phone:
+def build_emergency_bar(phone: str) -> str:
+    """Render a sticky 'Call Now' bar at the bottom on mobile."""
+    if not phone:
         return ""
     phone_svg = '<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>'
     return f"""
-  <!-- Emergency Call Bar (Trade — sticky mobile bottom) -->
   <div class="fixed bottom-0 left-0 right-0 z-50 md:hidden" style="background-color: var(--accent);">
     <a href="tel:{phone}" class="flex items-center justify-center gap-3 py-4 text-white font-bold text-sm uppercase tracking-widest">
       {phone_svg}
@@ -495,9 +562,6 @@ def build_faq_html(faq_items: list, accent: str) -> str:
           </div>
         </div>""")
     return f"""
-  <!-- ============================================================
-       FAQ
-  ============================================================ -->
   <section class="py-20 md:py-28 bg-white">
     <div class="max-w-3xl mx-auto px-6">
       <div class="text-center mb-12" data-aos="fade-up">
@@ -513,7 +577,7 @@ def build_faq_html(faq_items: list, accent: str) -> str:
 
 
 def build_schema_org(business_info: dict, website_copy: dict) -> str:
-    """Generate Schema.org LocalBusiness JSON-LD. Uses json.dumps to safely escape all strings."""
+    """Generate Schema.org LocalBusiness JSON-LD."""
     name = business_info.get("business_name", "")
     industry = business_info.get("industry", "").lower()
     contact = business_info.get("contact", {})
@@ -588,9 +652,6 @@ def build_testimonials_html(testimonials: list, accent: str) -> str:
     cols = "lg:grid-cols-3" if len(cards) >= 3 else ("lg:grid-cols-2" if len(cards) == 2 else "lg:grid-cols-1")
     bg = hex_to_rgba(accent, 0.06)
     return f"""
-  <!-- ============================================================
-       TESTIMONIALS (synthesized from real reviews)
-  ============================================================ -->
   <section class="py-20 md:py-28" style="background-color: {bg};">
     <div class="max-w-6xl mx-auto px-6">
       <div class="text-center mb-12" data-aos="fade-up">
@@ -606,10 +667,343 @@ def build_testimonials_html(testimonials: list, accent: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Main HTML assembly
+# VARIANT SECTION BUILDERS — Hero (4 styles)
 # ---------------------------------------------------------------------------
 
-def build_html(business_info: dict, website_copy: dict) -> str:
+def _hero_media(hero_video_url, hero_video_poster, hero_image_path):
+    """Return (section_open_tag, overlay_html) for the hero background."""
+    if hero_video_url:
+        poster = hero_video_poster or hero_image_path or ""
+        poster_attr = f' poster="{poster}"' if poster else ""
+        section_open = '<section class="relative overflow-hidden py-28 md:py-36" style="background:#000;">'
+        overlay = (
+            f'<video class="hero-video absolute inset-0 w-full h-full object-cover" '
+            f'autoplay muted loop playsinline{poster_attr}>'
+            f'<source src="{hero_video_url}" type="video/mp4">'
+            f'</video>'
+            f'<div class="hero-video-overlay absolute inset-0"></div>'
+        )
+    elif hero_image_path:
+        section_open = (
+            f'<section class="relative overflow-hidden py-28 md:py-36" '
+            f'style="background: url(\'{hero_image_path}\') center/cover no-repeat;">'
+        )
+        overlay = '<div class="absolute inset-0" style="background: rgba(0,0,0,0.55);"></div>'
+    else:
+        section_open = '<section class="hero-bg relative overflow-hidden py-28 md:py-36">'
+        overlay = '<div class="absolute inset-0 dot-pattern"></div>'
+    return section_open, overlay
+
+
+def build_hero_centered(hero, tagline, hero_video_url, hero_video_poster, hero_image_path):
+    """Hero variant 0: Centered text over full-width media."""
+    section_open, overlay = _hero_media(hero_video_url, hero_video_poster, hero_image_path)
+    return f"""
+  {section_open}
+    {overlay}
+    <div class="relative max-w-5xl mx-auto px-6 text-center text-white" style="z-index:2;">
+      <div class="inline-flex items-center gap-2 bg-white bg-opacity-15 border border-white border-opacity-20 text-white text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-8">
+        <span style="color: var(--accent);">&#9679;</span>
+        {tagline}
+      </div>
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6">
+        {hero.get("headline", "")}
+      </h1>
+      <p class="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" style="color: rgba(255,255,255,0.82);">
+        {hero.get("subheadline", tagline)}
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#contact" class="btn-primary">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
+        <a href="#services" class="btn-outline">{hero.get("cta_secondary", "Ver Servicios")}</a>
+      </div>
+    </div>
+  </section>
+"""
+
+
+def build_hero_left(hero, tagline, hero_video_url, hero_video_poster, hero_image_path):
+    """Hero variant 1: Left-aligned text with decorative right side."""
+    section_open, overlay = _hero_media(hero_video_url, hero_video_poster, hero_image_path)
+    return f"""
+  {section_open}
+    {overlay}
+    <div class="relative max-w-6xl mx-auto px-6 text-white" style="z-index:2;">
+      <div class="max-w-xl">
+        <div class="inline-flex items-center gap-2 bg-white bg-opacity-15 border border-white border-opacity-20 text-white text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-8">
+          <span style="color: var(--accent);">&#9679;</span>
+          {tagline}
+        </div>
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6">
+          {hero.get("headline", "")}
+        </h1>
+        <p class="text-lg md:text-xl mb-10 leading-relaxed" style="color: rgba(255,255,255,0.82);">
+          {hero.get("subheadline", tagline)}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a href="#contact" class="btn-primary">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
+          <a href="#services" class="btn-outline">{hero.get("cta_secondary", "Ver Servicios")}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+"""
+
+
+def build_hero_diagonal(hero, tagline, hero_video_url, hero_video_poster, hero_image_path):
+    """Hero variant 2: Centered text with diagonal clip-path bottom edge."""
+    section_open, overlay = _hero_media(hero_video_url, hero_video_poster, hero_image_path)
+    # Replace closing </section> tag style — add clip-path via inline style
+    section_open = section_open.replace(
+        'py-28 md:py-36"',
+        'py-32 md:py-44 pb-40 md:pb-52" style="' +
+        section_open.split('style="')[1] if 'style="' in section_open else
+        'py-28 md:py-36"'
+    )
+    # Simpler approach: wrap in a div with clip-path
+    _, overlay = _hero_media(hero_video_url, hero_video_poster, hero_image_path)
+    if hero_video_url:
+        poster = hero_video_poster or hero_image_path or ""
+        poster_attr = f' poster="{poster}"' if poster else ""
+        bg_style = 'background:#000;'
+        media_html = (
+            f'<video class="hero-video absolute inset-0 w-full h-full object-cover" '
+            f'autoplay muted loop playsinline{poster_attr}>'
+            f'<source src="{hero_video_url}" type="video/mp4">'
+            f'</video>'
+            f'<div class="hero-video-overlay absolute inset-0"></div>'
+        )
+    elif hero_image_path:
+        bg_style = f"background: url('{hero_image_path}') center/cover no-repeat;"
+        media_html = '<div class="absolute inset-0" style="background: rgba(0,0,0,0.55);"></div>'
+    else:
+        bg_style = ''
+        media_html = '<div class="absolute inset-0 dot-pattern"></div>'
+
+    return f"""
+  <div style="clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);">
+    <section class="{'hero-bg ' if not bg_style else ''}relative overflow-hidden py-32 md:py-44 pb-44 md:pb-56" style="{bg_style}">
+      {media_html}
+      <div class="relative max-w-5xl mx-auto px-6 text-center text-white" style="z-index:2;">
+        <div class="inline-flex items-center gap-2 bg-white bg-opacity-15 border border-white border-opacity-20 text-white text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-8">
+          <span style="color: var(--accent);">&#9679;</span>
+          {tagline}
+        </div>
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6">
+          {hero.get("headline", "")}
+        </h1>
+        <p class="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" style="color: rgba(255,255,255,0.82);">
+          {hero.get("subheadline", tagline)}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="#contact" class="btn-primary">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
+          <a href="#services" class="btn-outline">{hero.get("cta_secondary", "Ver Servicios")}</a>
+        </div>
+      </div>
+    </section>
+  </div>
+"""
+
+
+def build_hero_split(hero, tagline, name, primary, hero_video_url, hero_video_poster, hero_image_path):
+    """Hero variant 3: Two-column split — text left on primary bg, media right."""
+    primary_text = get_text_color_for_bg(primary)
+    if hero_video_url:
+        poster = hero_video_poster or hero_image_path or ""
+        poster_attr = f' poster="{poster}"' if poster else ""
+        media_col = (
+            f'<div class="relative overflow-hidden rounded-2xl min-h-64 md:min-h-full" style="background:#000;">'
+            f'<video class="hero-video absolute inset-0 w-full h-full object-cover" autoplay muted loop playsinline{poster_attr}>'
+            f'<source src="{hero_video_url}" type="video/mp4"></video></div>'
+        )
+    elif hero_image_path:
+        media_col = f'<div class="rounded-2xl min-h-64 md:min-h-full bg-cover bg-center" style="background-image: url(\'{hero_image_path}\');"></div>'
+    else:
+        media_col = (
+            f'<div class="rounded-2xl min-h-64 md:min-h-full flex items-center justify-center" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);">'
+            f'<span class="text-6xl font-extrabold opacity-10" style="color: {primary_text};">{html_lib.escape(name[:2].upper())}</span></div>'
+        )
+
+    return f"""
+  <section class="relative overflow-hidden" style="background: {primary};">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-0">
+      <div class="px-8 md:px-16 py-24 md:py-36 flex flex-col justify-center">
+        <div class="inline-flex items-center gap-2 bg-white bg-opacity-10 border border-white border-opacity-15 text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-8 self-start" style="color: {primary_text};">
+          <span style="color: var(--accent);">&#9679;</span>
+          {tagline}
+        </div>
+        <h1 class="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6" style="color: {primary_text};">
+          {hero.get("headline", "")}
+        </h1>
+        <p class="text-lg mb-10 leading-relaxed" style="color: {primary_text}; opacity: 0.8;">
+          {hero.get("subheadline", tagline)}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a href="#contact" class="btn-primary">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
+          <a href="#services" class="btn-outline" style="border-color: {primary_text}; color: {primary_text}; opacity: 0.8;">{hero.get("cta_secondary", "Ver Servicios")}</a>
+        </div>
+      </div>
+      <div class="hidden md:block">
+        {media_col}
+      </div>
+    </div>
+  </section>
+"""
+
+
+# ---------------------------------------------------------------------------
+# VARIANT SECTION BUILDERS — Services (4 layouts)
+# ---------------------------------------------------------------------------
+
+def build_services_grid(services: list, accent: str) -> str:
+    """Services variant 0: Classic card grid."""
+    accent_bg = hex_to_rgba(accent, 0.12)
+    cards = []
+    for i, service in enumerate(services):
+        icon = ICONS[i % len(ICONS)]
+        delay = i * 100
+        cards.append(f"""
+        <div class="service-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100 group" data-aos="fade-up" data-aos-delay="{delay}">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300" style="background-color: {accent_bg}; color: {accent};">
+            {icon}
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">{service.get("headline", service.get("name", ""))}</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">{service.get("description", "")}</p>
+        </div>""")
+    count = len(services)
+    grid_cols = "lg:grid-cols-3" if count >= 3 else ("lg:grid-cols-2" if count == 2 else "lg:grid-cols-1")
+    return f"""
+  <section id="services" class="py-24 md:py-32 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16" data-aos="fade-up">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Lo que ofrecemos</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Nuestros Servicios</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 {grid_cols} gap-8">
+        {"".join(cards)}
+      </div>
+    </div>
+  </section>
+"""
+
+
+def build_services_alternating(services: list, accent: str) -> str:
+    """Services variant 1: Full-width alternating rows (text left/right)."""
+    accent_bg = hex_to_rgba(accent, 0.12)
+    rows = []
+    for i, service in enumerate(services):
+        icon = ICONS[i % len(ICONS)]
+        delay = i * 100
+        reverse = "md:flex-row-reverse" if i % 2 == 1 else ""
+        bg = 'style="background-color: var(--secondary);"' if i % 2 == 1 else ""
+        rows.append(f"""
+        <div class="flex flex-col {reverse} md:flex-row items-center gap-8 md:gap-16 py-12 md:py-16 px-6 md:px-12 rounded-2xl" {bg} data-aos="fade-up" data-aos-delay="{delay}">
+          <div class="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center" style="background-color: {accent_bg}; color: {accent};">
+            {icon}
+          </div>
+          <div class="flex-1 text-center md:text-left">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">{service.get("headline", service.get("name", ""))}</h3>
+            <p class="text-gray-500 leading-relaxed">{service.get("description", "")}</p>
+          </div>
+        </div>""")
+    return f"""
+  <section id="services" class="py-24 md:py-32 bg-white">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="text-center mb-16" data-aos="fade-up">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Lo que ofrecemos</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Nuestros Servicios</h2>
+      </div>
+      <div class="space-y-4">
+        {"".join(rows)}
+      </div>
+    </div>
+  </section>
+"""
+
+
+def build_services_list(services: list, accent: str) -> str:
+    """Services variant 2: Compact icon+text list, no cards."""
+    accent_bg = hex_to_rgba(accent, 0.12)
+    items = []
+    for i, service in enumerate(services):
+        icon = ICONS[i % len(ICONS)]
+        delay = i * 80
+        items.append(f"""
+        <div class="flex items-start gap-5 py-6 border-b border-gray-100 last:border-0" data-aos="fade-up" data-aos-delay="{delay}">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1" style="background-color: {accent_bg}; color: {accent};">
+            {icon}
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">{service.get("headline", service.get("name", ""))}</h3>
+            <p class="text-gray-500 leading-relaxed text-sm">{service.get("description", "")}</p>
+          </div>
+        </div>""")
+    return f"""
+  <section id="services" class="py-24 md:py-32 bg-white">
+    <div class="max-w-3xl mx-auto px-6">
+      <div class="text-center mb-16" data-aos="fade-up">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Lo que ofrecemos</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Nuestros Servicios</h2>
+      </div>
+      <div>
+        {"".join(items)}
+      </div>
+    </div>
+  </section>
+"""
+
+
+def build_services_featured(services: list, accent: str) -> str:
+    """Services variant 3: First service featured large, rest in 2-col grid."""
+    accent_bg = hex_to_rgba(accent, 0.12)
+    if not services:
+        return ""
+    first = services[0]
+    first_icon = ICONS[0]
+    featured = f"""
+      <div class="service-card bg-white rounded-2xl p-10 md:p-12 shadow-sm border border-gray-100 mb-10" data-aos="fade-up">
+        <div class="flex flex-col md:flex-row items-start gap-6">
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0" style="background-color: {accent_bg}; color: {accent};">
+            {first_icon}
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">{first.get("headline", first.get("name", ""))}</h3>
+            <p class="text-gray-500 leading-relaxed text-base">{first.get("description", "")}</p>
+          </div>
+        </div>
+      </div>"""
+    rest_cards = []
+    for i, service in enumerate(services[1:], 1):
+        icon = ICONS[i % len(ICONS)]
+        delay = i * 100
+        rest_cards.append(f"""
+        <div class="service-card bg-white rounded-2xl p-8 shadow-sm border border-gray-100 group" data-aos="fade-up" data-aos-delay="{delay}">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style="background-color: {accent_bg}; color: {accent};">
+            {icon}
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">{service.get("headline", service.get("name", ""))}</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">{service.get("description", "")}</p>
+        </div>""")
+    return f"""
+  <section id="services" class="py-24 md:py-32 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16" data-aos="fade-up">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Lo que ofrecemos</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Nuestros Servicios</h2>
+      </div>
+      {featured}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {"".join(rest_cards)}
+      </div>
+    </div>
+  </section>
+"""
+
+
+# ---------------------------------------------------------------------------
+# Main HTML assembly — composable, multi-axis
+# ---------------------------------------------------------------------------
+
+def build_html(business_info: dict, website_copy: dict, hero_video_url: str = None, hero_video_poster: str = None) -> str:
     name = business_info.get("business_name", "Business Name")
     tagline = business_info.get("tagline", "")
     contact = business_info.get("contact", {})
@@ -617,7 +1011,6 @@ def build_html(business_info: dict, website_copy: dict) -> str:
     colors = business_info.get("color_scheme", {})
     brand = business_info.get("brand", {})
     google_places = business_info.get("google_places")
-    industry = business_info.get("industry", "")
     hero_image_path = business_info.get("hero_image_path")
 
     # --- Colors ---
@@ -629,7 +1022,6 @@ def build_html(business_info: dict, website_copy: dict) -> str:
     primary_text = get_text_color_for_bg(primary)
     secondary_text = get_text_color_for_bg(secondary)
 
-    # Palette CSS custom properties for :root
     palette_css_lines = ""
     if palette:
         palette_css_lines = "\n" + "\n".join(
@@ -637,13 +1029,42 @@ def build_html(business_info: dict, website_copy: dict) -> str:
             for shade, color in sorted(palette.items())
         )
 
-    # --- Variant ---
-    variant = detect_variant(industry)
-    fonts = VARIANT_FONTS[variant]
+    # --- Multi-axis variant selection ---
+    axes = compute_variant_axes(name)
+    font_id = axes["font_id"]
+    layout_id = axes["layout_id"]
+    hero_id = axes["hero_id"]
+    services_id = axes["services_id"]
+    personality_id = axes["personality_id"]
+
+    # Allow business_info to override personality if set by gather_business_info (legacy)
+    personality_override = business_info.get("personality")
+    if personality_override:
+        override_map = {"minimal": 0, "bold": 1, "warm": 2, "corporate": 3, "modern": 4}
+        personality_id = override_map.get(personality_override.lower(), personality_id)
+
+    # Apply design_hints from gather_business_info (reasoning-based, overrides hash for all axes)
+    design_hints = business_info.get("design_hints", {})
+    if design_hints:
+        _font_map = {"classic": 0, "editorial": 1, "refined": 2, "geometric": 3, "warm": 4}
+        _hero_map = {"centered": 0, "left-aligned": 1, "diagonal": 2, "split": 3}
+        _personality_map = {"minimal": 0, "bold": 1, "warm": 2, "corporate": 3, "modern": 4}
+        _layout_map = {"classic": 0, "story-first": 1, "services-focused": 2, "minimal": 3}
+        fh = design_hints.get("font_pairing", "")
+        hh = design_hints.get("hero_layout", "")
+        ph = design_hints.get("visual_personality", "")
+        lh = design_hints.get("page_layout", "")
+        if fh: font_id = _font_map.get(fh.lower(), font_id)
+        if hh: hero_id = _hero_map.get(hh.lower(), hero_id)
+        if ph: personality_id = _personality_map.get(ph.lower(), personality_id)
+        if lh: layout_id = _layout_map.get(lh.lower(), layout_id)
+
+    fonts = FONT_PAIRINGS[font_id]
     font_url = fonts["url"]
     font_heading = fonts["heading"]
     font_body = fonts["body"]
-    variant_css = VARIANT_CSS[variant]
+    personality_css = PERSONALITY_CSS[personality_id]
+    layout_order = LAYOUT_ORDERS[layout_id]
 
     # --- Copy sections ---
     hero = website_copy.get("hero", {})
@@ -660,38 +1081,17 @@ def build_html(business_info: dict, website_copy: dict) -> str:
     seo_title = html_lib.escape(seo.get("title") or name)
     seo_description = html_lib.escape(seo.get("meta_description", ""))
 
-    # --- Build HTML blocks ---
-    services_html = build_services_html(services, accent)
-    stats_html = build_stats_html(social_proof.get("stats", []), accent)
-    contact_info_html = build_contact_info_html(contact, accent)
-    social_html = build_social_html(social_links or {}, accent)
-    about_paragraphs_html = build_about_paragraphs(about.get("paragraphs", []), "var(--primary-text)")
+    # --- Build section HTML blocks ---
     reviews_html = build_reviews_html(google_places, accent) if google_places else ""
     faq_html = build_faq_html(faq, accent)
     schema_html = build_schema_org(business_info, website_copy)
-    trust_badges_html = build_trust_badges(variant, accent)
-    emergency_bar_html = build_emergency_bar(contact.get("phone", ""), variant)
+    trust_html = build_trust_badges_html(business_info, accent)
+    emergency_html = build_emergency_bar(contact.get("phone", ""))
     testimonials_html = build_testimonials_html(testimonials, accent)
-
-    # --- Layout helpers ---
-    count = len(services)
-    grid_cols = "lg:grid-cols-3" if count >= 3 else ("lg:grid-cols-2" if count == 2 else "lg:grid-cols-1")
-
-    logo_local_path = brand.get("logo_local_path")
-    if logo_local_path:
-        nav_logo_html = f'<a href="#"><img src="{logo_local_path}" alt="{html_lib.escape(name)} logo" class="h-10 w-auto object-contain"></a>'
-    else:
-        nav_logo_html = f'<a href="#" class="text-xl font-bold tracking-tight" style="color: var(--primary);">{html_lib.escape(name)}</a>'
-
-    if hero_image_path:
-        hero_section_open = (
-            f'<section class="relative overflow-hidden py-28 md:py-36" '
-            f'style="background: url(\'{hero_image_path}\') center/cover no-repeat;">'
-        )
-        hero_overlay = '<div class="absolute inset-0" style="background: rgba(0,0,0,0.55);"></div>'
-    else:
-        hero_section_open = '<section class="hero-bg relative overflow-hidden py-28 md:py-36">'
-        hero_overlay = '<div class="absolute inset-0 dot-pattern"></div>'
+    contact_info_html = build_contact_info_html(contact, accent)
+    social_html = build_social_html(social_links or {}, accent)
+    about_paragraphs_html = build_about_paragraphs(about.get("paragraphs", []), "var(--primary-text)")
+    stats_html = build_stats_html(social_proof.get("stats", []), accent)
 
     real_rating_stat = ""
     if google_places and google_places.get("rating"):
@@ -701,10 +1101,230 @@ def build_html(business_info: dict, website_copy: dict) -> str:
           <div class="text-gray-300 text-sm uppercase tracking-widest font-medium">Valoraci&oacute;n en Google</div>
         </div>"""
 
-    # --- Formspree ---
-    formspree_endpoint = os.getenv("FORMSPREE_ENDPOINT", "")
-    submit_btn_text = html_lib.escape(cta_section.get("button_text", "Enviar Mensaje"))
+    # --- Hero variant ---
+    hero_builders = [build_hero_centered, build_hero_left, build_hero_diagonal, build_hero_split]
+    if hero_id == 3:
+        hero_html = build_hero_split(hero, tagline, name, primary, hero_video_url, hero_video_poster, hero_image_path)
+    else:
+        hero_html = hero_builders[hero_id](hero, tagline, hero_video_url, hero_video_poster, hero_image_path)
 
+    # --- Services variant ---
+    services_builders = [build_services_grid, build_services_alternating, build_services_list, build_services_featured]
+    services_section_html = services_builders[services_id](services, accent)
+
+    # --- About section ---
+    about_section_html = f"""
+  <section id="about" class="py-24 md:py-32" style="background: var(--primary);">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div data-aos="fade-right">
+          <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">{about.get("section_title", "Qui&eacute;nes Somos")}</div>
+          <h2 class="text-3xl md:text-4xl font-bold mb-8" style="color: var(--primary-text);">Qui&eacute;nes Somos</h2>
+          {about_paragraphs_html}
+          <a href="#contact" class="btn-primary mt-8 inline-block">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
+        </div>
+        <div class="relative" data-aos="fade-left">
+          <div class="rounded-3xl p-12 flex items-center justify-center min-h-80" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);">
+            <div class="text-center text-white">
+              <svg class="w-20 h-20 mx-auto mb-5 opacity-30" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+              <p class="text-2xl font-bold mb-2" style="color: var(--primary-text);">{html_lib.escape(name)}</p>
+              <p class="text-sm font-medium" style="color: var(--primary-text); opacity: 0.6;">{html_lib.escape(tagline)}</p>
+            </div>
+          </div>
+          <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-2xl -z-10" style="background-color: var(--accent); opacity: 0.25;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+"""
+
+    # --- About brief (for minimal layout) ---
+    about_brief_html = f"""
+  <section id="about" class="py-16 md:py-24" style="background-color: var(--secondary);">
+    <div class="max-w-3xl mx-auto px-6 text-center" data-aos="fade-up">
+      <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">{about.get("section_title", "Qui&eacute;nes Somos")}</div>
+      <h2 class="text-3xl md:text-4xl font-bold mb-6" style="color: var(--secondary-text);">Qui&eacute;nes Somos</h2>
+      <p class="leading-relaxed text-lg" style="color: var(--secondary-text); opacity: 0.8;">{(about.get("paragraphs", [""])[0])}</p>
+    </div>
+  </section>
+"""
+
+    # --- Stats section ---
+    stats_section_html = f"""
+  <section class="py-20 md:py-28 hero-bg">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-14" data-aos="fade-up">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4" style="color: var(--primary-text);">{social_proof.get("section_title", "Nuestros Resultados")}</h2>
+        <p class="max-w-2xl mx-auto leading-relaxed" style="color: var(--primary-text); opacity: 0.82;">{social_proof.get("statement", "")}</p>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-0 divide-y sm:divide-y-0 sm:divide-x divide-white divide-opacity-15">
+        {real_rating_stat}
+        {stats_html}
+      </div>
+    </div>
+  </section>
+"""
+
+    # --- Stats+CTA combined (for layout 1) ---
+    submit_btn_text = html_lib.escape(cta_section.get("button_text", "Enviar Mensaje"))
+    stats_cta_html = f"""
+  <section class="py-20 md:py-28 hero-bg">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-14" data-aos="fade-up">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4" style="color: var(--primary-text);">{social_proof.get("section_title", "Nuestros Resultados")}</h2>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-0 divide-y sm:divide-y-0 sm:divide-x divide-white divide-opacity-15 mb-14">
+        {real_rating_stat}
+        {stats_html}
+      </div>
+      <div class="text-center" data-aos="fade-up">
+        <h3 class="text-2xl md:text-3xl font-bold mb-4" style="color: var(--primary-text);">{cta_section.get("headline", "&iquest;Listo para empezar?")}</h3>
+        <p class="mb-8 leading-relaxed" style="color: var(--primary-text); opacity: 0.82;">{cta_section.get("subtext", "")}</p>
+        <a href="#contact" class="btn-primary text-base">{submit_btn_text}</a>
+      </div>
+    </div>
+  </section>
+"""
+
+    # --- CTA banner ---
+    cta_section_html = f"""
+  <section class="py-20 md:py-28 bg-white">
+    <div class="max-w-3xl mx-auto px-6 text-center" data-aos="fade-up">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{cta_section.get("headline", "&iquest;Listo para empezar?")}</h2>
+      <p class="text-gray-500 text-lg mb-10 leading-relaxed">{cta_section.get("subtext", "")}</p>
+      <a href="#contact" class="btn-primary text-base">{submit_btn_text}</a>
+    </div>
+  </section>
+"""
+
+    # --- Contact section ---
+    formspree_endpoint = os.getenv("FORMSPREE_ENDPOINT", "")
+    contact_section_html = f"""
+  <section id="contact" class="py-24 md:py-32" style="background-color: var(--secondary);">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16" data-aos="fade-up">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Ponte en Contacto</div>
+        <h2 class="text-3xl md:text-4xl font-bold" style="color: var(--secondary-text);">Cont&aacute;ctanos</h2>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div data-aos="fade-right">
+          <p class="leading-relaxed mb-10" style="color: var(--secondary-text); opacity: 0.75;">
+            Estaremos encantados de atenderte. Escr&iacute;benos o cont&aacute;ctanos por cualquiera de los canales a continuaci&oacute;n.
+          </p>
+          <div class="space-y-6">
+            {contact_info_html}
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100" data-aos="fade-left">
+          <h3 class="text-xl font-semibold text-gray-900 mb-6">Env&iacute;anos un Mensaje</h3>
+          <form id="contact-form" class="space-y-4" onsubmit="handleFormSubmit(event)">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input type="text" name="nombre" placeholder="Nombre" class="form-input" required>
+              <input type="text" name="apellido" placeholder="Apellido" class="form-input" required>
+            </div>
+            <input type="email" name="email" placeholder="Correo electr&oacute;nico" class="form-input" required>
+            <input type="tel" name="telefono" placeholder="Tel&eacute;fono (opcional)" class="form-input">
+            <textarea name="mensaje" rows="4" placeholder="&iquest;C&oacute;mo podemos ayudarte?" class="form-input resize-none" required></textarea>
+            <button type="submit" class="btn-primary w-full text-center">
+              {submit_btn_text}
+            </button>
+            <div id="form-success" class="hidden text-center py-3 px-4 bg-green-50 text-green-700 rounded-lg text-sm font-medium">
+              &#10003; &iexcl;Mensaje enviado! Nos pondremos en contacto pronto.
+            </div>
+            <div id="form-error" class="hidden text-center py-3 px-4 bg-red-50 text-red-600 rounded-lg text-sm font-medium">
+              &#10007; Error al enviar. Por favor, int&eacute;ntalo de nuevo.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+"""
+
+    # --- Nav ---
+    logo_local_path = brand.get("logo_local_path")
+    if logo_local_path:
+        nav_logo_html = f'<a href="#"><img src="{logo_local_path}" alt="{html_lib.escape(name)} logo" class="h-10 w-auto object-contain"></a>'
+    else:
+        nav_logo_html = f'<a href="#" class="text-xl font-bold tracking-tight" style="color: var(--primary);">{html_lib.escape(name)}</a>'
+
+    nav_html = f"""
+  <nav class="nav-bar">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      {nav_logo_html}
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#services" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Servicios</a>
+        <a href="#about" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Nosotros</a>
+        <a href="#contact" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Contacto</a>
+        <a href="#contact" class="btn-primary !py-2.5 !px-5 !text-sm">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
+      </div>
+      <button
+        class="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+        onclick="const m = document.getElementById('mobile-nav'); m.classList.toggle('hidden');"
+        aria-label="Abrir men&uacute;"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    <div id="mobile-nav" class="hidden md:hidden border-t border-gray-100 px-6 py-4 space-y-3">
+      <a href="#services" class="block text-sm font-medium text-gray-700 py-1.5">Servicios</a>
+      <a href="#about" class="block text-sm font-medium text-gray-700 py-1.5">Nosotros</a>
+      <a href="#contact" class="block text-sm font-medium text-gray-700 py-1.5">Contacto</a>
+      <a href="#contact" class="btn-primary block text-center mt-4 !text-sm">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
+    </div>
+  </nav>
+"""
+
+    # --- Footer ---
+    footer_html = f"""
+  <footer class="hero-bg py-12">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white border-opacity-10">
+        <div>
+          <div class="text-xl font-bold mb-1" style="color: var(--primary-text);">{html_lib.escape(name)}</div>
+          <div class="text-sm font-medium" style="color: var(--primary-text); opacity: 0.65;">{html_lib.escape(footer.get("tagline", tagline))}</div>
+        </div>
+        <nav class="flex gap-6">
+          <a href="#services" class="text-sm font-medium transition-opacity hover:opacity-100" style="color: var(--primary-text); opacity: 0.75;">Servicios</a>
+          <a href="#about" class="text-sm font-medium transition-opacity hover:opacity-100" style="color: var(--primary-text); opacity: 0.75;">Nosotros</a>
+          <a href="#contact" class="text-sm font-medium transition-opacity hover:opacity-100" style="color: var(--primary-text); opacity: 0.75;">Contacto</a>
+        </nav>
+        {social_html}
+      </div>
+      <div class="pt-6 text-center text-xs" style="color: var(--primary-text); opacity: 0.45;">
+        &copy; 2026 {html_lib.escape(name)}. Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+"""
+
+    # --- Assemble page by layout order ---
+    section_map = {
+        "hero": hero_html,
+        "trust": trust_html,
+        "services": services_section_html,
+        "reviews": reviews_html,
+        "testimonials": testimonials_html,
+        "about": about_section_html,
+        "about_brief": about_brief_html,
+        "stats": stats_section_html,
+        "stats_cta": stats_cta_html,
+        "cta": cta_section_html,
+        "faq": faq_html,
+        "contact": contact_section_html,
+    }
+
+    body_sections = []
+    for section_key in layout_order:
+        html_block = section_map.get(section_key, "")
+        if html_block:
+            body_sections.append(html_block)
+
+    # --- Assemble full HTML ---
     return f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -821,248 +1441,49 @@ def build_html(business_info: dict, website_copy: dict) -> str:
       transform: translateY(-4px);
       box-shadow: 0 12px 28px rgba(0,0,0,0.10);
     }}
-    {variant_css}
+    .hero-video {{
+      z-index: 0;
+    }}
+    .hero-video-overlay {{
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.6) 100%);
+      z-index: 1;
+    }}
+
+    @media (prefers-reduced-motion: reduce) {{
+      .hero-video {{
+        animation-play-state: paused !important;
+      }}
+    }}
+
+    {personality_css}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
 </head>
 
 <body class="text-gray-800 bg-white">
 
-  <!-- ============================================================
-       NAVIGATION
-  ============================================================ -->
-  <nav class="nav-bar">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      {nav_logo_html}
+  {nav_html}
 
-      <!-- Desktop nav -->
-      <div class="hidden md:flex items-center gap-8">
-        <a href="#services" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Servicios</a>
-        <a href="#about" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Nosotros</a>
-        <a href="#contact" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Contacto</a>
-        <a href="#contact" class="btn-primary !py-2.5 !px-5 !text-sm">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
-      </div>
+  {"".join(body_sections)}
 
-      <!-- Mobile hamburger -->
-      <button
-        class="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
-        onclick="const m = document.getElementById('mobile-nav'); m.classList.toggle('hidden');"
-        aria-label="Abrir men&uacute;"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
-    </div>
+  {footer_html}
 
-    <!-- Mobile menu -->
-    <div id="mobile-nav" class="hidden md:hidden border-t border-gray-100 px-6 py-4 space-y-3">
-      <a href="#services" class="block text-sm font-medium text-gray-700 py-1.5">Servicios</a>
-      <a href="#about" class="block text-sm font-medium text-gray-700 py-1.5">Nosotros</a>
-      <a href="#contact" class="block text-sm font-medium text-gray-700 py-1.5">Contacto</a>
-      <a href="#contact" class="btn-primary block text-center mt-4 !text-sm">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
-    </div>
-  </nav>
-
-  {trust_badges_html}
-
-  <!-- ============================================================
-       HERO
-  ============================================================ -->
-  {hero_section_open}
-    {hero_overlay}
-    <div class="relative max-w-5xl mx-auto px-6 text-center text-white">
-      <div class="inline-flex items-center gap-2 bg-white bg-opacity-15 border border-white border-opacity-20 text-white text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-full mb-8">
-        <span style="color: var(--accent);">&#9679;</span>
-        {tagline}
-      </div>
-      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6">
-        {hero.get("headline", name)}
-      </h1>
-      <p class="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" style="color: rgba(255,255,255,0.82);">
-        {hero.get("subheadline", tagline)}
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="#contact" class="btn-primary">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
-        <a href="#services" class="btn-outline">{hero.get("cta_secondary", "Ver Servicios")}</a>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ============================================================
-       SERVICES
-  ============================================================ -->
-  <section id="services" class="py-24 md:py-32 bg-white">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-16" data-aos="fade-up">
-        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Lo que ofrecemos</div>
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Nuestros Servicios</h2>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 {grid_cols} gap-8">
-        {services_html}
-      </div>
-    </div>
-  </section>
-
-
-  {reviews_html}
-
-  {testimonials_html}
-
-  <!-- ============================================================
-       ABOUT
-  ============================================================ -->
-  <section id="about" class="py-24 md:py-32" style="background: var(--primary);">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <div data-aos="fade-right">
-          <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">{about.get("section_title", "Qui&eacute;nes Somos")}</div>
-          <h2 class="text-3xl md:text-4xl font-bold mb-8" style="color: var(--primary-text);">Qui&eacute;nes Somos</h2>
-          {about_paragraphs_html}
-          <a href="#contact" class="btn-primary mt-8 inline-block">{hero.get("cta_primary", "Cont&aacute;ctanos")}</a>
-        </div>
-        <div class="relative" data-aos="fade-left">
-          <div class="rounded-3xl p-12 flex items-center justify-center min-h-80" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);">
-            <div class="text-center text-white">
-              <svg class="w-20 h-20 mx-auto mb-5 opacity-30" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-              <p class="text-2xl font-bold mb-2" style="color: var(--primary-text);">{html_lib.escape(name)}</p>
-              <p class="text-sm font-medium" style="color: var(--primary-text); opacity: 0.6;">{html_lib.escape(tagline)}</p>
-            </div>
-          </div>
-          <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-2xl -z-10" style="background-color: var(--accent); opacity: 0.25;"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ============================================================
-       SOCIAL PROOF / STATS
-  ============================================================ -->
-  <section class="py-20 md:py-28 hero-bg">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-14" data-aos="fade-up">
-        <h2 class="text-2xl md:text-3xl font-bold mb-4" style="color: var(--primary-text);">{social_proof.get("section_title", "Nuestros Resultados")}</h2>
-        <p class="max-w-2xl mx-auto leading-relaxed" style="color: var(--primary-text); opacity: 0.82;">{social_proof.get("statement", "")}</p>
-      </div>
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-0 divide-y sm:divide-y-0 sm:divide-x divide-white divide-opacity-15">
-        {real_rating_stat}
-        {stats_html}
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ============================================================
-       CTA BANNER
-  ============================================================ -->
-  <section class="py-20 md:py-28 bg-white">
-    <div class="max-w-3xl mx-auto px-6 text-center" data-aos="fade-up">
-      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{cta_section.get("headline", "&iquest;Listo para empezar?")}</h2>
-      <p class="text-gray-500 text-lg mb-10 leading-relaxed">{cta_section.get("subtext", "")}</p>
-      <a href="#contact" class="btn-primary text-base">{submit_btn_text}</a>
-    </div>
-  </section>
-
-
-  {faq_html}
-
-  <!-- ============================================================
-       CONTACT
-  ============================================================ -->
-  <section id="contact" class="py-24 md:py-32" style="background-color: var(--secondary);">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="text-center mb-16" data-aos="fade-up">
-        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--accent);">Ponte en Contacto</div>
-        <h2 class="text-3xl md:text-4xl font-bold" style="color: var(--secondary-text);">Cont&aacute;ctanos</h2>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-
-        <!-- Contact info -->
-        <div data-aos="fade-right">
-          <p class="leading-relaxed mb-10" style="color: var(--secondary-text); opacity: 0.75;">
-            Estaremos encantados de atenderte. Escr&iacute;benos o cont&aacute;ctanos por cualquiera de los canales a continuaci&oacute;n.
-          </p>
-          <div class="space-y-6">
-            {contact_info_html}
-          </div>
-        </div>
-
-        <!-- Contact form -->
-        <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100" data-aos="fade-left">
-          <h3 class="text-xl font-semibold text-gray-900 mb-6">Env&iacute;anos un Mensaje</h3>
-          <form id="contact-form" class="space-y-4" onsubmit="handleFormSubmit(event)">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input type="text" name="nombre" placeholder="Nombre" class="form-input" required>
-              <input type="text" name="apellido" placeholder="Apellido" class="form-input" required>
-            </div>
-            <input type="email" name="email" placeholder="Correo electr&oacute;nico" class="form-input" required>
-            <input type="tel" name="telefono" placeholder="Tel&eacute;fono (opcional)" class="form-input">
-            <textarea name="mensaje" rows="4" placeholder="&iquest;C&oacute;mo podemos ayudarte?" class="form-input resize-none" required></textarea>
-            <button type="submit" class="btn-primary w-full text-center">
-              {submit_btn_text}
-            </button>
-            <div id="form-success" class="hidden text-center py-3 px-4 bg-green-50 text-green-700 rounded-lg text-sm font-medium">
-              &#10003; &iexcl;Mensaje enviado! Nos pondremos en contacto pronto.
-            </div>
-            <div id="form-error" class="hidden text-center py-3 px-4 bg-red-50 text-red-600 rounded-lg text-sm font-medium">
-              &#10007; Error al enviar. Por favor, int&eacute;ntalo de nuevo.
-            </div>
-          </form>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ============================================================
-       FOOTER
-  ============================================================ -->
-  <footer class="hero-bg py-12">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white border-opacity-10">
-        <div>
-          <div class="text-xl font-bold mb-1" style="color: var(--primary-text);">{html_lib.escape(name)}</div>
-          <div class="text-sm font-medium" style="color: var(--primary-text); opacity: 0.65;">{html_lib.escape(footer.get("tagline", tagline))}</div>
-        </div>
-        <nav class="flex gap-6">
-          <a href="#services" class="text-sm font-medium transition-opacity hover:opacity-100" style="color: var(--primary-text); opacity: 0.75;">Servicios</a>
-          <a href="#about" class="text-sm font-medium transition-opacity hover:opacity-100" style="color: var(--primary-text); opacity: 0.75;">Nosotros</a>
-          <a href="#contact" class="text-sm font-medium transition-opacity hover:opacity-100" style="color: var(--primary-text); opacity: 0.75;">Contacto</a>
-        </nav>
-        {social_html}
-      </div>
-      <div class="pt-6 text-center text-xs" style="color: var(--primary-text); opacity: 0.45;">
-        &copy; 2026 {html_lib.escape(name)}. Todos los derechos reservados.
-      </div>
-    </div>
-  </footer>
-
-  {emergency_bar_html}
+  {emergency_html}
 
   <script>
-    // Mobile nav: close on link click
     document.querySelectorAll('#mobile-nav a').forEach(link => {{
       link.addEventListener('click', () => {{
         document.getElementById('mobile-nav').classList.add('hidden');
       }});
     }});
 
-    // FAQ accordion
     function toggleFaq(btn) {{
       const answer = btn.nextElementSibling;
       const icon = btn.querySelector('.faq-icon');
       const isOpen = !answer.classList.contains('hidden');
-      // Close all
       document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
       document.querySelectorAll('.faq-icon').forEach(i => {{ i.style.transform = ''; }});
       document.querySelectorAll('.faq-item button').forEach(b => b.setAttribute('aria-expanded', 'false'));
-      // Open clicked if it was closed
       if (!isOpen) {{
         answer.classList.remove('hidden');
         icon.style.transform = 'rotate(180deg)';
@@ -1070,7 +1491,6 @@ def build_html(business_info: dict, website_copy: dict) -> str:
       }}
     }}
 
-    // Contact form — Formspree AJAX if endpoint set, fake submission otherwise
     function handleFormSubmit(e) {{
       e.preventDefault();
       const form = e.target;
@@ -1113,6 +1533,12 @@ def build_html(business_info: dict, website_copy: dict) -> str:
   </script>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script>AOS.init({{ duration: 700, once: true, offset: 60 }});</script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {{
+    var v = document.querySelector('.hero-video');
+    if (v) v.play().catch(function(){{}});
+  }});
+  </script>
 
 </body>
 </html>"""
@@ -1142,13 +1568,30 @@ def main():
     with open(copy_path, encoding="utf-8") as f:
         website_copy = json.load(f)
 
-    biz_name = business_info.get("business_name")
-    industry = business_info.get("industry", "")
-    variant = detect_variant(industry)
+    biz_name = business_info.get("business_name", "Unknown")
+    axes = compute_variant_axes(biz_name)
+    # Apply design_hints for accurate print output (mirrors logic in build_html)
+    _dh = business_info.get("design_hints", {})
+    if _dh:
+        _fm = {"classic": 0, "editorial": 1, "refined": 2, "geometric": 3, "warm": 4}
+        _hm = {"centered": 0, "left-aligned": 1, "diagonal": 2, "split": 3}
+        _pm = {"minimal": 0, "bold": 1, "warm": 2, "corporate": 3, "modern": 4}
+        _lm = {"classic": 0, "story-first": 1, "services-focused": 2, "minimal": 3}
+        if _dh.get("font_pairing"): axes["font_id"] = _fm.get(_dh["font_pairing"].lower(), axes["font_id"])
+        if _dh.get("hero_layout"): axes["hero_id"] = _hm.get(_dh["hero_layout"].lower(), axes["hero_id"])
+        if _dh.get("visual_personality"): axes["personality_id"] = _pm.get(_dh["visual_personality"].lower(), axes["personality_id"])
+        if _dh.get("page_layout"): axes["layout_id"] = _lm.get(_dh["page_layout"].lower(), axes["layout_id"])
     print(f"Building website for: {biz_name}")
-    print(f"  Variant  : {variant} (industry: {industry})")
+    source = "design_hints" if _dh else "hash"
+    print(f"  Font     : {FONT_PAIRINGS[axes['font_id']]['label']} ({FONT_PAIRINGS[axes['font_id']]['heading']}) [{source}]")
+    print(f"  Layout   : {axes['layout_id']} / Hero: {axes['hero_id']} / Services: {axes['services_id']} [{source}]")
+    print(f"  Style    : {PERSONALITY_LABELS[axes['personality_id']]} [{source}]")
 
-    html = build_html(business_info, website_copy)
+    html = build_html(
+        business_info, website_copy,
+        hero_video_url=business_info.get("hero_video_url"),
+        hero_video_poster=business_info.get("hero_video_poster"),
+    )
 
     output_dir = Path("output")
     output_dir.mkdir(exist_ok=True)
@@ -1164,7 +1607,7 @@ def main():
 
     print(f"\n[OK] Website saved to {output_path} ({size_kb} KB)")
 
-    sections = f"Nav, Hero, Services ({len(website_copy.get('services', []))})"
+    sections = f"Nav, Hero(v{axes['hero_id']}), Services(v{axes['services_id']})"
     if gp and gp.get("reviews"):
         sections += f", Reviews ({len(gp['reviews'])})"
     if website_copy.get("testimonials"):
@@ -1175,18 +1618,12 @@ def main():
     sections += ", Contact, Footer"
     print(f"  Sections : {sections}")
     print(f"  Colors   : primary={active_primary}  accent={business_info.get('color_scheme', {}).get('accent')}")
-    print(f"  Fonts    : {VARIANT_FONTS[variant]['heading']} / {VARIANT_FONTS[variant]['body']}")
     if website_copy.get("seo", {}).get("title"):
         print(f"  SEO title: \"{website_copy['seo']['title']}\"")
     if brand.get("source"):
         print(f"  Brand    : logo={brand.get('logo_local_path', 'none')}  source={brand['source']}")
     if business_info.get("hero_image_path"):
         print(f"  Hero img : {business_info['hero_image_path']}")
-    if os.getenv("FORMSPREE_ENDPOINT"):
-        print(f"  Forms    : Formspree AJAX active")
-    print("\nOpen in browser:")
-    print(f"  start {output_path}   (Windows)")
-    print(f"  open  {output_path}   (macOS)")
 
 
 if __name__ == "__main__":

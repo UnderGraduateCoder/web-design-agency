@@ -1,0 +1,302 @@
+[
+  {
+    "csv_order": 1,
+    "name": "+ home ( Dream Home Textil, S.L )",
+    "file": "home-dream-home-textil-sl.html",
+    "primary_color": "#6b5b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 2,
+    "name": "ANMITEX SL.",
+    "file": "anmitex-sl.html",
+    "primary_color": "#3b5c4a",
+    "font_heading": "Geometric",
+    "hero_layout": "Split",
+    "visual_personality": "Corporate",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 3,
+    "name": "ARSLAN&DIANA",
+    "file": "arslandiana.html",
+    "primary_color": "#5c3d2e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 4,
+    "name": "Amittex",
+    "file": "amittex.html",
+    "primary_color": "#4a5a3e",
+    "font_heading": "Geometric",
+    "hero_layout": "Split",
+    "visual_personality": "Corporate",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 5,
+    "name": "Athenea Moltó y Sirvent",
+    "file": "athenea-moltó-y-sirvent.html",
+    "primary_color": "#4a3728",
+    "font_heading": "Classic",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  },
+  {
+    "csv_order": 6,
+    "name": "Belda Moda",
+    "file": "belda-moda.html",
+    "primary_color": "#2d2d2d",
+    "font_heading": "Editorial",
+    "hero_layout": "Diagonal",
+    "visual_personality": "Modern",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 7,
+    "name": "Blanc Textil S.A.",
+    "file": "blanc-textil-sa.html",
+    "primary_color": "#3d5a47",
+    "font_heading": "Classic",
+    "hero_layout": "Split",
+    "visual_personality": "Corporate",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 8,
+    "name": "Bordados Regisol",
+    "file": "bordados-regisol.html",
+    "primary_color": "#6b2737",
+    "font_heading": "Geometric",
+    "hero_layout": "Split",
+    "visual_personality": "Corporate",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 9,
+    "name": "CROMIA ACABADOS TEXTILES",
+    "file": "cromia-acabados-textiles.html",
+    "primary_color": "#37587e",
+    "font_heading": "Geometric",
+    "hero_layout": "Split",
+    "visual_personality": "Corporate",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 10,
+    "name": "Chinchilla Textil Hogar S.L.",
+    "file": "chinchilla-textil-hogar-sl.html",
+    "primary_color": "#6b5b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 11,
+    "name": "Confecciones Macu Polo",
+    "file": "confecciones-macu-polo.html",
+    "primary_color": "#7a3b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 12,
+    "name": "Confecciones Muñoz",
+    "file": "confecciones-muñoz.html",
+    "primary_color": "#7a3b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  },
+  {
+    "csv_order": 13,
+    "name": "Confecciones la Madrileña",
+    "file": "confecciones-la-madrileña.html",
+    "primary_color": "#7a3b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 14,
+    "name": "Confeccions Espinós",
+    "file": "confeccions-espinós.html",
+    "primary_color": "#7a3b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  },
+  {
+    "csv_order": 15,
+    "name": "Confección Muestrarios Textiles - Juany Gea Robles",
+    "file": "confección-muestrarios-textiles-juany-gea-robles.html",
+    "primary_color": "#7a3b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  },
+  {
+    "csv_order": 16,
+    "name": "Confección y Textiles Para El Hogar",
+    "file": "confección-y-textiles-para-el-hogar.html",
+    "primary_color": "#6b5b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 17,
+    "name": "Costureo by Angela",
+    "file": "costureo-by-angela.html",
+    "primary_color": "#7a3b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  },
+  {
+    "csv_order": 18,
+    "name": "Creaciones Germanísimo",
+    "file": "creaciones-germanísimo.html",
+    "primary_color": "#5c3d2e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  },
+  {
+    "csv_order": 19,
+    "name": "D'AM TEXTIL C. B.",
+    "file": "dam-textil-c-b.html",
+    "primary_color": "#5a3e2b",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 20,
+    "name": "DI&MAR",
+    "file": "dimar.html",
+    "primary_color": "#5c3d2e",
+    "font_heading": "Classic",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 21,
+    "name": "El Costurero de Mayka",
+    "file": "el-costurero-de-mayka.html",
+    "primary_color": "#7a3b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  },
+  {
+    "csv_order": 22,
+    "name": "El Didal d'Or",
+    "file": "el-didal-dor.html",
+    "primary_color": "#7a3b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  },
+  {
+    "csv_order": 23,
+    "name": "Gala",
+    "file": "gala.html",
+    "primary_color": "#4a3728",
+    "font_heading": "Classic",
+    "hero_layout": "Split",
+    "visual_personality": "Corporate",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 24,
+    "name": "HILADOS MURAVO S.L.U",
+    "file": "hilados-muravo-slu.html",
+    "primary_color": "#6b4423",
+    "font_heading": "Geometric",
+    "hero_layout": "Split",
+    "visual_personality": "Corporate",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 25,
+    "name": "Hogar Pean/ Hogar Hogar",
+    "file": "hogar-pean-hogar-hogar.html",
+    "primary_color": "#6b5b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 26,
+    "name": "Home Olé",
+    "file": "home-olé.html",
+    "primary_color": "#6b5b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 27,
+    "name": "Inma Soriano - Corte y confección",
+    "file": "inma-soriano-corte-y-confección.html",
+    "primary_color": "#7a3b4e",
+    "font_heading": "Warm",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  },
+  {
+    "csv_order": 28,
+    "name": "Jeydu Textiles",
+    "file": "jeydu-textiles.html",
+    "primary_color": "#4a5568",
+    "font_heading": "Geometric",
+    "hero_layout": "Split",
+    "visual_personality": "Corporate",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 29,
+    "name": "Joséphine le Boutique",
+    "file": "joséphine-le-boutique.html",
+    "primary_color": "#2d2d2d",
+    "font_heading": "Editorial",
+    "hero_layout": "Diagonal",
+    "visual_personality": "Modern",
+    "page_layout": "Minimal"
+  },
+  {
+    "csv_order": 30,
+    "name": "La Francesa (Ropa de hogar)",
+    "file": "la-francesa-ropa-de-hogar.html",
+    "primary_color": "#6b5b4e",
+    "font_heading": "Classic",
+    "hero_layout": "Split",
+    "visual_personality": "Warm",
+    "page_layout": "Story-first"
+  }
+]
