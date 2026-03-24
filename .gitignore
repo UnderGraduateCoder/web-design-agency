@@ -1,6 +1,39 @@
+# Secrets and credentials
 .env
 credentials.json
 token.json
+
+# Temporary / regeneratable files
 .tmp/
+.tmp.driveupload/
 __pycache__/
 *.pyc
+
+# Lead data (client-sensitive)
+output/leads*.csv
+output/leads_selected.csv
+output/design_log.json
+
+# Per-client website builds (not for public repo — sample only)
+output/websites/*.html
+!output/websites/index.html
+
+# Per-client assets
+output/assets/
+
+# Brand assets (may contain client logos/IP)
+brand_assets/
+
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Screenshots (local review only)
+temporary screenshots/
