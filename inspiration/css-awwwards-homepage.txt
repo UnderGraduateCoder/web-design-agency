@@ -1,0 +1,51 @@
+/* Awwwards.com — Hero / Content-Header CSS (extracted via WebFetch, 2026-03-24) */
+
+/* Custom variable font */
+font-family: "Inter Tight", variable, weights 100–900;
+
+/* Fluid heading scale */
+--heading-1: clamp(42px, 5.38% + 7.32vw, 170px);   /* hero display */
+--heading-2: clamp(42px, 5.38% + 7.32vw, 146px);
+
+/* Line heights */
+--lh-heading: 100%;   /* tight for large display text */
+--lh-body: 130%;
+
+/* Spacing tokens */
+--gutter: 20px;
+--pad-inner: 52px;
+--section-v: clamp(30px, 6vw, 100px);   /* vertical section padding */
+--gap-nested: clamp(8px, 3vw, 24px);
+--gap-general: clamp(20px, 3vw, 50px);
+
+/* Color palette */
+--color-primary: #222222;         /* near-black text */
+--color-primary-inv: #ffffff;
+--color-accent-orange: #FA5D29;   /* CTA, alerts */
+--color-gray-light: #f8f8f8;
+--color-gray-mid: #ededed;
+--color-gray-border: #dedede;
+--color-feature-purple: #502bd8;
+--color-feature-green: #aaeec4;
+--color-feature-blue: #49B3FC;
+
+/* Shadows */
+--shadow-dropdown: 0px 0px 6px 0px rgba(0, 0, 0, 0.2);
+--filter-hover: brightness(95%);
+
+/* Overlays */
+--overlay-light: rgba(0, 0, 0, 0.3);
+--overlay-heavy: rgba(0, 0, 0, 0.7);
+
+/* Transitions */
+--transition-default: 0.3s ease;
+--transition-dropdown: 0.6s cubic-bezier(0, 1, 0.5, 1);
+
+/* Z-index scale */
+--z-content: 1;
+--z-sticky: 5;
+--z-overlay: 10;
+--z-modal: 15;
+
+/* Background */
+--ch-bg: transparent;   /* content-header, overridden per section */

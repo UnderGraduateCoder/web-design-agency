@@ -1,0 +1,30 @@
+/* Godly.website — Visual Design Notes (extracted via WebFetch, 2026-03-24) */
+/* Note: CSS bundle is compiled/minified (Tanstack Router + CSS modules), exact
+   token values are inferred from page structure and visual analysis. */
+
+/* General personality */
+background: dark (#0d0d0d or near-black estimated);
+color: high-contrast off-white (#f0f0f0 estimated);
+
+/* Layout */
+layout: dense columnar grid, card-based;
+card-gap: uniform, tight (~8–12px estimated);
+columns: 3–4 on desktop, collapsing to 1 on mobile;
+
+/* Typography */
+font-family: system sans-serif or Inter (not declared inline);
+type-scale: restrained — navigation and labels only, no large hero headline;
+letter-spacing: normal to tight;
+
+/* Depth & Layering */
+depth: minimal on base grid; hover states likely add elevation (transform/shadow);
+shadows: subtle or absent at rest — interaction-driven;
+
+/* Interaction */
+links: internal /website/ routes with ?ref=godly tracking;
+transitions: likely smooth opacity/transform on hover (JS-driven);
+
+/* Overall impression */
+personality: editorial restraint, content-first, dark-mode native;
+rhythm: tight, dense — the work IS the design;
+contrast: very high (light on dark);

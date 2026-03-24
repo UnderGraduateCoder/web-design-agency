@@ -1,0 +1,43 @@
+/* Dribbble.com — Hero / Grid CSS (extracted via WebFetch, 2026-03-24) */
+
+/* Color palette (from filter swatches — definitive hex values) */
+--neutral-white:   #ffffff;
+--neutral-100:     #f4f4f4;
+--neutral-200:     #e4e4e4;
+--neutral-400:     #b4b4b4;
+--neutral-700:     #545454;
+--neutral-900:     #242424;
+--neutral-black:   #000000;
+
+/* Accent range */
+--accent-peach:    #faddd1;
+--accent-lavender: #e5d1fa;
+--accent-coral:    #ee8f66;
+--accent-green:    #66ee78;
+
+/* Dark accent jewel tones */
+--dark-rust:       #5c230a;
+--dark-teal:       #0a5c49;
+
+/* Hero */
+background: #ffffff;
+headline: dark text (#242424 estimated), hierarchical scale;
+subheadline: neutral-700 (#545454);
+
+/* Layout */
+grid: 4–6 columns, responsive;
+card-gap: consistent, ~16–24px;
+card-shadow: subtle (estimated box-shadow: 0 2px 8px rgba(0,0,0,0.08));
+
+/* Typography */
+font: system sans-serif (not specified inline);
+hierarchy: display headline → subheading → body, clear weight contrast;
+
+/* Spacing */
+hero-padding-v: generous (estimated 80–120px);
+grid-padding: consistent margin/padding rhythm;
+
+/* Personality */
+approach: clean, content-forward, light-mode default;
+depth: card hover elevations, minimal base shadows;
+contrast: high text-on-white, colorful creative thumbnails draw the eye;

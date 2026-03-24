@@ -1,0 +1,235 @@
+<!--
+  SERVICES / FEATURES GRID COMPONENT — Premium Service Business
+  Source: Synthesised from awwwards.com clamp() patterns + depth layering analysis
+
+  What makes this superior to a standard implementation:
+  - Cards sit at "elevated" plane — subtle background tint + layered border-glow shadow
+  - Hover lifts to "floating" plane — not just shadow, but transform + shadow compound
+  - Icon containers use color-tinted background (not plain grey) tied to accent palette
+  - Number labels use display serif with tight tracking — decorative but functional
+  - Section uses radial gradient backdrop to create atmospheric depth
+  - Spring easing on card hover — bouncy, alive
+  - Focus-visible state is designed (accent ring), not default browser blue
+  - ARIA: list role on grid, article role on cards
+-->
+
+<section class="services" aria-labelledby="services-title">
+  <div class="services__inner">
+    <div class="services__header">
+      <span class="services__eyebrow">What We Do</span>
+      <h2 class="services__title" id="services-title">Every thread<br><em>purposefully placed</em></h2>
+      <p class="services__desc">
+        From custom fabric production to quality control consulting — we handle the full chain so you don't have to.
+      </p>
+    </div>
+
+    <ul class="services__grid" role="list">
+      <li class="services__card" role="article">
+        <div class="services__card-num" aria-hidden="true">01</div>
+        <div class="services__card-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h3 class="services__card-title">Custom Fabric Production</h3>
+        <p class="services__card-body">Woven, knitted, and non-woven textiles produced to your exact specification. Minimum runs from 50m.</p>
+      </li>
+
+      <li class="services__card" role="article">
+        <div class="services__card-num" aria-hidden="true">02</div>
+        <div class="services__card-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+          </svg>
+        </div>
+        <h3 class="services__card-title">Rapid Sampling</h3>
+        <p class="services__card-body">Samples in 5–7 working days. Iterate as many times as needed before committing to production.</p>
+      </li>
+
+      <li class="services__card" role="article">
+        <div class="services__card-num" aria-hidden="true">03</div>
+        <div class="services__card-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3 class="services__card-title">Quality Control</h3>
+        <p class="services__card-body">Full ISO-compliant testing at our in-house lab. Certificate of conformity with every batch.</p>
+      </li>
+
+      <li class="services__card" role="article">
+        <div class="services__card-num" aria-hidden="true">04</div>
+        <div class="services__card-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3h18v4H3V3zm0 7h18v4H3v-4zm0 7h18v4H3v-4z"/>
+          </svg>
+        </div>
+        <h3 class="services__card-title">Stock Fabric Range</h3>
+        <p class="services__card-body">600+ fabric codes available for same-week dispatch. Linen, cotton, modal, and technical blends.</p>
+      </li>
+
+      <li class="services__card" role="article">
+        <div class="services__card-num" aria-hidden="true">05</div>
+        <div class="services__card-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <h3 class="services__card-title">Private Label Programme</h3>
+        <p class="services__card-body">Your brand on our fabric. Custom selvedge, care labels, and packaging — fully white-label.</p>
+      </li>
+
+      <li class="services__card" role="article">
+        <div class="services__card-num" aria-hidden="true">06</div>
+        <div class="services__card-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+          </svg>
+        </div>
+        <h3 class="services__card-title">Sustainable Sourcing</h3>
+        <p class="services__card-body">GOTS and OEKO-TEX certified yarns. Provenance documentation for every order. Zero compromise.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .services {
+    background: var(--c-bg, #0e0e0d);
+    padding: clamp(80px, 12vw, 140px) clamp(24px, 6vw, 80px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Atmospheric radial backdrop */
+  .services::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(200,169,110,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .services__inner {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .services__header {
+    text-align: center;
+    margin-bottom: clamp(48px, 6vw, 80px);
+  }
+  .services__eyebrow {
+    display: block;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--c-accent, #c8a96e);
+    margin-bottom: 20px;
+  }
+  .services__title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(36px, 5vw, 72px);
+    font-weight: 300;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: var(--c-text, #f0ede8);
+    margin: 0 0 24px;
+  }
+  .services__title em { font-style: italic; color: var(--c-accent, #c8a96e); }
+  .services__desc {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: clamp(15px, 1.6vw, 17px);
+    line-height: 1.7;
+    color: var(--c-muted, #8a8680);
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* Grid */
+  .services__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: clamp(16px, 2.5vw, 28px);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Card — elevated plane */
+  .services__card {
+    position: relative;
+    background: var(--c-surface, #161614);
+    border: 1px solid rgba(200,169,110,0.1);
+    border-radius: 8px;
+    padding: clamp(28px, 3.5vw, 40px);
+    box-shadow:
+      0 1px 2px rgba(0,0,0,0.4),
+      0 4px 16px rgba(0,0,0,0.25),
+      inset 0 1px 0 rgba(240,237,232,0.04);   /* subtle top-edge highlight */
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.2s ease;
+    cursor: default;
+  }
+
+  /* Floating plane on hover */
+  .services__card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(200,169,110,0.25);
+    box-shadow:
+      0 2px 4px rgba(0,0,0,0.4),
+      0 12px 40px rgba(0,0,0,0.35),
+      0 2px 24px rgba(200,169,110,0.08),
+      inset 0 1px 0 rgba(240,237,232,0.06);
+  }
+  .services__card:focus-visible {
+    outline: 2px solid var(--c-accent, #c8a96e);
+    outline-offset: 3px;
+  }
+
+  /* Number */
+  .services__card-num {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: var(--c-accent, #c8a96e);
+    opacity: 0.6;
+    margin-bottom: 20px;
+  }
+
+  /* Icon container — color-tinted, not plain grey */
+  .services__card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(200,169,110,0.1);
+    border: 1px solid rgba(200,169,110,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-accent, #c8a96e);
+    margin-bottom: 20px;
+  }
+
+  .services__card-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--c-text, #f0ede8);
+    margin: 0 0 12px;
+  }
+  .services__card-body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--c-muted, #8a8680);
+    margin: 0;
+  }
+</style>
