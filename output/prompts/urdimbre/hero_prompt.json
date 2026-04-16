@@ -1,0 +1,17 @@
+{
+  "prompt": "Ultra-realistic wide-angle photograph of a luxury textile workshop interior, shot at golden hour. Warm copper and amber tones dominate. Dramatic side raking light from a tall industrial window falls across rolls of fine woven fabric — linen, wool, and jacquard — revealing the intricate texture and weave structure of each material. Dust motes float in the beams of light. A large wooden loom stands partially in shadow to the left, its shuttle threads catching the light. Bolts of natural undyed linen fabric in warm bone and ecru tones lean against a rough plaster wall, aged and textured. The floor is aged hardwood, worn smooth. Background: blurred industrial shelving with more rolled fabrics receding into warm shadow. The scene has the weight and silence of a centuries-old craft. 85mm lens, f/2.0, ISO 200. Photorealistic, documentary realism. Shallow depth of field. No studio lighting, no CGI. Do not add any people. Do not over-saturate. Do not artificially sharpen.",
+  "negative_prompt": "blurry, CGI, plastic, oversaturated, studio lighting, neon, modern office, white background, plain background, overexposed, flat lighting, anatomy normalization, digital art, illustration, 3D render, cartoon",
+  "settings": {
+    "resolution": "1K",
+    "style": "photorealistic, documentary realism, fine art photography",
+    "lighting": "golden hour raking side light, warm amber, dramatic shadows",
+    "camera_angle": "eye level, slightly low, 85mm lens",
+    "depth_of_field": "shallow, f/2.0, fabric in focus, background soft",
+    "quality": "high detail, film grain, unretouched"
+  },
+  "api_parameters": {
+    "aspect_ratio": "16:9",
+    "resolution": "1K",
+    "output_format": "jpg"
+  }
+}

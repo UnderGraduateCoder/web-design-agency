@@ -82,3 +82,19 @@
 | Depth | Everything same z-plane | Base / elevated / floating layering system |
 | Dark mode | Forced dark class | Dark-native palette with semantic tokens |
 | Imagery | Placeholder or stock | Gradient overlay + color-blend treatment |
+
+---
+
+## 4. Claude-webkit Anti-Slop Principles
+*Source: github.com/Hainrixz/claude-webkit — CLAUDE.md*
+
+Patterns that immediately signal a site is AI-generated (avoid all of these):
+- AI color palettes: cyan-on-dark, purple-to-blue gradients, neon accents
+- Overused fonts: Inter, Roboto, Arial, Open Sans, system-ui on headings
+- Centered everything — asymmetric layouts feel designed, not generated
+- Generic repeated card grids (icon + heading + 2-line text × 6)
+- Bounce/elastic easing on any animation
+- Glassmorphism on every surface
+- Emoji used as icons
+
+**The AI Slop Test:** before delivery, stand back and ask "does this look AI-made?" If yes, redesign. This is not optional — it is the final quality gate on every build.

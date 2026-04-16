@@ -6,7 +6,7 @@
         "/c",
         "npx",
         "-y",
-        "@claude-flow/cli@latest",
+        "@claude-flow/cli@3.5.80",
         "mcp",
         "start"
       ],
@@ -19,6 +19,12 @@
         "CLAUDE_FLOW_MEMORY_BACKEND": "hybrid"
       },
       "autoStart": false
+    },
+    "21st-magic": {
+      "command": "node",
+      "args": [
+        ".claude/helpers/start-21st-magic.cjs"
+      ]
     }
   }
 }
