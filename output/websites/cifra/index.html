@@ -1,0 +1,964 @@
+<!--
+  CIFRA AGENCY WEBSITE — output/websites/cifra/index.html
+  v2 — 2026-04-24 complete visual overhaul
+
+  ANIMATION PLAN
+  01 WORD_REVEAL  — H1 clip-path inset(100%→0%) + translateY on page load, CSS only
+  02 AOS          — data-aos fade-up / fade-right / zoom-in on all below-fold elements
+  03 COUNTER      — RAF easeOutQuart 0→target for every .stat-number on scroll entry
+  04 3D_TILT      — portfolio + pricing card rotateX/Y on mousemove (max 8°) + specular sheen
+  05 MAGNETIC     — CTA buttons 8px pull toward cursor, vanilla JS mousemove
+  06 NAV_SHRINK   — padding + border animate on scroll past 50px via class toggle
+  07 MOBILE_NAV   — hamburger toggles full-screen overlay with spring easing
+
+  DESIGN SYSTEM
+  Base    #0A0A0A  Surface  #111111  Accent  #4AFF91
+  TextPri #FAFAFA  TextSec  #666666  Border  #1F1F1F
+  Display Space Grotesk 600/700 · Body Inter 400/500
+  Spring  cubic-bezier(0.34,1.56,0.64,1)
+  Reveal  cubic-bezier(0,1,0.5,1)
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cifra — Diseño Web. Ciberseguridad. IA.</title>
+  <meta name="description" content="Agencia técnica de élite. Páginas web, ciberseguridad e IA para negocios que quieren crecer. Sin plantillas. Código propio.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- AOS -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: '#0A0A0A', surface: '#111111',
+            mint: '#4AFF91', border: '#1F1F1F',
+            primary: '#FAFAFA', secondary: '#666666'
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', 'sans-serif'],
+            body: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+
+  <style>
+    /* ── Reset ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --base: #0A0A0A; --surface: #111111; --mint: #4AFF91;
+      --text-primary: #FAFAFA; --text-secondary: #666666;
+      --border: #1F1F1F;
+      --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --reveal: cubic-bezier(0, 1, 0.5, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    html { scroll-behavior: auto; }
+    body {
+      background: var(--base);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    ::selection { background: rgba(74,255,145,0.2); color: var(--text-primary); }
+    :focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+
+    /* ── Dot Grid Background ───────────────────── */
+    .dot-grid {
+      background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+      position: relative;
+    }
+
+    /* ── Hero Grain Texture ────────────────────── */
+    .hero-grain {
+      position: absolute; inset: 0; pointer-events: none; z-index: 1;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+      opacity: 0.55;
+      mix-blend-mode: overlay;
+    }
+    /* Radial mint glow behind hero H1 */
+    .hero-glow {
+      position: absolute; top: 25%; left: 10%; width: 65vw; height: 65vh;
+      background: radial-gradient(ellipse at center, rgba(74,255,145,0.07) 0%, transparent 68%);
+      pointer-events: none; z-index: 0;
+    }
+    .hero-content { position: relative; z-index: 2; }
+
+    /* ── Nav ───────────────────────────────────── */
+    #nav {
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
+      padding: 1.5rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: transparent;
+      transition: background 0.3s var(--ease-out), padding 0.3s var(--ease-out), border-color 0.3s;
+      border-bottom: 1px solid transparent;
+    }
+    #nav.scrolled {
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 1rem 2.5rem;
+      border-bottom-color: var(--border);
+    }
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 1.25rem;
+      letter-spacing: -0.02em; color: var(--text-primary);
+    }
+    .nav-links {
+      display: flex; gap: 2rem; list-style: none;
+      position: absolute; left: 50%; transform: translateX(-50%);
+    }
+    .nav-links a {
+      font-size: 0.875rem; color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-cta {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.875rem; font-weight: 600;
+      background: var(--mint); color: #000;
+      padding: 0.5rem 1.25rem;
+      border: none; cursor: pointer;
+      transition: opacity 0.2s, transform 0.25s var(--spring);
+    }
+    .nav-cta:hover { opacity: 0.85; transform: scale(1.04); }
+
+    /* Mobile nav button */
+    .nav-mobile-btn {
+      display: none; background: none;
+      border: 1px solid var(--border);
+      color: var(--text-primary); padding: 0.4rem 0.7rem;
+      cursor: pointer; font-size: 1.1rem;
+      transition: border-color 0.2s;
+    }
+    .nav-mobile-btn:hover { border-color: var(--text-primary); }
+
+    /* Full-screen overlay */
+    .nav-overlay {
+      display: none; position: fixed; inset: 0; z-index: 99;
+      background: var(--base); flex-direction: column;
+      align-items: center; justify-content: center; gap: 2.5rem;
+    }
+    .nav-overlay.open { display: flex; }
+    .nav-overlay .overlay-link {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.75rem, 5vw, 3rem); font-weight: 700;
+      color: var(--text-secondary); letter-spacing: -0.03em;
+      transition: color 0.2s, transform 0.2s var(--spring);
+    }
+    .nav-overlay .overlay-link:hover { color: var(--text-primary); transform: translateX(8px); }
+    .nav-close-btn {
+      position: absolute; top: 1.25rem; right: 1.5rem;
+      background: none; border: 1px solid var(--border);
+      color: var(--text-primary); padding: 0.4rem 0.7rem;
+      cursor: pointer; font-size: 1.1rem;
+      transition: border-color 0.2s;
+    }
+    .nav-close-btn:hover { border-color: var(--text-primary); }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-mobile-btn { display: block; }
+      #nav { padding: 1.25rem 1.5rem; }
+      #nav.scrolled { padding: 1rem 1.5rem; }
+    }
+
+    /* ── Word Reveal ───────────────────────────── */
+    .word-wrap { overflow: hidden; display: inline-block; }
+    .word {
+      display: inline-block;
+      clip-path: inset(100% 0 0 0);
+      transform: translateY(0.1em);
+      opacity: 0;
+      animation: wordReveal 0.75s var(--ease-out) forwards;
+    }
+    @keyframes wordReveal {
+      to { clip-path: inset(0% 0 0 0); transform: translateY(0); opacity: 1; }
+    }
+
+    /* ── Hero H1 ───────────────────────────────── */
+    .hero-h1 {
+      font-size: clamp(60px, 10vw, 160px);
+      font-weight: 700; line-height: 0.9;
+      letter-spacing: -0.04em; color: var(--text-primary);
+    }
+
+    /* ── Marquee ───────────────────────────────── */
+    .marquee-track {
+      display: flex; white-space: nowrap; overflow: hidden;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .marquee-inner {
+      display: flex; white-space: nowrap;
+      animation: marquee 25s linear infinite;
+    }
+    .marquee-inner span {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 3.5rem);
+      font-weight: 600; letter-spacing: -0.02em;
+      color: var(--text-secondary); padding: 1.2rem 0; flex-shrink: 0;
+    }
+    .marquee-inner span .dot { color: var(--mint); margin: 0 1rem; }
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── Stats ─────────────────────────────────── */
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(48px, 6vw, 80px); font-weight: 700;
+      color: var(--mint); line-height: 1; letter-spacing: -0.03em;
+    }
+    .stat-label {
+      font-size: 0.8125rem; color: var(--text-secondary);
+      margin-top: 0.4rem; letter-spacing: 0.02em;
+    }
+
+    /* ── Social Proof / Sectors ────────────────── */
+    .sector-pill {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8125rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1.1rem;
+      transition: border-color 0.25s var(--spring), color 0.25s;
+      cursor: default;
+    }
+    .sector-pill:hover { border-color: var(--mint); color: var(--mint); }
+
+    /* ── Services ──────────────────────────────── */
+    .service-item {
+      padding: 2.5rem 0;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 3rem 1fr auto;
+      gap: 1.5rem; align-items: start;
+    }
+    .service-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem; color: var(--mint);
+      font-weight: 600; letter-spacing: 0.05em; padding-top: 0.25rem;
+    }
+    .service-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.375rem; font-weight: 600;
+      color: var(--text-primary); margin-bottom: 0.5rem; letter-spacing: -0.02em;
+    }
+    .service-desc {
+      font-size: 0.9rem; color: var(--text-secondary);
+      line-height: 1.65; max-width: 32ch;
+    }
+    .service-link {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.875rem; color: transparent;
+      transition: color 0.2s var(--spring), transform 0.2s var(--spring);
+      padding-top: 0.25rem; white-space: nowrap;
+    }
+    .service-item:hover .service-link { color: var(--mint); transform: translateX(4px); }
+
+    /* ── Process ───────────────────────────────── */
+    .process-line {
+      position: absolute; top: 1.25rem; left: 2.5rem; right: 2.5rem; height: 1px;
+      background: var(--border);
+    }
+    .process-line-fill {
+      height: 100%; background: var(--mint);
+      width: 0%; transition: width 1.2s var(--ease-out) 0.3s;
+    }
+    .process-line-fill.visible { width: 100%; }
+    .process-step-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--mint); letter-spacing: 0.05em; margin-bottom: 1rem;
+    }
+    .process-step-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.125rem; font-weight: 600;
+      color: var(--text-primary); margin-bottom: 0.5rem; letter-spacing: -0.02em;
+    }
+    .process-step-desc {
+      font-size: 0.875rem; color: var(--text-secondary); line-height: 1.65;
+    }
+
+    /* ── Portfolio ─────────────────────────────── */
+    .portfolio-item {
+      position: relative; overflow: hidden; cursor: pointer;
+      transform-style: preserve-3d;
+      transition: box-shadow 0.3s;
+    }
+    .portfolio-item img {
+      width: 100%; aspect-ratio: 16/10; object-fit: cover;
+      display: block;
+      transition: transform 0.6s var(--ease-out), filter 0.4s ease;
+      filter: grayscale(25%) brightness(0.88);
+    }
+    .portfolio-item:hover img {
+      transform: scale(1.05);
+      filter: grayscale(0%) brightness(1);
+    }
+    .portfolio-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.25) 50%, transparent 100%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 2rem;
+      transform: translateY(100%);
+      transition: transform 0.45s var(--ease-out);
+    }
+    .portfolio-item:hover .portfolio-overlay { transform: translateY(0); }
+    .portfolio-tag {
+      font-size: 0.6875rem; color: var(--mint);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.4rem;
+    }
+    .portfolio-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--text-primary); letter-spacing: -0.02em;
+    }
+
+    /* Specular sheen — tracks mouse position via CSS vars */
+    .card-sheen {
+      position: absolute; inset: 0; pointer-events: none; z-index: 10;
+      background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.13) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .portfolio-item:hover .card-sheen,
+    .pricing-card:hover .card-sheen { opacity: 1; }
+
+    /* Mobile: always show portfolio overlay label strip */
+    @media (max-width: 768px) {
+      .portfolio-overlay {
+        transform: translateY(0);
+        background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 45%);
+      }
+    }
+
+    /* ── Pricing ───────────────────────────────── */
+    .pricing-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      display: flex; flex-direction: column; gap: 1.5rem;
+      position: relative; overflow: hidden;
+      transform-style: preserve-3d;
+      transition: border-color 0.25s;
+    }
+    .pricing-card:not(.popular):hover { border-color: rgba(255,255,255,0.1); }
+    .pricing-card.popular {
+      border-color: var(--mint);
+      box-shadow: 0 0 0 1px rgba(74,255,145,0.25), 0 0 40px rgba(74,255,145,0.06);
+    }
+    .pricing-plan-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8125rem; font-weight: 600;
+      color: var(--text-secondary); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .pricing-card.popular .pricing-plan-name { color: var(--mint); }
+    .pricing-price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 700;
+      color: var(--text-primary); letter-spacing: -0.04em; line-height: 1;
+    }
+    .pricing-period { font-size: 0.875rem; color: var(--text-secondary); margin-left: 0.25rem; }
+    .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; flex: 1; }
+    .pricing-features li {
+      font-size: 0.875rem; color: var(--text-secondary);
+      display: flex; align-items: flex-start; gap: 0.75rem;
+    }
+    .pricing-features li::before { content: '—'; color: var(--border); flex-shrink: 0; margin-top: 0.05em; }
+    .pricing-card.popular .pricing-features li::before { color: var(--mint); }
+    .pricing-card.popular .pricing-features li { color: var(--text-primary); }
+    .pricing-btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.875rem; font-weight: 600;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      background: transparent; color: var(--text-primary);
+      cursor: pointer; text-align: center;
+      transition: border-color 0.2s, transform 0.25s var(--spring);
+    }
+    .pricing-btn:hover { border-color: var(--text-primary); transform: scale(1.02); }
+    .pricing-card.popular .pricing-btn { background: var(--mint); color: #000; border-color: var(--mint); }
+    .pricing-card.popular .pricing-btn:hover { opacity: 0.85; }
+
+    /* ── Buttons (shared base) ─────────────────── */
+    .btn {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9375rem; font-weight: 600;
+      padding: 0.875rem 2rem; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      transition: opacity 0.2s, transform 0.25s var(--spring);
+    }
+    .btn:active { transform: scale(0.97) !important; }
+    .btn-mint { background: var(--mint); color: #000; }
+    .btn-mint:hover { opacity: 0.9; transform: scale(1.03); }
+    .btn-outline {
+      background: transparent; color: var(--text-primary);
+      border: 1px solid var(--border);
+      transition: border-color 0.2s, transform 0.25s var(--spring);
+    }
+    .btn-outline:hover { border-color: var(--text-primary); transform: scale(1.03); }
+
+    /* ── Magnetic ──────────────────────────────── */
+    .magnetic { display: inline-block; will-change: transform; }
+
+    /* ── Section Labels ────────────────────────── */
+    .section-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.6875rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-secondary); margin-bottom: 0.75rem;
+    }
+    .section-h2 {
+      font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1.05; color: var(--text-primary);
+    }
+
+    /* ── CTA Strip ─────────────────────────────── */
+    .cta-strip {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Contact Form ──────────────────────────── */
+    .form-field {
+      background: transparent;
+      border: none; border-bottom: 1px solid var(--border);
+      color: var(--text-primary); font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem; padding: 0.875rem 0; width: 100%;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-field::placeholder { color: var(--text-secondary); }
+    .form-field:focus { border-bottom-color: var(--mint); }
+
+    /* ── Footer ────────────────────────────────── */
+    .footer { border-top: 1px solid var(--border); }
+    .footer-link {
+      font-size: 0.8125rem; color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+    .footer-link:hover { color: var(--text-primary); }
+
+    /* ── Responsive ────────────────────────────── */
+    @media (max-width: 768px) {
+      .service-item { grid-template-columns: 2.5rem 1fr; }
+      .service-link { display: none; }
+      .process-line { display: none; }
+      .process-step-num { margin-bottom: 0.5rem; }
+      .process-grid-mobile > div { padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
+      .process-grid-mobile > div:first-child { border-top: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ MOBILE NAV OVERLAY ════════════════════ -->
+  <div class="nav-overlay" id="navOverlay" role="dialog" aria-modal="true" aria-label="Menú">
+    <button class="nav-close-btn" id="navCloseBtn" aria-label="Cerrar menú">✕</button>
+    <a href="#servicios" class="overlay-link">Servicios</a>
+    <a href="#proceso" class="overlay-link">Proceso</a>
+    <a href="#portfolio" class="overlay-link">Trabajos</a>
+    <a href="#precios" class="overlay-link">Precios</a>
+    <a href="#contacto" class="btn btn-mint" style="font-size:1rem;padding:0.875rem 2.5rem;margin-top:1rem;">Empezar →</a>
+  </div>
+
+  <!-- ══ NAV ════════════════════════════════════ -->
+  <nav id="nav" aria-label="Navegación principal">
+    <a href="/" class="nav-logo">CIFRA</a>
+    <ul class="nav-links">
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#proceso">Proceso</a></li>
+      <li><a href="#portfolio">Trabajos</a></li>
+      <li><a href="#precios">Precios</a></li>
+    </ul>
+    <button class="nav-cta magnetic" onclick="document.getElementById('contacto').scrollIntoView({behavior:'smooth'})">Empezar →</button>
+    <button class="nav-mobile-btn" id="navOpenBtn" aria-label="Abrir menú" aria-expanded="false">☰</button>
+  </nav>
+
+  <!-- ══ HERO ═══════════════════════════════════ -->
+  <section class="dot-grid min-h-screen flex items-center pt-24 pb-16" id="inicio">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-grain" aria-hidden="true"></div>
+    <div class="w-full max-w-screen-xl mx-auto px-6 md:px-10 hero-content">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-16">
+
+        <!-- Left: Text -->
+        <div class="flex-1 max-w-3xl">
+          <div class="section-label" style="opacity:0;animation:wordReveal 0.5s ease 0.05s forwards;">Agencia técnica</div>
+          <h1 class="hero-h1 mt-4 mb-8">
+            <div class="word-wrap"><span class="word" style="animation-delay:0.1s">Diseñamos</span></div><br>
+            <div class="word-wrap"><span class="word" style="animation-delay:0.22s">lo que</span></div>
+            <div class="word-wrap"><span class="word" style="animation-delay:0.34s; color:var(--mint)">vende.</span></div>
+          </h1>
+          <p style="font-size:1.125rem;color:var(--text-secondary);max-width:44ch;line-height:1.7;opacity:0;animation:wordReveal 0.6s ease 0.52s forwards;">
+            Páginas web, ciberseguridad e IA para negocios que quieren crecer.
+          </p>
+          <div class="flex flex-wrap gap-4 mt-10" style="opacity:0;animation:wordReveal 0.6s ease 0.68s forwards;">
+            <button class="btn btn-outline magnetic" onclick="document.getElementById('portfolio').scrollIntoView({behavior:'smooth'})">Ver proyectos</button>
+            <button class="btn btn-mint magnetic" onclick="document.getElementById('contacto').scrollIntoView({behavior:'smooth'})">Empezar →</button>
+          </div>
+        </div>
+
+        <!-- Right: Big counter -->
+        <div class="flex-shrink-0 text-right" style="opacity:0;animation:wordReveal 0.7s ease 0.72s forwards;">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:clamp(80px,14vw,200px);font-weight:700;line-height:0.85;letter-spacing:-0.05em;color:var(--mint);">
+            30+
+          </div>
+          <div style="font-size:0.875rem;color:var(--text-secondary);letter-spacing:0.05em;margin-top:0.75rem;">webs entregadas</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MARQUEE ════════════════════════════════ -->
+  <div class="marquee-track">
+    <div class="marquee-inner" aria-hidden="true">
+      <span>CIFRA<span class="dot">·</span>DISEÑO WEB<span class="dot">·</span>CIBERSEGURIDAD<span class="dot">·</span>AUTOMATIZACIÓN CON IA<span class="dot">·</span>RESULTADOS REALES<span class="dot">·</span></span>
+      <span>CIFRA<span class="dot">·</span>DISEÑO WEB<span class="dot">·</span>CIBERSEGURIDAD<span class="dot">·</span>AUTOMATIZACIÓN CON IA<span class="dot">·</span>RESULTADOS REALES<span class="dot">·</span></span>
+    </div>
+  </div>
+
+  <!-- ══ STATS ══════════════════════════════════ -->
+  <section class="py-20 md:py-28 border-b" style="border-color:var(--border);" id="stats">
+    <div class="max-w-screen-xl mx-auto px-6 md:px-10">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-4">
+        <div data-aos="fade-up" data-aos-delay="0">
+          <div class="stat-number" data-target="30" data-suffix="+">0+</div>
+          <div class="stat-label">Webs entregadas</div>
+        </div>
+        <div data-aos="fade-up" data-aos-delay="80">
+          <div class="stat-number" data-target="0" data-prefix="€">€0</div>
+          <div class="stat-label">Coste extra de APIs</div>
+        </div>
+        <div data-aos="fade-up" data-aos-delay="160">
+          <div class="stat-number" data-target="18">0</div>
+          <div class="stat-label">Skills de IA activas</div>
+        </div>
+        <div data-aos="fade-up" data-aos-delay="240">
+          <div class="stat-number" data-target="100" data-suffix="%">0%</div>
+          <div class="stat-label">Código propio</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SOCIAL PROOF — SECTORS ════════════════ -->
+  <section class="py-16 md:py-20 border-b" style="border-color:var(--border);background:var(--surface);border-top:1px solid var(--border);">
+    <div class="max-w-screen-xl mx-auto px-6 md:px-10">
+      <div class="flex flex-col md:flex-row md:items-center gap-8 md:gap-16">
+        <div class="flex-shrink-0" data-aos="fade-right">
+          <div class="section-label">Sectores</div>
+          <p style="font-size:0.9375rem;color:var(--text-secondary);max-width:22ch;line-height:1.6;">Industrias donde hemos construido:</p>
+        </div>
+        <div class="flex flex-wrap gap-3" data-aos="fade-up" data-aos-delay="80">
+          <span class="sector-pill">Restauración</span>
+          <span class="sector-pill">Salud</span>
+          <span class="sector-pill">Industria B2B</span>
+          <span class="sector-pill">Retail</span>
+          <span class="sector-pill">Clínicas</span>
+          <span class="sector-pill">E-commerce</span>
+          <span class="sector-pill">SaaS</span>
+          <span class="sector-pill">Servicios locales</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SERVICES ═══════════════════════════════ -->
+  <section class="py-20 md:py-28" id="servicios">
+    <div class="max-w-screen-xl mx-auto px-6 md:px-10">
+      <div class="mb-16" data-aos="fade-up">
+        <div class="section-label">Servicios</div>
+        <h2 class="section-h2">Lo que construimos</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-x-16" style="border-top:1px solid var(--border);">
+        <div class="service-item" data-aos="fade-up">
+          <span class="service-num">01</span>
+          <div>
+            <div class="service-title">Diseño Web</div>
+            <div class="service-desc">Sitios que convierten visitas en clientes. Rápidos, responsivos y sin código de terceros.</div>
+          </div>
+          <span class="service-link">Ver más →</span>
+        </div>
+        <div class="service-item" data-aos="fade-up" data-aos-delay="60">
+          <span class="service-num">02</span>
+          <div>
+            <div class="service-title">Ciberseguridad</div>
+            <div class="service-desc">Auditorías, tests de penetración y hardening para negocios que no pueden permitirse brechas.</div>
+          </div>
+          <span class="service-link">Ver más →</span>
+        </div>
+        <div class="service-item" data-aos="fade-up">
+          <span class="service-num">03</span>
+          <div>
+            <div class="service-title">Automatización con IA</div>
+            <div class="service-desc">Workflows, agentes y pipelines que eliminan trabajo manual. No prompts, sino sistemas.</div>
+          </div>
+          <span class="service-link">Ver más →</span>
+        </div>
+        <div class="service-item" data-aos="fade-up" data-aos-delay="60">
+          <span class="service-num">04</span>
+          <div>
+            <div class="service-title">Mantenimiento &amp; Hosting</div>
+            <div class="service-desc">Actualizaciones, backups y soporte continuo. Tu sitio siempre disponible sin preocupaciones.</div>
+          </div>
+          <span class="service-link">Ver más →</span>
+        </div>
+        <div class="service-item" data-aos="fade-up">
+          <span class="service-num">05</span>
+          <div>
+            <div class="service-title">SEO &amp; Performance</div>
+            <div class="service-desc">Core Web Vitals, estructura semántica y posicionamiento orgánico que dura años, no semanas.</div>
+          </div>
+          <span class="service-link">Ver más →</span>
+        </div>
+        <div class="service-item" data-aos="fade-up" data-aos-delay="60">
+          <span class="service-num">06</span>
+          <div>
+            <div class="service-title">Integración de APIs</div>
+            <div class="service-desc">CRMs, pasarelas de pago, ERPs. Conectamos tu web con el resto de tu negocio sin fricción.</div>
+          </div>
+          <span class="service-link">Ver más →</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PROCESS ════════════════════════════════ -->
+  <section class="py-20 md:py-28 border-t" style="border-color:var(--border);background:var(--surface);" id="proceso">
+    <div class="max-w-screen-xl mx-auto px-6 md:px-10">
+      <div class="mb-16" data-aos="fade-up">
+        <div class="section-label">Cómo trabajamos</div>
+        <h2 class="section-h2">Cuatro pasos.<br>Cero sorpresas.</h2>
+      </div>
+
+      <div class="relative" data-aos="fade-up" data-aos-delay="100">
+        <div class="process-line hidden md:block">
+          <div class="process-line-fill" id="processLineFill"></div>
+        </div>
+        <div class="process-grid-mobile grid md:grid-cols-4 gap-0 md:gap-8 pt-0 md:pt-12">
+          <div>
+            <div class="process-step-num">01</div>
+            <div class="process-step-title">Escuchar</div>
+            <div class="process-step-desc">Reunión de 30 min. Entendemos tu negocio, tus clientes y qué problema real hay que resolver.</div>
+          </div>
+          <div>
+            <div class="process-step-num">02</div>
+            <div class="process-step-title">Diseñar</div>
+            <div class="process-step-desc">Prototipo funcional en 48h. Validamos estructura y flujo antes de escribir una línea de código.</div>
+          </div>
+          <div>
+            <div class="process-step-num">03</div>
+            <div class="process-step-title">Construir</div>
+            <div class="process-step-desc">Código limpio, optimizado y seguro. Entregas parciales cada semana. Sin sorpresas de alcance.</div>
+          </div>
+          <div>
+            <div class="process-step-num">04</div>
+            <div class="process-step-title">Lanzar</div>
+            <div class="process-step-desc">Deploy, formación y soporte post-lanzamiento. No desaparecemos cuando el proyecto termina.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PORTFOLIO ══════════════════════════════ -->
+  <section class="py-20 md:py-28 border-t" style="border-color:var(--border);" id="portfolio">
+    <div class="max-w-screen-xl mx-auto px-6 md:px-10">
+      <div class="mb-16" data-aos="fade-up">
+        <div class="section-label">Trabajos</div>
+        <h2 class="section-h2">Proyectos recientes</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6" style="perspective:1200px;" data-aos="fade-up" data-aos-delay="80">
+        <div class="portfolio-item">
+          <div class="card-sheen" aria-hidden="true"></div>
+          <img src="./portfolio-urdimbre.png" alt="Urdimbre — E-commerce de tejidos de lujo" loading="lazy" style="object-position:top;">
+          <div class="portfolio-overlay">
+            <div class="portfolio-tag">E-commerce · Diseño Web</div>
+            <div class="portfolio-name">Urdimbre Textiles</div>
+          </div>
+        </div>
+        <div class="portfolio-item">
+          <div class="card-sheen" aria-hidden="true"></div>
+          <img src="https://placehold.co/800x500/0D2420/52C898?text=Cl%C3%ADnica+Dental+%E2%80%94+Reservas+%2B+IA" alt="Clínica Dental — Web con sistema de reservas e IA" loading="lazy">
+          <div class="portfolio-overlay">
+            <div class="portfolio-tag">Salud · Reservas · IA</div>
+            <div class="portfolio-name">Clínica Dental Online</div>
+          </div>
+        </div>
+        <div class="portfolio-item">
+          <div class="card-sheen" aria-hidden="true"></div>
+          <img src="https://placehold.co/800x500/181028/9B84D0?text=Distribuidor+B2B+%E2%80%94+E-commerce" alt="Distribuidor Industrial — E-commerce B2B con auditoría de seguridad" loading="lazy">
+          <div class="portfolio-overlay">
+            <div class="portfolio-tag">Industria B2B · Seguridad</div>
+            <div class="portfolio-name">Distribuidor Industrial</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PRICING ════════════════════════════════ -->
+  <section class="py-20 md:py-28 border-t" style="border-color:var(--border);background:var(--surface);" id="precios">
+    <div class="max-w-screen-xl mx-auto px-6 md:px-10">
+      <div class="mb-16" data-aos="fade-up">
+        <div class="section-label">Precios</div>
+        <h2 class="section-h2">Transparente.<br>Sin letra pequeña.</h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5" style="perspective:1200px;" data-aos="fade-up" data-aos-delay="80">
+
+        <div class="pricing-card">
+          <div class="card-sheen" aria-hidden="true"></div>
+          <div>
+            <div class="pricing-plan-name">Básico</div>
+            <div class="pricing-price mt-3">€599<span class="pricing-period">/ único</span></div>
+          </div>
+          <ul class="pricing-features">
+            <li>Web de hasta 5 páginas</li>
+            <li>Diseño responsive</li>
+            <li>Formulario de contacto</li>
+            <li>SEO básico on-page</li>
+            <li>1 ronda de revisiones</li>
+          </ul>
+          <button class="pricing-btn magnetic">Empezar →</button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="card-sheen" aria-hidden="true"></div>
+          <div>
+            <div class="pricing-plan-name">Estándar</div>
+            <div class="pricing-price mt-3">€1.199<span class="pricing-period">/ único</span></div>
+          </div>
+          <ul class="pricing-features">
+            <li>Web de hasta 10 páginas</li>
+            <li>Blog o catálogo</li>
+            <li>Integración CRM básica</li>
+            <li>SEO avanzado + velocidad</li>
+            <li>3 rondas de revisiones</li>
+          </ul>
+          <button class="pricing-btn magnetic">Empezar →</button>
+        </div>
+
+        <div class="pricing-card popular">
+          <div class="card-sheen" aria-hidden="true"></div>
+          <div>
+            <div class="pricing-plan-name">Premium ★</div>
+            <div class="pricing-price mt-3">€2.499<span class="pricing-period">/ único</span></div>
+          </div>
+          <ul class="pricing-features">
+            <li>Web ilimitada + IA integrada</li>
+            <li>Automatizaciones a medida</li>
+            <li>Auditoría de seguridad</li>
+            <li>Panel de analítica propio</li>
+            <li>Soporte 3 meses incluido</li>
+          </ul>
+          <button class="pricing-btn magnetic">Empezar →</button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="card-sheen" aria-hidden="true"></div>
+          <div>
+            <div class="pricing-plan-name">Enterprise</div>
+            <div class="pricing-price mt-3">Custom</div>
+          </div>
+          <ul class="pricing-features">
+            <li>Arquitectura a medida</li>
+            <li>Seguridad y compliance</li>
+            <li>Agentes IA propios</li>
+            <li>SLA garantizado</li>
+            <li>Account manager dedicado</li>
+          </ul>
+          <button class="pricing-btn magnetic">Hablar →</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CTA STRIP ══════════════════════════════ -->
+  <section class="cta-strip py-20 md:py-28" data-aos="fade-up">
+    <div class="max-w-screen-xl mx-auto px-6 md:px-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(1.75rem,4vw,3rem);font-weight:700;letter-spacing:-0.03em;line-height:1.05;color:var(--text-primary);">
+        ¿Construimos algo juntos?
+      </h2>
+      <button class="btn btn-mint magnetic flex-shrink-0" onclick="document.getElementById('contacto').scrollIntoView({behavior:'smooth'})">
+        Contactar →
+      </button>
+    </div>
+  </section>
+
+  <!-- ══ CONTACT ════════════════════════════════ -->
+  <section class="py-20 md:py-28 border-t" style="border-color:var(--border);" id="contacto">
+    <div class="max-w-screen-xl mx-auto px-6 md:px-10">
+      <div class="grid md:grid-cols-2 gap-16 md:gap-24">
+        <div data-aos="fade-right">
+          <div class="section-label">Contacto</div>
+          <h2 class="section-h2 mt-2 mb-6">Hablemos.</h2>
+          <p style="font-size:0.9375rem;color:var(--text-secondary);line-height:1.7;max-width:36ch;">
+            Sin formularios de ventas ni llamadas de discovery de 90 minutos. Cuéntanos qué necesitas y te respondemos en menos de 24h.
+          </p>
+          <div class="mt-8" style="font-family:'Space Grotesk',sans-serif;font-size:0.875rem;color:var(--text-secondary);">
+            <div style="margin-bottom:0.5rem;">
+              <a href="mailto:hola@cifra.es" style="color:var(--mint);">hola@cifra.es</a>
+            </div>
+            <div>Madrid, España — remoto global</div>
+          </div>
+        </div>
+        <form data-aos="fade-up" data-aos-delay="100" onsubmit="return false;">
+          <div class="flex flex-col gap-8">
+            <div><input type="text" class="form-field" placeholder="Tu nombre" required></div>
+            <div><input type="email" class="form-field" placeholder="Tu email" required></div>
+            <div><input type="text" class="form-field" placeholder="Tu empresa (opcional)"></div>
+            <div><textarea class="form-field" rows="3" placeholder="¿En qué podemos ayudarte?" style="resize:none;" required></textarea></div>
+            <div><button type="submit" class="btn btn-mint magnetic">Enviar mensaje →</button></div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ═════════════════════════════════ -->
+  <footer class="footer py-10">
+    <div class="max-w-screen-xl mx-auto px-6 md:px-10">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="nav-logo" style="font-size:1rem;">CIFRA</div>
+        <nav class="flex flex-wrap gap-6">
+          <a href="#servicios" class="footer-link">Servicios</a>
+          <a href="#proceso" class="footer-link">Proceso</a>
+          <a href="#portfolio" class="footer-link">Trabajos</a>
+          <a href="#precios" class="footer-link">Precios</a>
+          <a href="#contacto" class="footer-link">Contacto</a>
+        </nav>
+        <div style="font-size:0.75rem;color:var(--text-secondary);">© 2026 Cifra. Todos los derechos reservados.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══ AOS ════════════════════════════════════ -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <!-- ══ SCRIPTS ════════════════════════════════ -->
+  <script>
+    // ── AOS ──────────────────────────────────────
+    AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true, offset: 60 });
+
+    // ── Lenis smooth scroll ──────────────────────
+    const lenis = new Lenis({ lerp: 0.09, duration: 1.2 });
+    (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })(0);
+
+    // ── Nav scroll state ─────────────────────────
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    }, { passive: true });
+
+    // ── Mobile nav toggle ────────────────────────
+    const overlay = document.getElementById('navOverlay');
+    const openBtn  = document.getElementById('navOpenBtn');
+    const closeBtn = document.getElementById('navCloseBtn');
+    function openMenu() {
+      overlay.classList.add('open');
+      openBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      overlay.classList.remove('open');
+      openBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+    openBtn.addEventListener('click', openMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    overlay.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+
+    // ── Process line observer ─────────────────────
+    const lineEl = document.getElementById('processLineFill');
+    if (lineEl) {
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { lineEl.classList.add('visible'); } });
+      }, { threshold: 0.3 }).observe(lineEl.parentElement);
+    }
+
+    // ── Counter (RAF easeOutQuart) ───────────────
+    function animateCounter(el, target, prefix, suffix) {
+      const start = performance.now();
+      const dur = 1600;
+      (function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 4);
+        el.textContent = (prefix || '') + Math.round(ease * target) + (suffix || '');
+        if (p < 1) requestAnimationFrame(tick);
+      })(start);
+    }
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animateCounter(e.target, +e.target.dataset.target, e.target.dataset.prefix, e.target.dataset.suffix);
+          counterObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat-number[data-target]').forEach(el => counterObs.observe(el));
+
+    // ── 3D Card Tilt + Sheen ─────────────────────
+    function initTilt(selector, maxDeg) {
+      document.querySelectorAll(selector).forEach(card => {
+        card.addEventListener('mousemove', e => {
+          const r  = card.getBoundingClientRect();
+          const x  = (e.clientX - r.left)  / r.width;
+          const y  = (e.clientY - r.top)   / r.height;
+          const rx = (y - 0.5) * -maxDeg * 2;
+          const ry = (x - 0.5) *  maxDeg * 2;
+          card.style.transform = `perspective(1200px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
+          const sheen = card.querySelector('.card-sheen');
+          if (sheen) {
+            sheen.style.setProperty('--mx', (x * 100) + '%');
+            sheen.style.setProperty('--my', (y * 100) + '%');
+          }
+        });
+        card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+      });
+    }
+    initTilt('.portfolio-item', 8);
+    initTilt('.pricing-card', 6);
+
+    // ── Magnetic buttons ─────────────────────────
+    document.querySelectorAll('.magnetic').forEach(btn => {
+      btn.addEventListener('mousemove', e => {
+        const r = btn.getBoundingClientRect();
+        const dx = (e.clientX - r.left - r.width  / 2) * 0.28;
+        const dy = (e.clientY - r.top  - r.height / 2) * 0.28;
+        if (Math.hypot(dx, dy) < 80)
+          btn.style.transform = `translate(${Math.min(dx,8)}px,${Math.min(dy,8)}px)`;
+      });
+      btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    });
+  </script>
+</body>
+</html>
