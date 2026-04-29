@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cómo conseguir más reseñas en Google para tu negocio local | Empresa Demo S.L.</title>
+  <meta name="description" content="Aprende estrategias prácticas para conseguir más reseñas en Google y mejorar la visibilidad de tu negocio local sin gastar en publicidad.">
+  <meta property="og:title" content="Cómo conseguir más reseñas en Google para tu negocio local">
+  <meta property="og:description" content="Aprende estrategias prácticas para conseguir más reseñas en Google y mejorar la visibilidad de tu negocio local sin gastar en publicidad.">
+  <meta property="og:image" content="https://placehold.co/1200x675">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --copper:     #C17A3A;
+      --copper-lt:  #D9944E;
+      --copper-dk:  #8A5225;
+      --linen:      #F5EDD6;
+      --linen-dk:   #E8DBC0;
+      --charcoal:   #1A1410;
+      --charcoal-md:#2C2018;
+      --charcoal-lt:#3E2E1E;
+      --text-on-dk: #F0E8D4;
+      --text-body:  #4A3825;
+
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+
+      --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --reveal:  cubic-bezier(0, 1, 0.5, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body, 'DM Sans', system-ui, sans-serif);
+      background: var(--linen, #F5EDD6);
+      color: var(--text-body, #4A3825);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--copper, #C17A3A); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Nav */
+    .blog-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--charcoal, #1A1410);
+      padding: 16px 32px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .blog-nav a { color: var(--text-on-dk, #F0E8D4); font-size: 14px; }
+    .blog-nav .sep { color: var(--copper, #C17A3A); }
+    .blog-nav .brand { font-family: var(--font-display, Georgia, serif); font-size: 18px; font-weight: 600; }
+
+    /* Hero */
+    .post-hero {
+      position: relative; height: 480px; overflow: hidden;
+      display: flex; align-items: flex-end;
+    }
+    .post-hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://placehold.co/1200x675');
+      background-size: cover; background-position: center;
+      filter: brightness(0.55);
+      transition: transform 0.6s var(--ease-out, ease-out);
+    }
+    .post-hero:hover .post-hero-bg { transform: scale(1.02); }
+    .post-hero-content {
+      position: relative; z-index: 1;
+      padding: 48px 10%;
+      color: var(--text-on-dk, #F0E8D4);
+    }
+    .post-hero h1 {
+      font-family: var(--font-display, Georgia, serif);
+      font-size: clamp(28px, 4vw, 56px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .post-meta {
+      font-size: 13px;
+      color: var(--copper-lt, #D9944E);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* Article */
+    .post-body {
+      max-width: 760px;
+      margin: 64px auto 80px;
+      padding: 0 24px;
+      line-height: 1.8;
+      font-size: 17px;
+    }
+    .post-body h2 {
+      font-family: var(--font-display, Georgia, serif);
+      font-size: clamp(22px, 2.5vw, 32px);
+      color: var(--charcoal, #1A1410);
+      margin: 48px 0 16px;
+      letter-spacing: -0.01em;
+    }
+    .post-body p { margin-bottom: 20px; }
+    .post-body ul, .post-body ol {
+      margin: 0 0 20px 24px;
+    }
+    .post-body li { margin-bottom: 8px; }
+    .post-body blockquote {
+      border-left: 3px solid var(--copper, #C17A3A);
+      padding: 12px 20px;
+      margin: 32px 0;
+      font-style: italic;
+      color: var(--charcoal-lt, #3E2E1E);
+      background: var(--linen-dk, #E8DBC0);
+      border-radius: 0 4px 4px 0;
+    }
+    .post-body a {
+      color: var(--copper, #C17A3A);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* Footer */
+    .post-footer {
+      background: var(--charcoal, #1A1410);
+      color: var(--text-on-dk, #F0E8D4);
+      text-align: center;
+      padding: 40px 24px;
+      font-size: 14px;
+    }
+    .post-footer a { color: var(--copper-lt, #D9944E); }
+  </style>
+</head>
+<body>
+
+  <nav class="blog-nav">
+    <a class="brand" href="../../index.html">Empresa Demo S.L.</a>
+    <span class="sep">›</span>
+    <a href="../../index.html#blog">Blog</a>
+    <span class="sep">›</span>
+    <span style="color:var(--copper-lt,#D9944E)">Cómo conseguir más reseñas en Google para tu negoc...</span>
+  </nav>
+
+  <div class="post-hero">
+    <div class="post-hero-bg"></div>
+    <div class="post-hero-content">
+      <p class="post-meta" data-aos="fade-up">2026-04-17 · 805 palabras</p>
+      <h1 data-aos="fade-up" data-aos-delay="100">Cómo conseguir más reseñas en Google para tu negocio local</h1>
+    </div>
+  </div>
+
+  <article class="post-body" data-aos="fade-up" data-aos-delay="200">
+    <h1>Cómo conseguir más reseñas en Google para tu negocio local</h1><p>Las reseñas en Google para tu negocio local son uno de los factores más importantes a la hora de atraer nuevos clientes. Cuando alguien busca un restaurante, una ferretería o un estudio de yoga cerca de su casa, lo primero que mira es la valoración y los comentarios de otros usuarios. No importa cuánto tiempo lleves trabajando ni lo bueno que sea tu servicio: si no tienes reseñas visibles, muchos clientes potenciales seguirán de largo.</p><p>La buena noticia es que conseguir reseñas no requiere grandes presupuestos ni herramientas complicadas. Requiere constancia, un método claro y saber cuándo y cómo pedirlas.</p><h2>Por qué las reseñas en Google importan tanto a un negocio local</h2><p>Google utiliza las reseñas como señal de confianza y relevancia. Un perfil con muchas reseñas recientes y una valoración alta tiene más posibilidades de aparecer en los primeros resultados del mapa local, lo que se conoce como el «Pack de 3». Esa visibilidad gratuita equivale a publicidad que no pagas directamente.</p><p>Además, las reseñas influyen en la decisión de compra. Según el comportamiento habitual de los consumidores, la mayoría lee al menos dos o tres comentarios antes de contactar con un negocio nuevo. Un perfil con diez reseñas genera más confianza que uno con ninguna, aunque el servicio sea igual de bueno en ambos casos.</p><p>Por último, responder a las reseñas, tanto positivas como negativas, demuestra que hay personas reales detrás del negocio que se preocupan por la experiencia del cliente.</p><h2>El momento adecuado para pedir una reseña</h2><p>El error más común es pedir la reseña demasiado pronto o en un momento neutral. El instante ideal es justo después de que el cliente ha tenido una experiencia positiva concreta: cuando recoge su pedido satisfecho, cuando termina una sesión de servicio o cuando te agradece algo por mensaje.</p><p>En ese momento de satisfacción, un simple mensaje personalizado funciona mucho mejor que una solicitud genérica. Puedes decir algo como: «Me alegra que todo haya salido bien, si tienes un momento te agradecería mucho que dejaras tu opinión en Google, ayuda a que más personas nos encuentren». Es directo, honesto y no resulta intrusivo.</p><p>Si tienes un negocio físico, también puedes colocar un pequeño cartel en el mostrador con un código QR que lleve directamente a tu perfil de Google. Muchos clientes no dejan reseñas porque el proceso les parece complicado; reducir los pasos lo cambia todo.</p><h2>Formas prácticas de solicitar reseñas sin resultar pesado</h2><p>Hay varios canales que funcionan bien para pedir reseñas de forma natural y respetuosa:</p><ul><li>Un mensaje de WhatsApp personalizado después de completar un servicio.</li><li>Un correo electrónico de seguimiento enviado uno o dos días después de la compra.</li><li>Una tarjeta física con el QR incluida en el packaging o el recibo.</li><li>Una mención verbal al final de la atención presencial.</li><li>Un mensaje en redes sociales cuando un cliente te etiqueta o comenta algo positivo.</li></ul><p>Lo importante es no saturar al mismo cliente con múltiples peticiones. Una solicitud bien hecha en el momento correcto tiene mucho más efecto que tres recordatorios seguidos que solo generan incomodidad.</p><h2>Cómo responder a las reseñas para sacarles más partido</h2><p>Responder a cada reseña, aunque solo sean dos líneas, tiene un efecto positivo doble: le demuestra al cliente que lo escuchas y le muestra a Google que el perfil está activo. Ambas cosas mejoran tu posicionamiento local.</p><p>Ante una reseña positiva, no te limites a escribir «¡Gracias!». Personaliza la respuesta mencionando algo específico del comentario y aprovecha para incluir de forma natural alguna palabra clave relacionada con tu servicio o ciudad. Por ejemplo: «Nos alegra que tu experiencia en nuestra tienda de Madrid haya sido tan buena, te esperamos pronto».</p><p>Ante una reseña negativa, mantén la calma y responde siempre en público. Reconoce el problema sin entrar en defensas exageradas, ofrece una solución concreta y deja un canal de contacto privado para resolverlo. Los futuros clientes que lean esa reseña valorarán más tu respuesta profesional que el comentario negativo en sí.</p><h2>Qué evitar cuando buscas más reseñas</h2><p>Existen prácticas que a corto plazo parecen atractivas pero que pueden perjudicarte. Comprar reseñas falsas o pedirle a amigos y familiares que publiquen opiniones que no reflejan una experiencia real viola los términos de uso de Google y puede resultar en la penalización o eliminación de tu perfil.</p><p>Tampoco es recomendable ofrecer descuentos o regalos a cambio de una reseña positiva. Además de ser éticamente cuestionable, los clientes que reciben un incentivo tienden a escribir comentarios menos detallados y creíbles, lo que reduce su valor real.</p><p>La vía más sostenible siempre es la misma: ofrecer un buen servicio, pedir la reseña en el momento oportuno y mantener el perfil actualizado y bien cuidado. <a href='/servicios'>[Ver nuestros servicios]</a> para conocer cómo podemos ayudarte a mejorar la presencia digital de tu negocio local.</p>
+  </article>
+
+  <footer class="post-footer">
+    <p>&copy; 2026 Empresa Demo S.L.. <a href="../../index.html">Volver al inicio</a></p>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true });</script>
+</body>
+</html>

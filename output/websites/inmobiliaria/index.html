@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arco Inmobiliaria — Propiedades Premium en Madrid</title>
+  <meta name="description" content="Agencia inmobiliaria boutique en Madrid. Venta y alquiler de propiedades seleccionadas en los mejores barrios. Servicio personalizado, discreción garantizada.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Animation plan:
+    - Hero: Split layout architectural photo + geometric overlay + word-by-word reveal
+    - Property cards: AOS stagger + hover scale + floating shadow
+    - Stats: count-up via IntersectionObserver
+  -->
+
+  <style>
+    :root {
+      --navy:     #0D1B2A;
+      --navy-md:  #152438;
+      --blue-dk:  #1E3A54;
+      --gold:     #B8973A;
+      --gold-lt:  #D4AD55;
+      --white:    #FFFFFF;
+      --off-white:#F8F6F2;
+      --grey-lt:  #E8E4DE;
+      --grey:     #9A9490;
+      --font-display: 'EB Garamond', Georgia, serif;
+      --font-body:    'Outfit', system-ui, sans-serif;
+      --ease-spring: cubic-bezier(.34,1.56,.64,1);
+      --ease-out:    cubic-bezier(.22,.61,.36,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--off-white);
+      color: var(--navy);
+      overflow-x: hidden;
+      font-weight: 300;
+    }
+
+    /* Grain */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 999; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.02;
+    }
+
+    /* ─── NAV ───────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      padding: 1.5rem 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background .4s ease, padding .4s ease;
+    }
+    nav.scrolled {
+      background: rgba(13,27,42,.96);
+      backdrop-filter: blur(16px);
+      padding: 1rem 5vw;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem; font-weight: 400; letter-spacing: .06em;
+      color: var(--white); text-decoration: none;
+    }
+    .nav-logo .gold { color: var(--gold); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(255,255,255,.45); text-decoration: none; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .65rem 1.6rem; border: 1px solid var(--gold);
+      color: var(--gold); text-decoration: none;
+      font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+      transition: background .2s, color .2s;
+    }
+    .nav-cta:hover { background: var(--gold); color: var(--navy); }
+    @media(max-width:768px){ .nav-links { display: none; } }
+
+    /* ─── HERO ──────────────────────────────────────────────── */
+    #inicio {
+      min-height: 100svh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      overflow: hidden; background: var(--navy);
+    }
+    @media(max-width:900px){ #inicio { grid-template-columns: 1fr; } }
+
+    .hero-img {
+      position: relative; overflow: hidden;
+    }
+    .hero-img img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      opacity: .75; transform: scale(1.06);
+      transition: transform 8s ease-out;
+    }
+    .hero-img img.loaded { transform: scale(1); }
+    .hero-img-fallback {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 40% 40%, #1E3A54 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 70% 70%, #0D1B2A 0%, transparent 55%),
+        linear-gradient(155deg, #0D1B2A 0%, #152438 50%, #0D1B2A 100%);
+    }
+    /* Architectural grid pattern */
+    .hero-img-fallback::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(184,151,58,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(184,151,58,.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-img::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, transparent 60%, var(--navy) 100%);
+    }
+    @media(max-width:900px){
+      .hero-img { height: 55vh; }
+      .hero-img::after { background: linear-gradient(to bottom, transparent 60%, var(--navy) 100%); }
+    }
+
+    .hero-text {
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 9rem 6vw 5rem 5vw;
+    }
+    @media(max-width:900px){ .hero-text { padding: 3rem 6vw 5rem; } }
+
+    .hero-eyebrow {
+      font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.8rem;
+      display: flex; align-items: center; gap: .8rem;
+    }
+    .hero-eyebrow::before { content: ''; width: 2rem; height: 1px; background: var(--gold); }
+
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3.2rem, 6.5vw, 8.5rem);
+      font-weight: 400; line-height: .95;
+      letter-spacing: -.02em; color: var(--white);
+      margin-bottom: 2.5rem;
+    }
+    .hero-h1 em { display: block; font-style: italic; color: var(--gold); }
+
+    .hero-sub {
+      font-size: clamp(.87rem, 1.1vw, 1rem);
+      color: rgba(255,255,255,.45); line-height: 1.85; max-width: 40ch;
+      margin-bottom: 3rem;
+    }
+
+    .hero-cta-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-gold-solid {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: 1rem 2.4rem; background: var(--gold);
+      color: var(--navy); text-decoration: none;
+      font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 500;
+      transition: background .2s, transform .15s var(--ease-spring);
+    }
+    .btn-gold-solid:hover { background: var(--gold-lt); transform: translateY(-2px); }
+    .btn-outline-wh {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: 1rem 2.4rem; background: transparent;
+      color: rgba(255,255,255,.65); border: 1px solid rgba(255,255,255,.2);
+      text-decoration: none; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-outline-wh:hover { border-color: var(--gold); color: var(--gold); }
+
+    .hero-badge {
+      position: absolute; top: 2rem; right: 2rem;
+      width: 88px; height: 88px; border-radius: 50%;
+      border: 1px solid rgba(184,151,58,.4);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+    }
+    .hero-badge-n { font-family: var(--font-display); font-size: 1.6rem; color: var(--gold); line-height: 1; }
+    .hero-badge-l { font-size: .55rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.35); margin-top: .2rem; }
+
+    /* ─── MARQUEE ───────────────────────────────────────────── */
+    .mq-bar {
+      background: var(--gold); padding: .65rem 0; overflow: hidden;
+      display: flex; white-space: nowrap;
+    }
+    .mq-inner {
+      display: flex; gap: 3rem;
+      animation: mq 20s linear infinite;
+      font-family: var(--font-body); font-size: .72rem;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(13,27,42,.6); font-weight: 400;
+    }
+    .mq-inner span { flex-shrink: 0; }
+    .mq-dot { color: rgba(13,27,42,.3); }
+    @keyframes mq { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ─── LABELS/HEADINGS ───────────────────────────────────── */
+    .sec-label {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.2rem;
+    }
+    .sec-label::before { content: ''; width: 1.5rem; height: 1px; background: var(--gold); }
+    .sec-h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4vw, 5rem);
+      font-weight: 400; line-height: 1.05;
+      letter-spacing: -.01em; color: var(--navy);
+    }
+    .sec-h2 em { font-style: italic; color: var(--gold); }
+    .sec-h2-lt { color: var(--white); }
+
+    /* ─── PROPIEDADES ───────────────────────────────────────── */
+    #propiedades {
+      background: var(--off-white); padding: 9rem 5vw;
+    }
+    .prop-header {
+      max-width: 1280px; margin: 0 auto 4rem;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+    }
+    .prop-filter {
+      display: flex; gap: .3rem;
+    }
+    .prop-btn {
+      padding: .5rem 1.2rem; background: none;
+      font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--grey); border: 1px solid var(--grey-lt); cursor: pointer;
+      transition: all .2s;
+    }
+    .prop-btn.active, .prop-btn:hover { color: var(--navy); border-color: var(--navy); }
+
+    .prop-grid {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    }
+    @media(max-width:1000px){ .prop-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:600px){ .prop-grid { grid-template-columns: 1fr; } }
+
+    .prop-card {
+      background: var(--white);
+      box-shadow: 0 2px 20px rgba(13,27,42,.06);
+      transition: transform .35s var(--ease-spring), box-shadow .35s;
+      cursor: pointer; overflow: hidden;
+    }
+    .prop-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(13,27,42,.14); }
+
+    .prop-card-img {
+      position: relative; aspect-ratio: 4/3; overflow: hidden;
+    }
+    .prop-card-img-inner {
+      width: 100%; height: 100%;
+      transition: transform .6s var(--ease-out);
+    }
+    .prop-card:hover .prop-card-img-inner { transform: scale(1.04); }
+
+    .prop-bg-1 { background: linear-gradient(145deg, #B8973A 0%, #8A6A20 100%); }
+    .prop-bg-2 { background: linear-gradient(145deg, #1E3A54 0%, #0D1B2A 100%); }
+    .prop-bg-3 { background: linear-gradient(145deg, #2A4060 0%, #152438 100%); }
+    .prop-bg-4 { background: linear-gradient(145deg, #8A6A30 0%, #5A4A20 100%); }
+    .prop-bg-5 { background: linear-gradient(145deg, #152438 0%, #0A1520 100%); }
+    .prop-bg-6 { background: linear-gradient(145deg, #3A5070 0%, #1A2F44 100%); }
+
+    .prop-card-img-inner::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .prop-tag {
+      position: absolute; top: 1rem; left: 1rem;
+      padding: .35rem .8rem; background: var(--gold);
+      font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--navy); font-weight: 500;
+    }
+    .prop-sold {
+      position: absolute; top: 1rem; right: 1rem;
+      padding: .35rem .8rem; background: rgba(13,27,42,.7);
+      font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(255,255,255,.6);
+    }
+
+    .prop-info { padding: 1.5rem; }
+    .prop-name {
+      font-family: var(--font-display); font-size: 1.1rem; font-weight: 400;
+      color: var(--navy); margin-bottom: .5rem; line-height: 1.3;
+    }
+    .prop-zone {
+      font-size: .75rem; color: var(--grey); letter-spacing: .05em;
+      margin-bottom: 1rem;
+    }
+    .prop-specs {
+      display: flex; gap: 1.2rem; margin-bottom: 1.2rem;
+    }
+    .prop-spec {
+      display: flex; align-items: center; gap: .35rem;
+      font-size: .78rem; color: var(--navy);
+    }
+    .prop-spec-icon { color: var(--gold); font-size: .85rem; }
+    .prop-price {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 500;
+      color: var(--navy); border-top: 1px solid var(--grey-lt); padding-top: 1rem;
+    }
+    .prop-price span { font-size: .75rem; font-family: var(--font-body); color: var(--grey); font-weight: 300; }
+
+    /* ─── STATS ─────────────────────────────────────────────── */
+    #stats {
+      background: var(--navy); padding: 6rem 5vw;
+    }
+    .stats-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1px; background: rgba(255,255,255,.06);
+    }
+    @media(max-width:900px){ .stats-grid { grid-template-columns: repeat(2,1fr); } }
+
+    .stat-cell {
+      background: var(--navy);
+      padding: 3.5rem 2.5rem;
+      text-align: center;
+    }
+    .stat-num {
+      font-family: var(--font-display); font-size: clamp(2.8rem,5vw,5rem);
+      font-weight: 400; color: var(--gold); line-height: 1;
+    }
+    .stat-lbl {
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,.3); margin-top: .8rem;
+    }
+
+    /* ─── SERVICIOS ─────────────────────────────────────────── */
+    #servicios {
+      background: var(--off-white); padding: 9rem 5vw;
+    }
+    .serv-grid {
+      max-width: 1200px; margin: 4rem auto 0;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    }
+    @media(max-width:900px){ .serv-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
+    .serv-card {
+      padding: 2.5rem 2rem;
+      border: 1px solid var(--grey-lt);
+      transition: border-color .25s, box-shadow .3s, transform .3s var(--ease-spring);
+    }
+    .serv-card:hover { border-color: var(--gold); box-shadow: 0 16px 40px rgba(13,27,42,.08); transform: translateY(-4px); }
+
+    .serv-icon {
+      width: 44px; height: 44px; margin-bottom: 1.5rem;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(184,151,58,.1); color: var(--gold);
+      font-size: 1.2rem;
+    }
+    .serv-title {
+      font-family: var(--font-display); font-size: 1.2rem;
+      color: var(--navy); margin-bottom: .8rem;
+    }
+    .serv-desc { font-size: .85rem; line-height: 1.85; color: var(--grey); }
+
+    /* ─── TESTIMONIOS ───────────────────────────────────────── */
+    #testimonios {
+      background: var(--navy); padding: 8rem 5vw;
+    }
+    .test-grid {
+      max-width: 1200px; margin: 4rem auto 0;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    }
+    @media(max-width:900px){ .test-grid { grid-template-columns: 1fr; } }
+
+    .test-card {
+      padding: 2.5rem;
+      border: 1px solid rgba(255,255,255,.07);
+      transition: border-color .2s;
+    }
+    .test-card:hover { border-color: rgba(184,151,58,.35); }
+    .test-stars { display: flex; gap: .2rem; margin-bottom: 1.5rem; }
+    .test-stars svg { width: 12px; height: 12px; fill: var(--gold); }
+    .test-quote {
+      font-family: var(--font-display); font-size: 1.05rem; font-style: italic;
+      font-weight: 400; color: var(--white); line-height: 1.65; margin-bottom: 1.5rem;
+    }
+    .test-author { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.3); }
+
+    /* ─── CONTACTO ──────────────────────────────────────────── */
+    #contacto {
+      background: var(--off-white); padding: 9rem 5vw;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8vw;
+    }
+    @media(max-width:900px){ #contacto { grid-template-columns: 1fr; gap: 4rem; padding: 5rem 6vw; } }
+
+    .cnt-left .sec-h2 { margin-bottom: 1.5rem; }
+    .cnt-left p { font-size: .9rem; color: var(--grey); line-height: 1.85; margin-bottom: 1rem; }
+    .cnt-detail { margin-top: 2.5rem; }
+    .cnt-row { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--grey-lt); align-items: flex-start; }
+    .cnt-icon { color: var(--gold); font-size: 1rem; flex-shrink: 0; margin-top: .1rem; }
+    .cnt-info-lbl { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--grey); display: block; }
+    .cnt-info-val { font-size: .9rem; color: var(--navy); margin-top: .2rem; }
+    .cnt-info-val a { color: var(--navy); text-decoration: none; }
+    .cnt-info-val a:hover { color: var(--gold); }
+
+    .cnt-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .cnt-row-f { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width:540px){ .cnt-row-f { grid-template-columns: 1fr; } }
+    .fg2 { display: flex; flex-direction: column; gap: .4rem; }
+    .fg2 label { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--grey); }
+    .fg2 input, .fg2 select, .fg2 textarea {
+      background: var(--white); border: 1px solid var(--grey-lt);
+      padding: .9rem 1rem; color: var(--navy);
+      font-family: var(--font-body); font-size: .9rem; outline: none;
+      transition: border-color .2s;
+    }
+    .fg2 input::placeholder, .fg2 textarea::placeholder { color: rgba(13,27,42,.25); }
+    .fg2 input:focus, .fg2 select:focus, .fg2 textarea:focus { border-color: var(--gold); }
+    .fg2 textarea { resize: vertical; min-height: 110px; }
+    .fg2 select { appearance: none; cursor: pointer; }
+    .cnt-submit {
+      padding: 1rem; background: var(--navy); border: none;
+      color: var(--white); cursor: pointer;
+      font-family: var(--font-body); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase;
+      transition: background .2s, transform .15s var(--ease-spring);
+    }
+    .cnt-submit:hover { background: var(--gold); color: var(--navy); transform: translateY(-2px); }
+
+    /* ─── FOOTER ────────────────────────────────────────────── */
+    footer {
+      background: var(--navy); border-top: 1px solid rgba(255,255,255,.06);
+      padding: 2.5rem 5vw;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .foot-logo { font-family: var(--font-display); font-size: 1.1rem; color: rgba(255,255,255,.35); }
+    .foot-logo .gold { color: var(--gold); }
+    .foot-copy { font-size: .72rem; color: rgba(255,255,255,.2); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#inicio" class="nav-logo">Arco <span class="gold">·</span> Inmobiliaria</a>
+    <ul class="nav-links">
+      <li><a href="#propiedades">Propiedades</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#testimonios">Clientes</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+    <a href="#contacto" class="nav-cta">Tasación gratuita →</a>
+  </nav>
+
+  <!-- HERO -->
+  <section id="inicio">
+    <div class="hero-img" style="position:relative;">
+      <div class="hero-img-fallback"></div>
+      <img src="assets/hero.jpg" alt="Edificio de viviendas premium en Madrid — cielo azul, luz de tarde"
+           loading="eager" onload="this.classList.add('loaded')" style="width:100%;height:100%;object-fit:cover;display:block;opacity:.65;position:relative;z-index:1;">
+      <div class="hero-badge" style="z-index:5;">
+        <span class="hero-badge-n">+15</span>
+        <span class="hero-badge-l">años de<br>confianza</span>
+      </div>
+    </div>
+    <div class="hero-text">
+      <div class="hero-eyebrow" data-aos="fade-right" data-aos-delay="100">Inmobiliaria boutique · Madrid</div>
+      <h1 class="hero-h1" data-aos="fade-up" data-aos-delay="200">
+        Cada casa<br>tiene su<br><em>historia.</em>
+      </h1>
+      <p class="hero-sub" data-aos="fade-up" data-aos-delay="320">
+        Seleccionamos propiedades únicas en los mejores barrios de Madrid. Sin prisa. Con criterio. Con la discreción que su patrimonio merece.
+      </p>
+      <div class="hero-cta-row" data-aos="fade-up" data-aos-delay="420">
+        <a href="#propiedades" class="btn-gold-solid">Ver propiedades →</a>
+        <a href="#contacto" class="btn-outline-wh">Tasación gratuita</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="mq-bar" aria-hidden="true">
+    <div class="mq-inner">
+      <span>Salamanca</span><span class="mq-dot">·</span>
+      <span>Chamberí</span><span class="mq-dot">·</span>
+      <span>Retiro</span><span class="mq-dot">·</span>
+      <span>Almagro</span><span class="mq-dot">·</span>
+      <span>Jerónimos</span><span class="mq-dot">·</span>
+      <span>Castellana</span><span class="mq-dot">·</span>
+      <span>La Latina</span><span class="mq-dot">·</span>
+      <span>Malasaña</span><span class="mq-dot">·</span>
+      <!-- dupe -->
+      <span>Salamanca</span><span class="mq-dot">·</span>
+      <span>Chamberí</span><span class="mq-dot">·</span>
+      <span>Retiro</span><span class="mq-dot">·</span>
+      <span>Almagro</span><span class="mq-dot">·</span>
+      <span>Jerónimos</span><span class="mq-dot">·</span>
+      <span>Castellana</span><span class="mq-dot">·</span>
+      <span>La Latina</span><span class="mq-dot">·</span>
+      <span>Malasaña</span><span class="mq-dot">·</span>
+    </div>
+  </div>
+
+  <!-- PROPIEDADES -->
+  <section id="propiedades">
+    <div class="prop-header">
+      <div>
+        <span class="sec-label" data-aos="fade-right">Selección actual</span>
+        <h2 class="sec-h2" data-aos="fade-up" data-aos-delay="100">
+          Propiedades <em>destacadas.</em>
+        </h2>
+      </div>
+      <div class="prop-filter" data-aos="fade-left" data-aos-delay="150">
+        <button class="prop-btn active">Todas</button>
+        <button class="prop-btn">Venta</button>
+        <button class="prop-btn">Alquiler</button>
+      </div>
+    </div>
+    <div class="prop-grid">
+      <div class="prop-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="prop-card-img">
+          <div class="prop-card-img-inner prop-bg-1"></div>
+          <span class="prop-tag">Venta</span>
+        </div>
+        <div class="prop-info">
+          <div class="prop-name">Ático con terraza en Salamanca</div>
+          <div class="prop-zone">Madrid · Barrio de Salamanca</div>
+          <div class="prop-specs">
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>185 m²</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>4 hab.</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>3 baños</span>
+          </div>
+          <div class="prop-price">1.950.000 € <span>precio total</span></div>
+        </div>
+      </div>
+      <div class="prop-card" data-aos="fade-up" data-aos-delay="80">
+        <div class="prop-card-img">
+          <div class="prop-card-img-inner prop-bg-2"></div>
+          <span class="prop-tag">Alquiler</span>
+        </div>
+        <div class="prop-info">
+          <div class="prop-name">Piso modernista en Chamberí</div>
+          <div class="prop-zone">Madrid · Chamberí · Almagro</div>
+          <div class="prop-specs">
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>120 m²</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>3 hab.</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>2 baños</span>
+          </div>
+          <div class="prop-price">3.200 € <span>/ mes</span></div>
+        </div>
+      </div>
+      <div class="prop-card" data-aos="fade-up" data-aos-delay="160">
+        <div class="prop-card-img">
+          <div class="prop-card-img-inner prop-bg-3"></div>
+          <span class="prop-tag">Venta</span>
+        </div>
+        <div class="prop-info">
+          <div class="prop-name">Villa adosada en La Moraleja</div>
+          <div class="prop-zone">Madrid · La Moraleja · Alcobendas</div>
+          <div class="prop-specs">
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>320 m²</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>5 hab.</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>4 baños</span>
+          </div>
+          <div class="prop-price">1.350.000 € <span>precio total</span></div>
+        </div>
+      </div>
+      <div class="prop-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="prop-card-img">
+          <div class="prop-card-img-inner prop-bg-4"></div>
+          <span class="prop-tag">Alquiler</span>
+        </div>
+        <div class="prop-info">
+          <div class="prop-name">Estudio de diseño en Chueca</div>
+          <div class="prop-zone">Madrid · Chueca · Centro</div>
+          <div class="prop-specs">
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>55 m²</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>1 hab.</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>1 baño</span>
+          </div>
+          <div class="prop-price">1.500 € <span>/ mes</span></div>
+        </div>
+      </div>
+      <div class="prop-card" data-aos="fade-up" data-aos-delay="80">
+        <div class="prop-card-img">
+          <div class="prop-card-img-inner prop-bg-5"></div>
+          <span class="prop-tag">Venta</span>
+          <span class="prop-sold">Reservado</span>
+        </div>
+        <div class="prop-info">
+          <div class="prop-name">Planta baja con jardín en Retiro</div>
+          <div class="prop-zone">Madrid · Retiro · Ibiza</div>
+          <div class="prop-specs">
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>140 m²</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>3 hab.</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>2 baños</span>
+          </div>
+          <div class="prop-price">780.000 € <span>precio total</span></div>
+        </div>
+      </div>
+      <div class="prop-card" data-aos="fade-up" data-aos-delay="160">
+        <div class="prop-card-img">
+          <div class="prop-card-img-inner prop-bg-6"></div>
+          <span class="prop-tag">Venta</span>
+        </div>
+        <div class="prop-info">
+          <div class="prop-name">Loft industrial en Malasaña</div>
+          <div class="prop-zone">Madrid · Malasaña · Tribunal</div>
+          <div class="prop-specs">
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>95 m²</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>2 hab.</span>
+            <span class="prop-spec"><span class="prop-spec-icon">◻</span>1 baño</span>
+          </div>
+          <div class="prop-price">495.000 € <span>precio total</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats">
+    <div class="stats-grid">
+      <div class="stat-cell" data-aos="fade-up" data-aos-delay="0">
+        <div class="stat-num" data-target="450">450+</div>
+        <div class="stat-lbl">Propiedades vendidas</div>
+      </div>
+      <div class="stat-cell" data-aos="fade-up" data-aos-delay="80">
+        <div class="stat-num">15</div>
+        <div class="stat-lbl">Años de experiencia</div>
+      </div>
+      <div class="stat-cell" data-aos="fade-up" data-aos-delay="160">
+        <div class="stat-num">98%</div>
+        <div class="stat-lbl">Clientes satisfechos</div>
+      </div>
+      <div class="stat-cell" data-aos="fade-up" data-aos-delay="240">
+        <div class="stat-num">4.9</div>
+        <div class="stat-lbl">Valoración media</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section id="servicios">
+    <span class="sec-label" data-aos="fade-right">Cómo trabajamos</span>
+    <h2 class="sec-h2" data-aos="fade-up" data-aos-delay="100">
+      Servicio<em> completo.</em>
+    </h2>
+    <div class="serv-grid">
+      <div class="serv-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="serv-icon">⬡</div>
+        <div class="serv-title">Tasación gratuita</div>
+        <p class="serv-desc">Valoramos tu propiedad con datos reales del mercado actual, sin coste ni compromiso. En 48 horas tienes el informe en tu email.</p>
+      </div>
+      <div class="serv-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="serv-icon">◈</div>
+        <div class="serv-title">Home staging y fotografía</div>
+        <p class="serv-desc">Preparamos tu inmueble para vender más rápido y a mejor precio. Fotografía profesional, vídeo y planos incluidos en todos los encargos.</p>
+      </div>
+      <div class="serv-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="serv-icon">◎</div>
+        <div class="serv-title">Gestión legal y fiscal</div>
+        <p class="serv-desc">Nuestro equipo jurídico se ocupa de toda la documentación, escrituras, impuestos y registros. Tú solo firmas cuando toca.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIOS -->
+  <section id="testimonios">
+    <span class="sec-label" style="color:rgba(184,151,58,.8);" data-aos="fade-right">Clientes</span>
+    <h2 class="sec-h2 sec-h2-lt" data-aos="fade-up" data-aos-delay="100">
+      Lo que dicen<br><em>quienes confían en nosotros.</em>
+    </h2>
+    <div class="test-grid">
+      <div class="test-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="test-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="test-quote">"Vendimos el piso de Chamberí en 3 semanas al precio que pedíamos. El proceso fue transparente y sin sorpresas."</p>
+        <span class="test-author">— Isabel Morales, propietaria · Madrid</span>
+      </div>
+      <div class="test-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="test-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="test-quote">"Buscábamos algo muy concreto en Salamanca. En dos meses nos presentaron opciones que ninguna otra agencia tenía. Compramos a la primera visita."</p>
+        <span class="test-author">— Eduardo Linares, comprador · Madrid</span>
+      </div>
+      <div class="test-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="test-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="test-quote">"El servicio de gestión legal nos ahorró meses de trámites. Todo coordinado por Arco sin que tuviéramos que movernos de casa."</p>
+        <span class="test-author">— Carmen y Luis, vendedores · Madrid</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto">
+    <div class="cnt-left">
+      <span class="sec-label" data-aos="fade-right">Hablemos</span>
+      <h2 class="sec-h2" data-aos="fade-up" data-aos-delay="100">
+        Empecemos<br><em>por el principio.</em>
+      </h2>
+      <p data-aos="fade-up" data-aos-delay="180">Cuéntanos qué buscas o qué quieres vender. Sin compromiso. Te llamamos en menos de 2 horas en horario laboral.</p>
+      <div class="cnt-detail" data-aos="fade-up" data-aos-delay="240">
+        <div class="cnt-row">
+          <span class="cnt-icon">◎</span>
+          <div>
+            <span class="cnt-info-lbl">Dirección</span>
+            <span class="cnt-info-val">Calle Serrano, 45 · 28001 Madrid</span>
+          </div>
+        </div>
+        <div class="cnt-row">
+          <span class="cnt-icon">◎</span>
+          <div>
+            <span class="cnt-info-lbl">Teléfono</span>
+            <span class="cnt-info-val"><a href="tel:+34910000000">+34 910 000 000</a></span>
+          </div>
+        </div>
+        <div class="cnt-row">
+          <span class="cnt-icon">◎</span>
+          <div>
+            <span class="cnt-info-lbl">Email</span>
+            <span class="cnt-info-val"><a href="mailto:hola@arcoinmobiliaria.es">hola@arcoinmobiliaria.es</a></span>
+          </div>
+        </div>
+        <div class="cnt-row">
+          <span class="cnt-icon">◎</span>
+          <div>
+            <span class="cnt-info-lbl">Horario de oficina</span>
+            <span class="cnt-info-val">Lu – Vi: 9:00 – 19:00 · Sa: 10:00 – 14:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div data-aos="fade-left" data-aos-delay="150">
+      <form class="cnt-form" action="#" method="POST" novalidate>
+        <div class="cnt-row-f">
+          <div class="fg2">
+            <label for="c-nombre">Nombre</label>
+            <input type="text" id="c-nombre" name="nombre" placeholder="Tu nombre" required>
+          </div>
+          <div class="fg2">
+            <label for="c-tel">Teléfono</label>
+            <input type="tel" id="c-tel" name="telefono" placeholder="+34 600 000 000">
+          </div>
+        </div>
+        <div class="fg2">
+          <label for="c-email">Email</label>
+          <input type="email" id="c-email" name="email" placeholder="tu@email.com" required>
+        </div>
+        <div class="fg2">
+          <label for="c-tipo">Motivo de consulta</label>
+          <select id="c-tipo" name="tipo">
+            <option value="">Seleccionar</option>
+            <option>Quiero comprar una propiedad</option>
+            <option>Quiero vender una propiedad</option>
+            <option>Busco alquiler</option>
+            <option>Solicito tasación gratuita</option>
+            <option>Otra consulta</option>
+          </select>
+        </div>
+        <div class="fg2">
+          <label for="c-msg">Mensaje</label>
+          <textarea id="c-msg" name="mensaje" placeholder="Cuéntanos qué necesitas…" required></textarea>
+        </div>
+        <button type="submit" class="cnt-submit">Enviar consulta →</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="foot-logo">Arco <span class="gold">·</span> Inmobiliaria</span>
+    <span class="foot-copy">© 2025 Arco Inmobiliaria Madrid · Calle Serrano, 45 · hola@arcoinmobiliaria.es</span>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 850, easing: 'ease-out-quart', once: true, offset: 60 });
+
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 80);
+    }, { passive: true });
+
+    document.querySelectorAll('.prop-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.prop-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

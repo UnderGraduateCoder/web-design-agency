@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urdimbre — Telas de Autor</title>
+  <meta name="description" content="Telas premium artesanales desde 1987. Lino, lana y jacquard tejidos a mano en el corazón de Castilla.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Animation plan:
+    - Hero: SVG grain texture + parallax offset layers + diagonal split image/text
+    - Sections: AOS fade-up stagger, tactile entry animations
+    - Nav: transparent → opaque on scroll, spring easing
+  -->
+
+  <style>
+    :root {
+      --ecru:     #F2EDE3;
+      --lino:     #DDD3C0;
+      --terracota:#B5613A;
+      --carbon:   #1A1714;
+      --coffee:   #4A3728;
+      --warm-grey:#8A7E73;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'Jost', sans-serif;
+      --ease-spring: cubic-bezier(.34,1.56,.64,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--ecru);
+      color: var(--carbon);
+      overflow-x: hidden;
+      font-weight: 300;
+      line-height: 1.7;
+    }
+
+    /* ─── GRAIN OVERLAY ─────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 1000;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.028;
+    }
+
+    /* ─── NAV ───────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1.4rem 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background .4s ease, padding .4s ease;
+    }
+    nav.scrolled {
+      background: rgba(242,237,227,.95);
+      backdrop-filter: blur(12px);
+      padding: 1rem 5vw;
+      border-bottom: 1px solid rgba(74,55,40,.1);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 400;
+      letter-spacing: .12em;
+      color: var(--carbon);
+      text-decoration: none;
+    }
+    .nav-logo em { font-style: normal; color: var(--terracota); }
+    .nav-links {
+      display: flex; gap: 2.5rem; list-style: none;
+    }
+    .nav-links a {
+      font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--coffee); text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--terracota); }
+    .nav-cta {
+      font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+      padding: .55rem 1.4rem; border: 1px solid var(--carbon);
+      color: var(--carbon); text-decoration: none;
+      transition: background .2s, color .2s;
+    }
+    .nav-cta:hover { background: var(--carbon); color: var(--ecru); }
+    @media(max-width:768px){
+      .nav-links { display: none; }
+      .nav-cta { display: none; }
+    }
+
+    /* ─── HERO ──────────────────────────────────────────────── */
+    #inicio {
+      min-height: 100svh;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+    }
+    @media(max-width:900px){ #inicio { grid-template-columns: 1fr; } }
+
+    .hero-visual {
+      position: relative;
+      background: var(--coffee);
+      overflow: hidden;
+    }
+    .hero-visual img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: .85;
+      transform: scale(1.05);
+      transition: transform 8s ease-out;
+    }
+    .hero-visual img.loaded { transform: scale(1); }
+    .hero-visual-fallback {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 30% 50%, #6B4C35 0%, transparent 70%),
+        radial-gradient(ellipse 60% 80% at 80% 20%, #3D2818 0%, transparent 60%),
+        linear-gradient(145deg, #2A1C10 0%, #4A3728 50%, #1A1714 100%);
+    }
+    /* Woven fabric texture via repeating linear gradients */
+    .hero-visual-fallback::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0px, rgba(255,255,255,.025) 1px, transparent 1px, transparent 6px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0px, rgba(255,255,255,.018) 1px, transparent 1px, transparent 6px);
+    }
+    .hero-visual::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, transparent 70%, var(--ecru) 100%);
+    }
+    @media(max-width:900px){
+      .hero-visual { height: 55vmax; }
+      .hero-visual::after { background: linear-gradient(to bottom, transparent 70%, var(--ecru) 100%); }
+    }
+
+    .hero-text {
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 8rem 7vw 6rem 5vw;
+      position: relative;
+    }
+    @media(max-width:900px){ .hero-text { padding: 3rem 6vw 5rem; } }
+
+    .hero-eyebrow {
+      font-family: var(--font-body);
+      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--terracota); margin-bottom: 1.8rem;
+      display: flex; align-items: center; gap: .8rem;
+    }
+    .hero-eyebrow::before {
+      content: ''; width: 2rem; height: 1px; background: var(--terracota);
+    }
+
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3.8rem, 7vw, 9rem);
+      font-weight: 300;
+      line-height: .95;
+      letter-spacing: -.02em;
+      color: var(--carbon);
+      margin-bottom: 2.5rem;
+    }
+    .hero-h1 em {
+      font-style: italic; font-weight: 300;
+      color: var(--terracota);
+    }
+
+    .hero-sub {
+      font-size: clamp(.85rem, 1.2vw, 1rem);
+      color: var(--coffee); line-height: 1.9;
+      max-width: 36ch; margin-bottom: 3rem;
+    }
+
+    .hero-cta-row { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .9rem 2.2rem;
+      background: var(--carbon); color: var(--ecru);
+      font-family: var(--font-body); font-size: .8rem;
+      letter-spacing: .1em; text-transform: uppercase;
+      text-decoration: none; border: 1px solid var(--carbon);
+      transition: background .2s var(--ease-spring), color .2s, transform .15s var(--ease-spring);
+    }
+    .btn-primary:hover { background: var(--terracota); border-color: var(--terracota); transform: translateY(-2px); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .9rem 2.2rem;
+      background: transparent; color: var(--carbon);
+      font-family: var(--font-body); font-size: .8rem;
+      letter-spacing: .1em; text-transform: uppercase;
+      text-decoration: none; border: 1px solid rgba(74,55,40,.35);
+      transition: border-color .2s, color .2s;
+    }
+    .btn-ghost:hover { border-color: var(--carbon); color: var(--carbon); }
+
+    .hero-since {
+      position: absolute; bottom: 2.5rem; right: 5vw;
+      font-family: var(--font-display); font-size: .9rem; font-style: italic;
+      color: var(--warm-grey); letter-spacing: .05em;
+    }
+
+    /* ─── MARQUEE ───────────────────────────────────────────── */
+    .marquee-strip {
+      background: var(--carbon); padding: .8rem 0; overflow: hidden;
+      display: flex; white-space: nowrap;
+    }
+    .mq-track {
+      display: flex; gap: 2rem; animation: marquee 22s linear infinite;
+      font-family: var(--font-display); font-size: .95rem;
+      font-style: italic; color: rgba(242,237,227,.45);
+      letter-spacing: .06em;
+    }
+    .mq-track span { flex-shrink: 0; }
+    .mq-sep { color: var(--terracota); font-style: normal; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* ─── SEC LABEL ─────────────────────────────────────────── */
+    .sec-label {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--terracota); margin-bottom: 1.5rem;
+    }
+    .sec-label::before { content: ''; width: 1.5rem; height: 1px; background: currentColor; }
+
+    .sec-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 4.5vw, 5.5rem);
+      font-weight: 300; line-height: 1.05;
+      letter-spacing: -.02em; color: var(--carbon);
+    }
+    .sec-title em { font-weight: 300; color: var(--terracota); }
+
+    /* ─── MANIFESTO ─────────────────────────────────────────── */
+    #manifesto {
+      background: var(--ecru); padding: 8rem 5vw;
+      display: grid; grid-template-columns: 1fr 1.2fr; gap: 8vw; align-items: center;
+    }
+    @media(max-width:900px){ #manifesto { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 6vw; } }
+
+    .manifesto-pull {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.5vw, 4.2rem);
+      font-weight: 300; line-height: 1.2;
+      letter-spacing: -.01em; color: var(--carbon);
+    }
+    .manifesto-pull em { display: block; font-style: italic; color: var(--terracota); }
+
+    .manifesto-body p {
+      font-size: clamp(.88rem, 1.1vw, 1rem);
+      line-height: 1.9; color: var(--coffee); margin-bottom: 1.5rem;
+    }
+    .manifesto-body p:last-child { margin-bottom: 0; }
+
+    .manifesto-stat {
+      margin-top: 3rem;
+      display: flex; gap: 3rem;
+    }
+    .mstat-num {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 4vw, 4.5rem);
+      font-weight: 300; line-height: 1; color: var(--terracota);
+    }
+    .mstat-lbl {
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--warm-grey); margin-top: .4rem;
+    }
+
+    /* ─── COLECCIONES ───────────────────────────────────────── */
+    #colecciones {
+      background: var(--carbon); padding: 8rem 5vw;
+    }
+    #colecciones .sec-label { color: rgba(181,97,58,.85); }
+    #colecciones .sec-title { color: var(--ecru); }
+    #colecciones .sec-title em { color: var(--terracota); }
+
+    .col-grid {
+      max-width: 1280px; margin: 4rem auto 0;
+      display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1.5px;
+    }
+    @media(max-width:900px){ .col-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:540px){ .col-grid { grid-template-columns: 1fr; } }
+
+    .col-card {
+      position: relative; overflow: hidden; cursor: pointer;
+      aspect-ratio: 3/4;
+    }
+    .col-card:first-child { aspect-ratio: auto; }
+    @media(max-width:900px){ .col-card:first-child { aspect-ratio: 3/4; } }
+
+    .col-card-bg {
+      position: absolute; inset: 0;
+      transition: transform .6s ease;
+    }
+    .col-card:hover .col-card-bg { transform: scale(1.05); }
+
+    .col-bg-1 { background: linear-gradient(145deg, #DDD3C0 0%, #B8A894 100%); }
+    .col-bg-1::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(30deg, rgba(0,0,0,.04) 0, rgba(0,0,0,.04) 1px, transparent 1px, transparent 8px),
+        repeating-linear-gradient(120deg, rgba(0,0,0,.03) 0, rgba(0,0,0,.03) 1px, transparent 1px, transparent 8px);
+    }
+    .col-bg-2 { background: linear-gradient(145deg, #B5613A 0%, #7A3D1F 100%); }
+    .col-bg-3 { background: linear-gradient(145deg, #4A3728 0%, #2A1C10 100%); }
+    .col-bg-4 { background: linear-gradient(145deg, #6B8F71 0%, #3D5C41 100%); }
+    .col-bg-5 { background: linear-gradient(145deg, #8B7355 0%, #5A4A38 100%); }
+
+    .col-card-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 1.5rem;
+      background: linear-gradient(to top, rgba(26,23,20,.85) 0%, transparent 100%);
+    }
+    .col-name {
+      font-family: var(--font-display); font-size: 1.3rem; font-weight: 400;
+      font-style: italic; color: var(--ecru); line-height: 1.2;
+    }
+    .col-tag {
+      font-size: .65rem; letter-spacing: .15em; text-transform: uppercase;
+      color: rgba(242,237,227,.5); margin-top: .3rem;
+    }
+    .col-link {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--terracota); text-decoration: none; margin-top: .8rem;
+      transition: gap .2s var(--ease-spring);
+    }
+    .col-link:hover { gap: .7rem; }
+
+    /* ─── PROCESO ───────────────────────────────────────────── */
+    #proceso {
+      background: var(--lino); padding: 8rem 5vw;
+    }
+    .proceso-grid {
+      max-width: 1200px; margin: 4rem auto 0;
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 2px;
+    }
+    @media(max-width:900px){ .proceso-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:540px){ .proceso-grid { grid-template-columns: 1fr; } }
+
+    .proc-step {
+      background: var(--ecru); padding: 2.5rem 2rem;
+      border: 1px solid rgba(74,55,40,.08);
+      transition: transform .3s var(--ease-spring), box-shadow .3s;
+    }
+    .proc-step:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(26,23,20,.12); }
+
+    .proc-num {
+      font-family: var(--font-display); font-size: 3.5rem; font-weight: 300;
+      color: rgba(181,97,58,.2); line-height: 1; margin-bottom: 1.2rem;
+    }
+    .proc-title {
+      font-family: var(--font-display); font-size: 1.3rem; font-weight: 400;
+      color: var(--carbon); margin-bottom: .8rem;
+    }
+    .proc-desc {
+      font-size: .82rem; line-height: 1.8; color: var(--coffee);
+    }
+
+    /* ─── TESTIMONIOS ───────────────────────────────────────── */
+    #testimonios {
+      background: var(--ecru); padding: 8rem 5vw;
+    }
+    .test-grid {
+      max-width: 1200px; margin: 4rem auto 0;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    }
+    @media(max-width:900px){ .test-grid { grid-template-columns: 1fr; } }
+
+    .test-card {
+      padding: 2.5rem; border: 1px solid rgba(74,55,40,.12);
+      transition: border-color .2s, box-shadow .3s;
+    }
+    .test-card:hover { border-color: var(--terracota); box-shadow: 0 10px 30px rgba(181,97,58,.08); }
+
+    .test-stars {
+      display: flex; gap: .25rem; margin-bottom: 1.5rem;
+    }
+    .test-stars svg { width: 13px; height: 13px; fill: var(--terracota); }
+    .test-quote {
+      font-family: var(--font-display); font-size: 1.1rem; font-style: italic;
+      font-weight: 300; line-height: 1.6; color: var(--carbon); margin-bottom: 1.5rem;
+    }
+    .test-author { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--warm-grey); }
+
+    /* ─── CTA STRIP ─────────────────────────────────────────── */
+    #cta-strip {
+      background: var(--terracota);
+      padding: 6rem 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 3rem; flex-wrap: wrap;
+    }
+    .cta-h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 5rem);
+      font-weight: 300; line-height: 1.1;
+      color: var(--ecru); letter-spacing: -.02em;
+    }
+    .cta-h2 em { display: block; font-style: italic; opacity: .75; }
+    .btn-cta {
+      display: inline-flex; align-items: center; gap: .6rem;
+      padding: 1.1rem 2.6rem;
+      background: var(--ecru); color: var(--terracota);
+      font-family: var(--font-body); font-size: .82rem;
+      letter-spacing: .12em; text-transform: uppercase;
+      text-decoration: none; border: 1px solid var(--ecru);
+      white-space: nowrap;
+      transition: background .2s, color .2s, transform .15s var(--ease-spring);
+    }
+    .btn-cta:hover { background: var(--carbon); color: var(--ecru); border-color: var(--carbon); transform: translateY(-2px); }
+
+    /* ─── CONTACTO ──────────────────────────────────────────── */
+    #contacto {
+      background: var(--carbon);
+      padding: 8rem 5vw;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8vw; align-items: start;
+    }
+    @media(max-width:900px){ #contacto { grid-template-columns: 1fr; gap: 4rem; padding: 5rem 6vw; } }
+
+    .cnt-h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 6rem);
+      font-weight: 300; color: var(--ecru); line-height: 1.05;
+      letter-spacing: -.02em;
+    }
+    .cnt-h2 em { font-style: italic; color: var(--terracota); }
+
+    .cnt-sub {
+      font-size: .9rem; color: rgba(242,237,227,.45); line-height: 1.9;
+      margin: 1.5rem 0 3rem;
+    }
+
+    .cnt-detail { margin-bottom: 1.2rem; }
+    .cnt-lbl { font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(242,237,227,.3); display: block; margin-bottom: .3rem; }
+    .cnt-val { font-family: var(--font-display); font-size: 1.1rem; color: var(--ecru); }
+    .cnt-val a { color: var(--terracota); text-decoration: none; }
+    .cnt-val a:hover { text-decoration: underline; }
+
+    /* Form */
+    .cnt-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .fg { display: flex; flex-direction: column; gap: .4rem; }
+    .fg label { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(242,237,227,.4); }
+    .fg input, .fg textarea {
+      background: rgba(242,237,227,.05); border: 1px solid rgba(242,237,227,.15);
+      padding: .9rem 1.1rem; color: var(--ecru);
+      font-family: var(--font-body); font-size: .9rem; line-height: 1.5;
+      outline: none; transition: border-color .2s;
+    }
+    .fg input::placeholder, .fg textarea::placeholder { color: rgba(242,237,227,.25); }
+    .fg input:focus, .fg textarea:focus { border-color: var(--terracota); }
+    .fg textarea { resize: vertical; min-height: 110px; }
+    .form-submit {
+      padding: 1rem 2rem; background: var(--terracota); color: var(--ecru);
+      border: none; cursor: pointer;
+      font-family: var(--font-body); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase;
+      transition: background .2s, transform .15s var(--ease-spring);
+    }
+    .form-submit:hover { background: #9A4E2F; transform: translateY(-2px); }
+
+    /* ─── FOOTER ────────────────────────────────────────────── */
+    footer {
+      background: var(--carbon); border-top: 1px solid rgba(242,237,227,.06);
+      padding: 2.5rem 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .foot-logo {
+      font-family: var(--font-display); font-size: 1.1rem; font-weight: 400;
+      letter-spacing: .1em; color: rgba(242,237,227,.4);
+    }
+    .foot-copy { font-size: .72rem; color: rgba(242,237,227,.25); letter-spacing: .05em; }
+  </style>
+</head>
+<body>
+
+  <!-- ══ NAV ══════════════════════════════════════════════════ -->
+  <nav id="nav">
+    <a href="#inicio" class="nav-logo">URD<em>IM</em>BRE</a>
+    <ul class="nav-links">
+      <li><a href="#colecciones">Colecciones</a></li>
+      <li><a href="#proceso">Proceso</a></li>
+      <li><a href="#testimonios">Clientes</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+    <a href="#contacto" class="nav-cta">Solicitar muestra →</a>
+  </nav>
+
+  <!-- ══ HERO ════════════════════════════════════════════════ -->
+  <section id="inicio">
+    <div class="hero-visual">
+      <div class="hero-visual-fallback"></div>
+      <img src="assets/hero.jpg" alt="Taller de tejido artesanal — luz dorada sobre telares de madera"
+           loading="eager" onload="this.classList.add('loaded')">
+    </div>
+    <div class="hero-text">
+      <span class="hero-eyebrow" data-aos="fade-right" data-aos-delay="100">Telas artesanales · Madrid</span>
+      <h1 class="hero-h1" data-aos="fade-up" data-aos-delay="200">
+        Tejido<br>con <em>alma.</em>
+      </h1>
+      <p class="hero-sub" data-aos="fade-up" data-aos-delay="320">
+        Lino, lana y jacquard tejidos a mano desde 1987. Cada metro lleva la historia del telar, la mano del artesano y la autenticidad de Castilla.
+      </p>
+      <div class="hero-cta-row" data-aos="fade-up" data-aos-delay="400">
+        <a href="#colecciones" class="btn-primary">Ver colecciones →</a>
+        <a href="#proceso" class="btn-ghost">Nuestro proceso</a>
+      </div>
+      <span class="hero-since">est. 1987</span>
+    </div>
+  </section>
+
+  <!-- ══ MARQUEE ══════════════════════════════════════════════ -->
+  <div class="marquee-strip" aria-hidden="true">
+    <div class="mq-track">
+      <span>Lino Natural</span><span class="mq-sep">·</span>
+      <span>Lana Merina</span><span class="mq-sep">·</span>
+      <span>Jacquard de Autor</span><span class="mq-sep">·</span>
+      <span>Tejido a Mano</span><span class="mq-sep">·</span>
+      <span>Hecho en Castilla</span><span class="mq-sep">·</span>
+      <span>Lino Natural</span><span class="mq-sep">·</span>
+      <span>Lana Merina</span><span class="mq-sep">·</span>
+      <span>Jacquard de Autor</span><span class="mq-sep">·</span>
+      <span>Tejido a Mano</span><span class="mq-sep">·</span>
+      <span>Hecho en Castilla</span><span class="mq-sep">·</span>
+      <!-- dupe for seamless loop -->
+      <span>Lino Natural</span><span class="mq-sep">·</span>
+      <span>Lana Merina</span><span class="mq-sep">·</span>
+      <span>Jacquard de Autor</span><span class="mq-sep">·</span>
+      <span>Tejido a Mano</span><span class="mq-sep">·</span>
+      <span>Hecho en Castilla</span><span class="mq-sep">·</span>
+    </div>
+  </div>
+
+  <!-- ══ MANIFESTO ════════════════════════════════════════════ -->
+  <section id="manifesto">
+    <div>
+      <span class="sec-label" data-aos="fade-right">Nuestra filosofía</span>
+      <p class="manifesto-pull" data-aos="fade-up" data-aos-delay="100">
+        El tejido no se apresura.<br>
+        <em>Tampoco nosotros.</em>
+      </p>
+      <div class="manifesto-stat" data-aos="fade-up" data-aos-delay="300">
+        <div>
+          <div class="mstat-num">37+</div>
+          <div class="mstat-lbl">Años de oficio</div>
+        </div>
+        <div>
+          <div class="mstat-num">18</div>
+          <div class="mstat-lbl">Telares activos</div>
+        </div>
+        <div>
+          <div class="mstat-num">140+</div>
+          <div class="mstat-lbl">Coleccionistas</div>
+        </div>
+      </div>
+    </div>
+    <div class="manifesto-body" data-aos="fade-left" data-aos-delay="150">
+      <p>En Urdimbre creemos que una tela buena no se fabrica: se crea. Cada pieza nace en el telar con hilo seleccionado a mano, tensión calculada por experiencia y un ojo que tarda años en formarse.</p>
+      <p>Trabajamos con lino sin blanquear de Portugal, lana merina de la Trashumancia española y seda natural de proveedores con nombre y apellidos. Sin intermediarios, sin atajos.</p>
+      <p>Nuestras telas visten casas, estudios de diseño y colecciones de moda en doce países. Todas nacen aquí, en nuestro taller de Segovia.</p>
+    </div>
+  </section>
+
+  <!-- ══ COLECCIONES ══════════════════════════════════════════ -->
+  <section id="colecciones">
+    <div>
+      <span class="sec-label" data-aos="fade-right">Temporada 2025</span>
+      <h2 class="sec-title" data-aos="fade-up" data-aos-delay="100">
+        Colecciones <em>actuales.</em>
+      </h2>
+    </div>
+    <div class="col-grid">
+      <div class="col-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="col-card-bg col-bg-1"></div>
+        <div class="col-card-info">
+          <div class="col-name">Tierra Natural</div>
+          <div class="col-tag">Lino · Ecru · Colección primaveral</div>
+          <a href="#contacto" class="col-link">Ver tejidos →</a>
+        </div>
+      </div>
+      <div class="col-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="col-card-bg col-bg-2"></div>
+        <div class="col-card-info">
+          <div class="col-name">Rojo Castellano</div>
+          <div class="col-tag">Lana · Terracota · Edición limitada</div>
+          <a href="#contacto" class="col-link">Ver tejidos →</a>
+        </div>
+      </div>
+      <div class="col-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="col-card-bg col-bg-3"></div>
+        <div class="col-card-info">
+          <div class="col-name">Sombra del Tejo</div>
+          <div class="col-tag">Jacquard · Carbón · Atemporal</div>
+          <a href="#contacto" class="col-link">Ver tejidos →</a>
+        </div>
+      </div>
+      <div class="col-card" data-aos="fade-up" data-aos-delay="300">
+        <div class="col-card-bg col-bg-4"></div>
+        <div class="col-card-info">
+          <div class="col-name">Musgo de Encina</div>
+          <div class="col-tag">Lino-Lana · Verde · Otoño-invierno</div>
+          <a href="#contacto" class="col-link">Ver tejidos →</a>
+        </div>
+      </div>
+      <div class="col-card" data-aos="fade-up" data-aos-delay="400">
+        <div class="col-card-bg col-bg-5"></div>
+        <div class="col-card-info">
+          <div class="col-name">Trigo y Arena</div>
+          <div class="col-tag">Mezcla · Cálido · Verano</div>
+          <a href="#contacto" class="col-link">Ver tejidos →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PROCESO ══════════════════════════════════════════════ -->
+  <section id="proceso">
+    <div>
+      <span class="sec-label" data-aos="fade-right">Así lo hacemos</span>
+      <h2 class="sec-title" data-aos="fade-up" data-aos-delay="100">
+        El proceso<br><em>no tiene atajo.</em>
+      </h2>
+    </div>
+    <div class="proceso-grid">
+      <div class="proc-step" data-aos="fade-up" data-aos-delay="0">
+        <div class="proc-num">01</div>
+        <div class="proc-title">Selección del hilo</div>
+        <p class="proc-desc">Elegimos cada fibra a mano. El tacto, el brillo y la resistencia se comprueban en el taller antes de entrar al almacén.</p>
+      </div>
+      <div class="proc-step" data-aos="fade-up" data-aos-delay="100">
+        <div class="proc-num">02</div>
+        <div class="proc-title">Preparación del telar</div>
+        <p class="proc-desc">El urdido es la columna vertebral de cada tela. Tensamos los hilos con una precisión que requiere memoria y paciencia.</p>
+      </div>
+      <div class="proc-step" data-aos="fade-up" data-aos-delay="200">
+        <div class="proc-num">03</div>
+        <div class="proc-title">Tejido a mano</div>
+        <p class="proc-desc">La lanzadera recorre la urdimbre a un ritmo de entre 40 y 80 pasadas por minuto. Ritmo humano, no industrial.</p>
+      </div>
+      <div class="proc-step" data-aos="fade-up" data-aos-delay="300">
+        <div class="proc-num">04</div>
+        <div class="proc-title">Acabado y control</div>
+        <p class="proc-desc">Cada metro se lava, seca y revisa palmo a palmo. Solo los tejidos sin defectos llevan el sello de Urdimbre.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TESTIMONIOS ══════════════════════════════════════════ -->
+  <section id="testimonios">
+    <span class="sec-label" data-aos="fade-right">Quienes confían en nosotros</span>
+    <h2 class="sec-title" data-aos="fade-up" data-aos-delay="100">
+      Lo que dicen<br><em>nuestros clientes.</em>
+    </h2>
+    <div class="test-grid">
+      <div class="test-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="test-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="test-quote">"Los linos de Urdimbre son los únicos que podemos usar para nuestra línea de ropa de cama. La caída y la textura son incomparables."</p>
+        <span class="test-author">— Lucía Garriga, Diseñadora textil · Barcelona</span>
+      </div>
+      <div class="test-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="test-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="test-quote">"Llevamos tres colecciones usando exclusivamente jacquard de Urdimbre. Nuestros clientes siempre notan la diferencia al primer tacto."</p>
+        <span class="test-author">— Matías Fuenmayor, Director creativo · Madrid</span>
+      </div>
+      <div class="test-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="test-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="test-quote">"Pedí muestras sin esperar mucho. Llegaron en 48 horas con una nota escrita a mano. Ya he hecho tres pedidos más."</p>
+        <span class="test-author">— Sandra Voss, Estudio de interiorismo · Berlín</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CTA STRIP ════════════════════════════════════════════ -->
+  <section id="cta-strip">
+    <div data-aos="fade-right">
+      <h2 class="cta-h2">¿Necesitas tela<br><em>con carácter?</em></h2>
+    </div>
+    <a href="#contacto" class="btn-cta" data-aos="fade-left" data-aos-delay="150">
+      Solicitar muestras gratuitas →
+    </a>
+  </section>
+
+  <!-- ══ CONTACTO ═════════════════════════════════════════════ -->
+  <section id="contacto">
+    <div>
+      <span class="sec-label" style="color:rgba(181,97,58,.8);" data-aos="fade-right">Hablemos</span>
+      <h2 class="cnt-h2" data-aos="fade-up" data-aos-delay="80">Pedidos<br>y<em> muestras.</em></h2>
+      <p class="cnt-sub" data-aos="fade-up" data-aos-delay="160">
+        Enviamos muestras gratuitas a estudio o tienda. Pedidos mínimos de 10m por referencia. Respuesta en 24h.
+      </p>
+      <div data-aos="fade-up" data-aos-delay="240">
+        <div class="cnt-detail">
+          <span class="cnt-lbl">Email</span>
+          <span class="cnt-val"><a href="mailto:hola@urdimbre.es">hola@urdimbre.es</a></span>
+        </div>
+        <div class="cnt-detail">
+          <span class="cnt-lbl">Teléfono</span>
+          <span class="cnt-val">+34 921 000 000</span>
+        </div>
+        <div class="cnt-detail">
+          <span class="cnt-lbl">Taller</span>
+          <span class="cnt-val">Calle del Telar, 12 · Segovia</span>
+        </div>
+      </div>
+    </div>
+    <div data-aos="fade-left" data-aos-delay="120">
+      <form class="cnt-form" action="#" method="POST" novalidate>
+        <div class="fg">
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
+        </div>
+        <div class="fg">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="tu@empresa.com" required>
+        </div>
+        <div class="fg">
+          <label for="empresa">Empresa</label>
+          <input type="text" id="empresa" name="empresa" placeholder="Nombre de tu empresa">
+        </div>
+        <div class="fg">
+          <label for="mensaje">¿Qué necesitas?</label>
+          <textarea id="mensaje" name="mensaje" placeholder="Cuéntanos qué tejido buscas, yardaje estimado, uso…" required></textarea>
+        </div>
+        <button type="submit" class="form-submit">Enviar solicitud →</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ═══════════════════════════════════════════════ -->
+  <footer>
+    <span class="foot-logo">URDIMBRE · Telas de Autor · Segovia</span>
+    <span class="foot-copy">© 2025 Urdimbre S.L. — hola@urdimbre.es</span>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 800, easing: 'ease-out-quart', once: true, offset: 60 });
+
+    // Nav scroll behaviour
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+  </script>
+</body>
+</html>

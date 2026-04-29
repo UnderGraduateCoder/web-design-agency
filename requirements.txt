@@ -3,3 +3,10 @@ python-dotenv>=1.0.0
 requests>=2.31.0
 googlemaps>=4.10.0
 beautifulsoup4>=4.12.0
+# Encrypted SQLite (requires SQLCipher DLLs on Windows — see README)
+sqlcipher3>=0.5.0
+# Application-level encryption fallback
+cryptography>=42.0.0
+# PDF generation — WeasyPrint (best quality, needs GTK on Windows) + fpdf2 fallback (pure Python)
+weasyprint>=62.0
+fpdf2>=2.7.0

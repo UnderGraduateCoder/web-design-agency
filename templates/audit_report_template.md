@@ -10,7 +10,7 @@
 | **Empresa** | [NOMBRE DE LA EMPRESA] |
 | **Sistema auditado** | [URL o ruta del repositorio] |
 | **Fecha del informe** | [YYYY-MM-DD] |
-| **Auditor** | WAT Agency |
+| **Auditor** | Cifra |
 | **Referencia del contrato** | [NÚMERO DE CONTRATO / brand_assets/{slug}/authorization_signed.pdf] |
 | **Modelo de análisis** | Claude Sonnet (Anthropic) — claude-code-security-review framework |
 
@@ -170,8 +170,8 @@ Este informe y todos sus contenidos son **estrictamente confidenciales**. Están
 
 **Divulgación coordinada:** De conformidad con las prácticas de divulgación coordinada de Anthropic, los hallazgos contenidos en este informe no serán publicados, compartidos con terceros, ni divulgados fuera de este engagement sin el consentimiento previo y por escrito del cliente.
 
-WAT Agency no es responsable de vulnerabilidades preexistentes en el sistema antes de la fecha de la auditoría, ni de vulnerabilidades introducidas después de la fecha de cierre del análisis.
+Cifra no es responsable de vulnerabilidades preexistentes en el sistema antes de la fecha de la auditoría, ni de vulnerabilidades introducidas después de la fecha de cierre del análisis.
 
 ---
 
-*Informe generado por WAT Agency · Tecnología AI: Anthropic Claude · Framework: claude-code-security-review*
+*Informe generado por Cifra · Tecnología AI: Anthropic Claude · Framework: claude-code-security-review*

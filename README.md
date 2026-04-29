@@ -1,4 +1,4 @@
-# WAT Website Builder
+# Cifra Website Builder
 
 An open-source framework for generating professional, conversion-optimised business websites using AI. Built on the **WAT architecture** — Workflows, Agents, Tools — which separates probabilistic AI reasoning from deterministic script execution.
 

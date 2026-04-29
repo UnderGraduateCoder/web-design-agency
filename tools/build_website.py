@@ -19,9 +19,11 @@ import sys
 import json
 import os
 import re
+import argparse
 import hashlib
 import colorsys
 import html as html_lib
+import subprocess
 from pathlib import Path
 
 try:
@@ -1003,7 +1005,7 @@ def build_services_featured(services: list, accent: str) -> str:
 # Main HTML assembly — composable, multi-axis
 # ---------------------------------------------------------------------------
 
-def build_html(business_info: dict, website_copy: dict, hero_video_url: str = None, hero_video_poster: str = None) -> str:
+def build_html(business_info: dict, website_copy: dict, hero_video_url: str = None, hero_video_poster: str = None, animation_palette: list = None, preview_only: bool = False) -> str:
     name = business_info.get("business_name", "Business Name")
     tagline = business_info.get("tagline", "")
     contact = business_info.get("contact", {})
@@ -1319,10 +1321,15 @@ def build_html(business_info: dict, website_copy: dict, hero_video_url: str = No
     }
 
     body_sections = []
-    for section_key in layout_order:
+    active_sections = ["hero"] if preview_only else layout_order
+    for section_key in active_sections:
         html_block = section_map.get(section_key, "")
         if html_block:
             body_sections.append(html_block)
+
+    # --- Animation scripts (palette-driven) ---
+    _palette = animation_palette or _DEFAULT_PALETTE
+    animation_scripts = generate_animation_scripts(_palette, accent)
 
     # --- Assemble full HTML ---
     return f"""<!DOCTYPE html>
@@ -1531,8 +1538,9 @@ def build_html(business_info: dict, website_copy: dict, hero_video_url: str = No
       }}
     }}
   </script>
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script>AOS.init({{ duration: 700, once: true, offset: 60 }});</script>
+  <!-- cifra:animations:start -->
+  {animation_scripts}
+  <!-- cifra:animations:end -->
   <script>
   document.addEventListener('DOMContentLoaded', function() {{
     var v = document.querySelector('.hero-video');
@@ -1545,10 +1553,339 @@ def build_html(business_info: dict, website_copy: dict, hero_video_url: str = No
 
 
 # ---------------------------------------------------------------------------
+# Security seal injection (Pro tier and above)
+# ---------------------------------------------------------------------------
+
+_SECURITY_SEAL_HTML = """
+<div style="display:flex;align-items:center;gap:10px;margin-top:16px;
+            padding:10px 16px;background:rgba(193,122,58,0.1);
+            border:1px solid rgba(193,122,58,0.3);border-radius:6px;
+            width:fit-content;">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+       stroke="#C17A3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    <polyline points="9 12 11 14 15 10"/>
+  </svg>
+  <span style="font-size:11px;color:#C17A3A;font-weight:600;letter-spacing:0.05em;">
+    AUDITORÍA DE SEGURIDAD INCLUIDA
+  </span>
+</div>
+"""
+
+
+def inject_security_seal(html_path: Path) -> None:
+    """Insert the security audit seal badge before the closing </footer> tag."""
+    try:
+        source = html_path.read_text(encoding="utf-8")
+        if "AUDITORÍA DE SEGURIDAD" in source:
+            return  # Already injected
+        source = source.replace("</footer>", _SECURITY_SEAL_HTML + "\n</footer>", 1)
+        html_path.write_text(source, encoding="utf-8")
+    except Exception as e:
+        print(f"[WARN] Could not inject security seal: {e}")
+
+
+def run_pre_launch_audit(output_path: Path, client_slug: str) -> Path | None:
+    """Run security_audit.py in pre_launch mode on the generated HTML bundle."""
+    audit_script = Path(__file__).parent / "security_audit.py"
+    if not audit_script.exists():
+        print("[WARN] security_audit.py not found — skipping pre-launch audit.")
+        return None
+
+    print(f"\n[SECURITY] Running pre-launch audit on {output_path} ...")
+    result = subprocess.run(
+        [sys.executable, str(audit_script),
+         "--target", str(output_path),
+         "--client-slug", client_slug,
+         "--scan-mode", "pre_launch",
+         "--skip-contract"],
+        capture_output=True, text=True,
+    )
+    if result.returncode == 0:
+        findings_path = Path("output") / "audits" / client_slug / "findings.json"
+        print(f"[SECURITY] Pre-launch audit complete. Findings: {findings_path}")
+        return findings_path if findings_path.exists() else None
+    else:
+        print(f"[WARN] Pre-launch audit failed:\n{result.stderr[:500]}")
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Animation archetype scripts
+# ---------------------------------------------------------------------------
+
+def generate_animation_scripts(palette: list[str], accent: str = "#C17A3A") -> str:
+    """
+    Return <script> blocks for the selected animation archetypes.
+    AOS is always included as baseline. Palette archetypes are additive.
+    """
+    scripts = []
+
+    # Always: AOS
+    scripts.append('<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>')
+    scripts.append('<script>AOS.init({ duration: 700, once: true, offset: 60, easing: "ease-out-cubic" });</script>')
+
+    # cursor_aura — radial gradient that follows mouse in hero
+    if "cursor_aura" in palette:
+        scripts.append(f"""<script>
+(function() {{
+  var hero = document.querySelector('.hero-section, section[id="hero"], .hero-bg');
+  if (!hero) return;
+  var aura = document.createElement('div');
+  aura.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:2;transition:background 0.12s ease;border-radius:inherit;';
+  if (getComputedStyle(hero).position === 'static') hero.style.position = 'relative';
+  hero.appendChild(aura);
+  hero.addEventListener('mousemove', function(e) {{
+    var r = hero.getBoundingClientRect();
+    var x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+    var y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
+    aura.style.background = 'radial-gradient(600px circle at ' + x + '% ' + y + '%, {hex_to_rgba(accent, 0.18)} 0%, transparent 70%)';
+  }});
+  hero.addEventListener('mouseleave', function() {{ aura.style.background = 'none'; }});
+}})();
+</script>""")
+
+    # marquee — continuous horizontal scroll strip
+    if "marquee" in palette:
+        scripts.append("""<script>
+(function() {
+  document.querySelectorAll('.marquee-track').forEach(function(track) {
+    var clone = track.innerHTML;
+    track.innerHTML += clone;
+  });
+})();
+</script>""")
+
+    # clip_path_reveal — headings clip in from right on scroll
+    if "clip_path_reveal" in palette:
+        scripts.append("""<script>
+(function() {
+  var els = document.querySelectorAll('.clip-reveal');
+  if (!els.length) return;
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.style.clipPath = 'inset(0 0% 0 0)';
+        e.target.style.opacity = '1';
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  els.forEach(function(el) {
+    el.style.clipPath = 'inset(0 100% 0 0)';
+    el.style.opacity = '0';
+    el.style.transition = 'clip-path 0.9s cubic-bezier(0,1,0.5,1), opacity 0.3s ease';
+    io.observe(el);
+  });
+})();
+</script>""")
+
+    # grid_entrance — staggered card entrance
+    if "grid_entrance" in palette:
+        scripts.append("""<script>
+(function() {
+  var cards = document.querySelectorAll('.service-card, .feature-card, .grid-card');
+  if (!cards.length) return;
+  cards.forEach(function(card) {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(36px)';
+    card.style.transition = 'none';
+  });
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        var idx = parseInt(e.target.dataset.index || 0, 10);
+        setTimeout(function() {
+          e.target.style.transition = 'opacity 0.55s ease, transform 0.55s cubic-bezier(0.34,1.56,0.64,1)';
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }, idx * 80);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  cards.forEach(function(card) { io.observe(card); });
+})();
+</script>""")
+
+    # magnetic_button — CTAs pulled toward cursor
+    if "magnetic_button" in palette:
+        scripts.append("""<script>
+(function() {
+  document.querySelectorAll('.btn-primary, .btn-outline').forEach(function(btn) {
+    btn.addEventListener('mousemove', function(e) {
+      var r = btn.getBoundingClientRect();
+      var dx = (e.clientX - (r.left + r.width / 2)) * 0.28;
+      var dy = (e.clientY - (r.top + r.height / 2)) * 0.28;
+      btn.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.04)';
+    });
+    btn.addEventListener('mouseleave', function() {
+      btn.style.transform = '';
+    });
+  });
+})();
+</script>""")
+
+    # slow_parallax — background layers drift on scroll
+    if "slow_parallax" in palette:
+        scripts.append("""<script>
+(function() {
+  var layers = document.querySelectorAll('.parallax-layer');
+  if (!layers.length) return;
+  window.addEventListener('scroll', function() {
+    var sy = window.scrollY;
+    layers.forEach(function(l) {
+      var factor = parseFloat(l.dataset.parallax || 0.25);
+      l.style.transform = 'translateY(' + (sy * factor) + 'px)';
+    });
+  }, { passive: true });
+})();
+</script>""")
+
+    # fade_up_stagger — replaces generic AOS on grouped items
+    if "fade_up_stagger" in palette:
+        scripts.append("""<script>
+(function() {
+  var groups = document.querySelectorAll('.stagger-group');
+  groups.forEach(function(group) {
+    var children = group.children;
+    Array.from(children).forEach(function(child, i) {
+      child.style.opacity = '0';
+      child.style.transform = 'translateY(20px)';
+      child.style.transition = 'none';
+    });
+    var io = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        Array.from(children).forEach(function(child, i) {
+          setTimeout(function() {
+            child.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            child.style.opacity = '1';
+            child.style.transform = 'translateY(0)';
+          }, i * 80);
+        });
+        io.disconnect();
+      }
+    }, { threshold: 0.1 });
+    io.observe(group);
+  });
+})();
+</script>""")
+
+    # 3d_tilt — card tilt on mousemove
+    if "3d_tilt" in palette:
+        scripts.append("""<script>
+(function() {
+  document.querySelectorAll('.tilt-card').forEach(function(card) {
+    card.style.transition = 'transform 0.1s ease';
+    card.addEventListener('mousemove', function(e) {
+      var r = card.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width - 0.5;
+      var y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = 'perspective(900px) rotateY(' + (x * 12) + 'deg) rotateX(' + (-y * 12) + 'deg) scale(1.02)';
+      var spec = card.querySelector('.specular');
+      if (spec) spec.style.opacity = String(Math.abs(x) + Math.abs(y));
+    });
+    card.addEventListener('mouseleave', function() {
+      card.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg) scale(1)';
+      var spec = card.querySelector('.specular');
+      if (spec) spec.style.opacity = '0';
+    });
+  });
+})();
+</script>""")
+
+    # stat_counter — RAF lerp for numeric stats
+    if "stat_counter" in palette:
+        scripts.append("""<script>
+(function() {
+  var counters = document.querySelectorAll('.counter[data-target]');
+  if (!counters.length) return;
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      var el = entry.target;
+      var target = parseFloat(el.dataset.target);
+      var suffix = el.dataset.suffix || '';
+      var decimals = (el.dataset.target.indexOf('.') !== -1) ? 1 : 0;
+      var current = 0;
+      var start = null;
+      var duration = 1800;
+      function step(ts) {
+        if (!start) start = ts;
+        var progress = Math.min((ts - start) / duration, 1);
+        var ease = 1 - Math.pow(1 - progress, 3);
+        current = target * ease;
+        el.textContent = current.toFixed(decimals) + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target.toFixed(decimals) + suffix;
+      }
+      requestAnimationFrame(step);
+      io.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(function(c) { io.observe(c); });
+})();
+</script>""")
+
+    # spring_hover — always included (lightweight CSS-only, no extra JS needed beyond reminder)
+    # Handled via .btn-primary CSS already; no extra script needed.
+
+    return "\n  ".join(scripts)
+
+
+# ---------------------------------------------------------------------------
+# Dead CTA validator
+# ---------------------------------------------------------------------------
+
+def validate_no_dead_ctas(html: str) -> str:
+    """
+    Strip any <a> or <button> that has href='#' but isn't a logo/scroll-top link.
+    Replaces dead 'Ver más'-type anchors with their text content (no link).
+    Logs a warning for each removal.
+    """
+    dead_patterns = [
+        r'<a\s[^>]*href=["\']#["\'][^>]*>\s*(?:Ver m[áa]s|M[áa]s informaci[óo]n|Ver detalles|Saber m[áa]s|Descubrir m[áa]s)\s*</a>',
+    ]
+    for pattern in dead_patterns:
+        matches = re.findall(pattern, html, flags=re.IGNORECASE | re.DOTALL)
+        for m in matches:
+            text_content = re.sub(r'<[^>]+>', '', m).strip()
+            print(f"[WARN] Removed dead CTA: '{text_content}' (no destination)")
+            html = html.replace(m, f'<span class="text-sm font-medium" style="opacity:0.6">{text_content}</span>')
+    return html
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
+_DEMO_PALETTES = {
+    "minimal":   ["slow_parallax", "fade_up_stagger", "magnetic_button"],
+    "bold":      ["marquee", "spring_hover", "grid_entrance"],
+    "warm":      ["fade_up_stagger", "3d_tilt", "stat_counter"],
+    "corporate": ["clip_path_reveal", "fade_up_stagger", "stat_counter"],
+    "modern":    ["cursor_aura", "clip_path_reveal", "spring_hover"],
+}
+
+_DEFAULT_PALETTE = ["fade_up_stagger", "stat_counter", "spring_hover"]
+
+# Tier-gated animation palettes for the --polish pass
+_TIER_PALETTES = {
+    "starter": ["fade_up_stagger", "stat_counter"],
+    "basic":   ["fade_up_stagger", "stat_counter"],
+    "pro":     ["fade_up_stagger", "stat_counter", "3d_tilt", "slow_parallax", "spring_hover"],
+    "enterprise": ["cursor_aura", "fade_up_stagger", "stat_counter", "3d_tilt", "slow_parallax", "spring_hover", "clip_path_reveal", "magnetic_button"],
+}
+
+
 def main():
+    parser = argparse.ArgumentParser(description="Build business website HTML")
+    parser.add_argument("--brief", default=None, help="Path to design_brief.json (Client Mode)")
+    parser.add_argument("--preview", action="store_true", help="Build hero-only preview page -> output/hero_preview.html")
+    parser.add_argument("--polish", action="store_true", help="Upgrade animation tier in existing output/index.html")
+    parser.add_argument("--tier", default=None, choices=["starter", "basic", "pro", "enterprise"], help="Client tier (used with --polish)")
+    args = parser.parse_args()
+
     info_path = Path(".tmp/business_info.json")
     copy_path = Path(".tmp/website_copy.json")
 
@@ -1568,6 +1905,22 @@ def main():
     with open(copy_path, encoding="utf-8") as f:
         website_copy = json.load(f)
 
+    # Determine animation palette: brief > design_hints personality > default
+    design_brief = {}
+    if args.brief:
+        brief_path = Path(args.brief)
+        if brief_path.exists():
+            with open(brief_path, encoding="utf-8") as f:
+                design_brief = json.load(f)
+            print(f"[BRIEF] Loaded: {brief_path} (mode={design_brief.get('mode','?')}, emotion={design_brief.get('emotional_target','?')})")
+        else:
+            print(f"[WARN] Brief file not found: {brief_path} — falling back to demo mode")
+
+    animation_palette = design_brief.get("animation_palette") or None
+    if not animation_palette:
+        personality = (business_info.get("design_hints", {}).get("visual_personality") or "").lower()
+        animation_palette = _DEMO_PALETTES.get(personality, _DEFAULT_PALETTE)
+
     biz_name = business_info.get("business_name", "Unknown")
     axes = compute_variant_axes(biz_name)
     # Apply design_hints for accurate print output (mirrors logic in build_html)
@@ -1581,17 +1934,72 @@ def main():
         if _dh.get("hero_layout"): axes["hero_id"] = _hm.get(_dh["hero_layout"].lower(), axes["hero_id"])
         if _dh.get("visual_personality"): axes["personality_id"] = _pm.get(_dh["visual_personality"].lower(), axes["personality_id"])
         if _dh.get("page_layout"): axes["layout_id"] = _lm.get(_dh["page_layout"].lower(), axes["layout_id"])
+    source = "brief" if design_brief else ("design_hints" if _dh else "hash")
+
+    # -------------------------------------------------------------------------
+    # --polish: upgrade animation tier in existing output/index.html
+    # -------------------------------------------------------------------------
+    if args.polish:
+        site_path = Path("output/index.html")
+        if not site_path.exists():
+            print("Error: output/index.html not found — run a full build first.")
+            sys.exit(1)
+        tier = args.tier or business_info.get("tier", "starter")
+        polish_palette = _TIER_PALETTES.get(tier, _DEFAULT_PALETTE)
+        accent = (
+            business_info.get("brand", {}).get("accent_color")
+            or business_info.get("color_scheme", {}).get("accent", "#C17A3A")
+        )
+        new_scripts = generate_animation_scripts(polish_palette, accent)
+        html = site_path.read_text(encoding="utf-8")
+        import re as _re
+        pattern = r'<!-- cifra:animations:start -->.*?<!-- cifra:animations:end -->'
+        replacement = f'<!-- cifra:animations:start -->\n  {new_scripts}\n  <!-- cifra:animations:end -->'
+        if _re.search(pattern, html, flags=_re.DOTALL):
+            html = _re.sub(pattern, replacement, html, flags=_re.DOTALL)
+            site_path.write_text(html, encoding="utf-8")
+            print(f"[POLISH] Animation tier '{tier}' injected → {site_path}")
+            print(f"  Palette: {', '.join(polish_palette)}")
+        else:
+            print("[WARN] Animation markers not found — site may have been built before multi-pass support.")
+            print("       Rebuild with: python tools/build_website.py")
+        return
+
+    # -------------------------------------------------------------------------
+    # --preview: hero-only preview page → output/hero_preview.html
+    # -------------------------------------------------------------------------
+    if args.preview:
+        print(f"[PREVIEW] Building hero preview for: {biz_name}")
+        html = build_html(
+            business_info, website_copy,
+            hero_video_url=business_info.get("hero_video_url"),
+            hero_video_poster=business_info.get("hero_video_poster"),
+            animation_palette=animation_palette,
+            preview_only=True,
+        )
+        Path("output").mkdir(exist_ok=True)
+        preview_path = Path("output/hero_preview.html")
+        with open(preview_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"[OK] Hero preview saved to {preview_path}")
+        print(f"  Hero: \"{website_copy.get('hero', {}).get('headline', 'N/A')}\"")
+        print("\n[GATE] Review hero_preview.html, then run:")
+        print("       python tools/generate_copy.py --pass 2")
+        return
+
     print(f"Building website for: {biz_name}")
-    source = "design_hints" if _dh else "hash"
     print(f"  Font     : {FONT_PAIRINGS[axes['font_id']]['label']} ({FONT_PAIRINGS[axes['font_id']]['heading']}) [{source}]")
     print(f"  Layout   : {axes['layout_id']} / Hero: {axes['hero_id']} / Services: {axes['services_id']} [{source}]")
     print(f"  Style    : {PERSONALITY_LABELS[axes['personality_id']]} [{source}]")
+    print(f"  Animations: {', '.join(animation_palette)}")
 
     html = build_html(
         business_info, website_copy,
         hero_video_url=business_info.get("hero_video_url"),
         hero_video_poster=business_info.get("hero_video_poster"),
+        animation_palette=animation_palette,
     )
+    html = validate_no_dead_ctas(html)
 
     output_dir = Path("output")
     output_dir.mkdir(exist_ok=True)
@@ -1624,6 +2032,37 @@ def main():
         print(f"  Brand    : logo={brand.get('logo_local_path', 'none')}  source={brand['source']}")
     if business_info.get("hero_image_path"):
         print(f"  Hero img : {business_info['hero_image_path']}")
+
+    # --- Pre-launch security audit (Pro tier and above) ---
+    tier = business_info.get("tier", "basic")
+    client_slug = business_info.get("slug") or re.sub(r"[^a-z0-9]+", "-", biz_name.lower()).strip("-")
+
+    if tier in ("pro", "premium", "enterprise"):
+        findings_path = run_pre_launch_audit(output_path, client_slug)
+        inject_security_seal(output_path)
+        print(f"  Tier     : {tier} — security seal injected into footer")
+
+        # Log audit to DB if available
+        if findings_path and findings_path.exists():
+            try:
+                sys.path.insert(0, str(Path(__file__).parent))
+                from db import add_audit, get_client
+                client = get_client(client_slug)
+                if client:
+                    with open(findings_path, encoding="utf-8") as fh:
+                        findings_data = json.load(fh)
+                    summary = findings_data.get("summary", {})
+                    add_audit(
+                        client_slug=client_slug,
+                        scan_type="website_build",
+                        findings_json_path=str(findings_path),
+                        total_findings=summary.get("total", 0),
+                        high=summary.get("high", 0),
+                        medium=summary.get("medium", 0),
+                        low=summary.get("low", 0),
+                    )
+            except Exception as e:
+                print(f"  [WARN] Could not log audit to DB: {e}")
 
 
 if __name__ == "__main__":

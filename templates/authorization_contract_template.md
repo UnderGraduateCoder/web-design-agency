@@ -13,7 +13,7 @@
 **Partes del contrato:**
 
 **Prestador del servicio (Auditor):**
-- Empresa: WAT Agency
+- Empresa: Cifra
 - Contacto: adrianarconroyo@gmail.com
 - En adelante denominado "el Auditor"
 
@@ -31,7 +31,7 @@
 
 ## 1. Objeto del Contrato
 
-El presente contrato autoriza expresamente a WAT Agency a realizar una auditoría de seguridad sobre los sistemas y repositorios de código indicados en la sección "Alcance" de este documento. El Cliente confirma que tiene los derechos y la autoridad legal para autorizar esta auditoría sobre los sistemas descritos.
+El presente contrato autoriza expresamente a Cifra a realizar una auditoría de seguridad sobre los sistemas y repositorios de código indicados en la sección "Alcance" de este documento. El Cliente confirma que tiene los derechos y la autoridad legal para autorizar esta auditoría sobre los sistemas descritos.
 
 ---
 
@@ -108,7 +108,7 @@ El Auditor se compromete a notificar al contacto de emergencia de forma inmediat
 
 ### 5.1 Límites de responsabilidad del Auditor
 
-WAT Agency no asumirá responsabilidad alguna por:
+Cifra no asumirá responsabilidad alguna por:
 
 - Vulnerabilidades preexistentes en el sistema antes de la fecha de inicio indicada en la sección 3
 - Vulnerabilidades introducidas en el código después de la fecha de finalización del análisis
@@ -118,7 +118,7 @@ WAT Agency no asumirá responsabilidad alguna por:
 
 ### 5.2 Límite económico de responsabilidad
 
-En ningún caso la responsabilidad total de WAT Agency derivada de este contrato superará el importe total facturado por el servicio objeto del presente contrato.
+En ningún caso la responsabilidad total de Cifra derivada de este contrato superará el importe total facturado por el servicio objeto del presente contrato.
 
 ### 5.3 Limitaciones del análisis
 
@@ -146,7 +146,7 @@ El Cliente se compromete a no publicar el informe completo en canales públicos 
 
 ### 6.3 Retención de datos
 
-WAT Agency conservará una copia del informe final durante un máximo de [12 meses] por razones de documentación interna, tras lo cual será eliminado de forma segura.
+Cifra conservará una copia del informe final durante un máximo de [12 meses] por razones de documentación interna, tras lo cual será eliminado de forma segura.
 
 ---
 
@@ -154,7 +154,7 @@ WAT Agency conservará una copia del informe final durante un máximo de [12 mes
 
 Conforme al Reglamento General de Protección de Datos (RGPD) y la Ley Orgánica 3/2018 de Protección de Datos Personales (LOPDGDD):
 
-- WAT Agency tratará los datos personales del Cliente únicamente para la prestación del servicio descrito en este contrato
+- Cifra tratará los datos personales del Cliente únicamente para la prestación del servicio descrito en este contrato
 - Los datos no serán cedidos a terceros salvo obligación legal
 - El Cliente tiene derecho a acceder, rectificar, suprimir y portar sus datos
 
@@ -186,7 +186,7 @@ Fecha: ________________________________________________
 
 ---
 
-**Por WAT Agency (el Auditor):**
+**Por Cifra (el Auditor):**
 
 Nombre: Adrián Arcón Royo
 

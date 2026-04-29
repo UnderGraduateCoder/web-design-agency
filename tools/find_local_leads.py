@@ -42,11 +42,6 @@ except ImportError:
     print("Error: 'requests' not installed. Run: pip install -r requirements.txt")
     sys.exit(1)
 
-try:
-    import googlemaps
-except ImportError:
-    print("Error: 'googlemaps' not installed. Run: pip install -r requirements.txt")
-    sys.exit(1)
 
 
 # ---------------------------------------------------------------------------
@@ -120,31 +115,43 @@ def check_website(url: str) -> str | None:
     return None  # healthy
 
 
-def get_all_places(gmaps: googlemaps.Client, query: str) -> list[dict]:
-    """
-    Fetch up to 60 place results (3 pages) for a text search query.
-    Google requires a ~2s delay between pages for the next_page_token to activate.
-    """
+_PLACES_API_URL = "https://places.googleapis.com/v1/places:searchText"
+_PLACES_FIELD_MASK = (
+    "places.id,places.displayName,places.formattedAddress,"
+    "places.nationalPhoneNumber,places.websiteUri,places.rating,"
+    "places.userRatingCount,places.businessStatus,"
+    "places.editorialSummary,places.googleMapsUri"
+)
+
+
+def get_all_places(api_key: str, query: str) -> list[dict]:
+    """Fetch up to 60 place results (3 pages) using Places API (New) searchText."""
+    headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": api_key,
+        "X-Goog-FieldMask": _PLACES_FIELD_MASK,
+    }
     all_results = []
+    page_token = None
 
-    print(f"  Page 1 ...", end=" ", flush=True)
-    response = gmaps.places(query=query)
-    results = response.get("results", [])
-    all_results.extend(results)
-    print(f"{len(results)} results")
-
-    next_token = response.get("next_page_token")
-
-    for page_num in range(2, 4):  # pages 2 and 3
-        if not next_token:
-            break
-        time.sleep(2)  # Required by Google — token takes ~2s to become valid
+    for page_num in range(1, 4):
+        body: dict = {"textQuery": query, "languageCode": "es", "maxResultCount": 20}
+        if page_token:
+            body["pageToken"] = page_token
         print(f"  Page {page_num} ...", end=" ", flush=True)
-        response = gmaps.places(query=query, page_token=next_token)
-        results = response.get("results", [])
-        all_results.extend(results)
-        print(f"{len(results)} results")
-        next_token = response.get("next_page_token")
+        try:
+            resp = requests.post(_PLACES_API_URL, json=body, headers=headers, timeout=10)
+            resp.raise_for_status()
+            data = resp.json()
+        except requests.exceptions.RequestException as e:
+            print(f"API error: {e}")
+            break
+        places = data.get("places", [])
+        print(f"{len(places)} results")
+        all_results.extend(places)
+        page_token = data.get("nextPageToken")
+        if not page_token:
+            break
 
     return all_results
 
@@ -179,21 +186,6 @@ def extract_email_from_url(url: str, timeout: int = 5) -> str | None:
         return None
 
 
-def get_place_details(gmaps: googlemaps.Client, place_id: str) -> dict:
-    """Fetch Place Details for a given place_id."""
-    fields = [
-        "name",
-        "formatted_phone_number",
-        "formatted_address",
-        "website",
-        "url",  # Google Maps URL
-        "rating",
-        "user_ratings_total",
-        "business_status",
-        "editorial_summary",
-    ]
-    result = gmaps.place(place_id=place_id, fields=fields)
-    return result.get("result", {})
 
 
 # ---------------------------------------------------------------------------
@@ -216,12 +208,10 @@ def main():
         print("See workflows/find_leads.md for step-by-step setup instructions.")
         sys.exit(1)
 
-    gmaps = googlemaps.Client(key=api_key)
-
     print(f"\nSearching Google Maps: \"{query}\"")
     print("Fetching up to 60 results (3 pages)...\n")
 
-    places = get_all_places(gmaps, query)
+    places = get_all_places(api_key, query)
     total_found = len(places)
     print(f"\nFound {total_found} businesses. Checking website status...\n")
 
@@ -229,23 +219,20 @@ def main():
     checked = 0
 
     for place in places:
-        place_id = place.get("place_id")
-        if not place_id:
+        if not place:
             continue
 
         checked += 1
-        details = get_place_details(gmaps, place_id)
-
-        name = details.get("name", place.get("name", "Unknown"))
-        phone = details.get("formatted_phone_number", "")
-        address = details.get("formatted_address", "")
-        website = details.get("website", "")
-        maps_url = details.get("url", "")
-        rating = details.get("rating")
-        review_count = details.get("user_ratings_total")
-        business_status = details.get("business_status", "")
-        editorial = details.get("editorial_summary", {})
-        description = editorial.get("overview", "") if isinstance(editorial, dict) else ""
+        name = place.get("displayName", {}).get("text", "Unknown")
+        phone = place.get("nationalPhoneNumber", "")
+        address = place.get("formattedAddress", "")
+        website = place.get("websiteUri", "")
+        maps_url = place.get("googleMapsUri", "")
+        rating = place.get("rating")
+        review_count = place.get("userRatingCount")
+        business_status = place.get("businessStatus", "")
+        editorial = place.get("editorialSummary", {})
+        description = editorial.get("text", "") if isinstance(editorial, dict) else ""
 
         print(f"  [{checked}/{total_found}] {name}", end=" ... ", flush=True)
 

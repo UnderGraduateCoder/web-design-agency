@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casa Miel — Cocina Mediterránea de Autor · Madrid</title>
+  <meta name="description" content="Restaurante de cocina mediterránea de autor en Madrid. Reservas online, menú de temporada, bodega cuidada. Abierto de martes a domingo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Animation plan:
+    - Hero: dark gradient mesh + floating ingredient particles (CSS) + cinematic fade on load
+    - Sections: AOS clip-path reveals for images, stagger fade-up for text
+    - Menu: hover lift with warm amber shadow
+  -->
+
+  <style>
+    :root {
+      --gold:    #C8963B;
+      --gold-lt: #E8B55C;
+      --cream:   #F5ECD8;
+      --ivory:   #FAF5EC;
+      --charcoal:#1C1814;
+      --espresso:#2E2018;
+      --mocha:   #5A3D26;
+      --muted:   #8A7260;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+      --ease-spring: cubic-bezier(.34,1.56,.64,1);
+      --ease-out:    cubic-bezier(.22,.61,.36,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--ivory);
+      color: var(--charcoal);
+      overflow-x: hidden;
+      font-weight: 300;
+    }
+
+    /* ─── GRAIN ─────────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 999; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.022;
+    }
+
+    /* ─── NAV ───────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      padding: 1.6rem 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background .4s ease, padding .4s ease;
+    }
+    nav.scrolled {
+      background: rgba(28,24,20,.94);
+      backdrop-filter: blur(16px);
+      padding: 1rem 5vw;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem; font-weight: 400;
+      letter-spacing: .06em;
+      color: var(--cream); text-decoration: none;
+    }
+    .nav-logo em { font-style: italic; color: var(--gold); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(245,236,216,.55); text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-reserva {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .6rem 1.6rem; background: var(--gold);
+      color: var(--charcoal); text-decoration: none;
+      font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
+      transition: background .2s, transform .15s var(--ease-spring);
+    }
+    .nav-reserva:hover { background: var(--gold-lt); transform: translateY(-2px); }
+    @media(max-width:768px){
+      .nav-links { display: none; }
+    }
+
+    /* ─── HERO ──────────────────────────────────────────────── */
+    #inicio {
+      min-height: 100svh;
+      position: relative;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      background: var(--charcoal);
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+    }
+    .hero-bg img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      opacity: .55;
+      transform: scale(1.08);
+      transition: transform 8s ease-out, opacity .8s ease;
+    }
+    .hero-bg img.loaded { transform: scale(1); opacity: .6; }
+    .hero-bg-fallback {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 90% 70% at 50% 60%, #3D2010 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 20% 80%, #5A3020 0%, transparent 50%),
+        radial-gradient(ellipse 50% 60% at 80% 20%, #2A1A0A 0%, transparent 55%),
+        linear-gradient(160deg, #1C1814 0%, #2E2018 40%, #1C1814 100%);
+    }
+    /* Table cloth fabric texture */
+    .hero-bg-fallback::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(circle at 25% 35%, rgba(200,150,59,.08) 0%, transparent 35%),
+        radial-gradient(circle at 75% 65%, rgba(200,150,59,.05) 0%, transparent 30%);
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top,
+        rgba(28,24,20,.95) 0%,
+        rgba(28,24,20,.5) 50%,
+        rgba(28,24,20,.1) 100%);
+    }
+
+    .hero-content {
+      position: relative; z-index: 10;
+      padding: 4rem 10vw 7rem;
+      max-width: 900px;
+    }
+
+    .hero-eyebrow {
+      font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.6rem;
+      display: flex; align-items: center; gap: .8rem;
+    }
+    .hero-eyebrow::before { content: ''; width: 2rem; height: 1px; background: var(--gold); }
+
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 8vw, 10rem);
+      font-weight: 400; line-height: .92;
+      letter-spacing: -.02em; color: var(--cream);
+      margin-bottom: 2rem;
+    }
+    .hero-h1 em { display: block; font-style: italic; color: var(--gold); }
+
+    .hero-sub {
+      font-size: clamp(.88rem, 1.2vw, 1.05rem);
+      color: rgba(245,236,216,.55); line-height: 1.8;
+      max-width: 48ch; margin-bottom: 3rem;
+    }
+
+    .hero-cta-row { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+    .btn-gold {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: 1rem 2.4rem; background: var(--gold);
+      color: var(--charcoal); text-decoration: none;
+      font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 500;
+      transition: background .2s, transform .15s var(--ease-spring);
+    }
+    .btn-gold:hover { background: var(--gold-lt); transform: translateY(-2px); }
+    .btn-line {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: 1rem 2.4rem; background: transparent;
+      color: var(--cream); text-decoration: none; border: 1px solid rgba(245,236,216,.3);
+      font-size: .82rem; letter-spacing: .12em; text-transform: uppercase;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-line:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Stats bar */
+    .hero-stats {
+      position: absolute; bottom: 0; right: 0;
+      display: flex; border-top: 1px solid rgba(245,236,216,.1);
+      border-left: 1px solid rgba(245,236,216,.1);
+    }
+    .hstat {
+      padding: 1.4rem 2.2rem; border-right: 1px solid rgba(245,236,216,.1);
+      text-align: center;
+    }
+    .hstat-num {
+      font-family: var(--font-display); font-size: 2rem; font-weight: 400;
+      color: var(--gold); line-height: 1;
+    }
+    .hstat-lbl {
+      font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(245,236,216,.35); margin-top: .3rem;
+    }
+    @media(max-width:768px){ .hero-stats { display: none; } }
+
+    /* ─── SEC LABELS ────────────────────────────────────────── */
+    .sec-label {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.2rem;
+    }
+    .sec-label::before { content: ''; width: 1.5rem; height: 1px; background: currentColor; }
+
+    .sec-h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4vw, 5.5rem);
+      font-weight: 400; line-height: 1.05;
+      letter-spacing: -.02em; color: var(--charcoal);
+    }
+    .sec-h2 em { font-style: italic; color: var(--gold); }
+    .sec-h2-light { color: var(--cream); }
+
+    /* ─── SOBRE NOSOTROS ────────────────────────────────────── */
+    #nosotros {
+      background: var(--ivory); padding: 9rem 5vw;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10vw; align-items: center;
+    }
+    @media(max-width:900px){ #nosotros { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 6vw; } }
+
+    .nosotros-img {
+      position: relative; aspect-ratio: 3/4; overflow: hidden;
+    }
+    .nosotros-img img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: transform .8s var(--ease-out);
+    }
+    .nosotros-img:hover img { transform: scale(1.03); }
+    .nosotros-img-fallback {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 40% 50%, #4A2E14 0%, transparent 60%),
+        linear-gradient(145deg, #3D2010 0%, #2A1A0A 100%);
+    }
+    .nosotros-img-fallback::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(circle at 50% 50%, rgba(200,150,59,.12) 0%, transparent 50%);
+    }
+    .nosotros-img-badge {
+      position: absolute; bottom: 1.5rem; left: 1.5rem;
+      background: var(--gold); padding: .7rem 1.2rem;
+      font-family: var(--font-display); font-size: 1rem; font-style: italic;
+      color: var(--charcoal);
+    }
+
+    .nosotros-text .sec-label { color: var(--gold); }
+    .nosotros-text .sec-h2 { margin-bottom: 2rem; }
+    .nosotros-text p {
+      font-size: .94rem; line-height: 1.9; color: var(--mocha); margin-bottom: 1.4rem;
+    }
+    .chef-firma {
+      margin-top: 2rem; display: flex; align-items: center; gap: 1.2rem;
+    }
+    .chef-circle {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(145deg, #5A3D26, #2E2018);
+      border: 2px solid var(--gold); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-style: italic; font-size: 1.3rem;
+      color: var(--gold);
+    }
+    .chef-name { font-family: var(--font-display); font-size: 1rem; font-style: italic; color: var(--charcoal); }
+    .chef-title { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: .15rem; }
+
+    /* ─── MENÚ ──────────────────────────────────────────────── */
+    #menu {
+      background: var(--espresso); padding: 9rem 5vw;
+    }
+    .menu-header {
+      max-width: 1200px; margin: 0 auto 5rem;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 2rem; flex-wrap: wrap;
+    }
+    .menu-tabs {
+      display: flex; gap: .3rem; margin-top: 2rem;
+    }
+    .menu-tab {
+      padding: .5rem 1.3rem; cursor: pointer;
+      font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(245,236,216,.4); border: 1px solid transparent;
+      transition: all .2s;
+      background: none;
+    }
+    .menu-tab.active, .menu-tab:hover {
+      color: var(--gold); border-color: rgba(200,150,59,.35);
+    }
+    .menu-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1px;
+      background: rgba(245,236,216,.06);
+    }
+    @media(max-width:900px){ .menu-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:540px){ .menu-grid { grid-template-columns: 1fr; } }
+
+    .menu-item {
+      padding: 2.2rem; background: var(--espresso);
+      cursor: pointer;
+      transition: background .25s;
+    }
+    .menu-item:hover { background: rgba(200,150,59,.07); }
+    .menu-item-header {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;
+      margin-bottom: .8rem;
+    }
+    .menu-name {
+      font-family: var(--font-display); font-size: 1.15rem; font-weight: 400;
+      font-style: italic; color: var(--cream); line-height: 1.3;
+    }
+    .menu-price {
+      font-family: var(--font-display); font-size: 1.1rem;
+      color: var(--gold); white-space: nowrap; flex-shrink: 0;
+    }
+    .menu-desc {
+      font-size: .82rem; line-height: 1.75; color: rgba(245,236,216,.38);
+    }
+    .menu-badge {
+      display: inline-block; margin-top: .8rem;
+      padding: .2rem .7rem; background: rgba(200,150,59,.15);
+      font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--gold);
+    }
+
+    /* ─── GALERÍA ───────────────────────────────────────────── */
+    #galeria {
+      background: var(--ivory); padding: 9rem 5vw;
+    }
+    .gal-grid {
+      max-width: 1280px; margin: 3.5rem auto 0;
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1rem;
+    }
+    @media(max-width:900px){ .gal-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:540px){ .gal-grid { grid-template-columns: 1fr; } }
+
+    .gal-card {
+      overflow: hidden; position: relative; cursor: pointer;
+    }
+    .gal-card:first-child { grid-row: 1 / 3; aspect-ratio: auto; }
+    @media(max-width:900px){ .gal-card:first-child { grid-row: auto; } }
+    .gal-inner {
+      width: 100%; height: 100%; min-height: 260px;
+      transition: transform .6s var(--ease-out);
+    }
+    .gal-card:hover .gal-inner { transform: scale(1.04); }
+
+    .gal-bg-1 {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 60%, #4A2E14 0%, transparent 60%),
+        linear-gradient(145deg, #2A1A0A 0%, #3D2010 100%);
+    }
+    .gal-bg-2 { background: linear-gradient(145deg, #3D2A1A 0%, #1C1410 100%); }
+    .gal-bg-3 { background: linear-gradient(145deg, #2A1A10 0%, #1A1008 100%); }
+    .gal-bg-4 { background: linear-gradient(145deg, #3A2A14 0%, #2A1A0A 100%); }
+    .gal-bg-5 { background: linear-gradient(145deg, #2A1810 0%, #1C120A 100%); }
+
+    .gal-label {
+      position: absolute; bottom: 1rem; left: 1rem;
+      font-family: var(--font-display); font-size: .9rem; font-style: italic;
+      color: rgba(245,236,216,.65);
+    }
+
+    /* ─── RESERVAS ──────────────────────────────────────────── */
+    #reservas {
+      background: var(--charcoal);
+      padding: 9rem 5vw;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8vw;
+    }
+    @media(max-width:900px){ #reservas { grid-template-columns: 1fr; gap: 4rem; padding: 5rem 6vw; } }
+
+    .rsv-info .sec-label { color: rgba(200,150,59,.8); }
+    .rsv-info .sec-h2 { color: var(--cream); margin-bottom: 1.5rem; }
+    .rsv-info .sec-h2 em { color: var(--gold); }
+    .rsv-info p {
+      font-size: .9rem; color: rgba(245,236,216,.45); line-height: 1.85;
+      margin-bottom: 1rem;
+    }
+    .rsv-hours {
+      margin-top: 2.5rem; border-top: 1px solid rgba(245,236,216,.08); padding-top: 2rem;
+    }
+    .rsv-hour-row {
+      display: flex; justify-content: space-between;
+      padding: .7rem 0; border-bottom: 1px solid rgba(245,236,216,.05);
+      font-size: .85rem;
+    }
+    .rsv-day { color: rgba(245,236,216,.45); letter-spacing: .05em; }
+    .rsv-time { color: var(--cream); font-family: var(--font-display); font-style: italic; }
+
+    .rsv-form { display: flex; flex-direction: column; gap: 1.1rem; }
+    .rsv-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width:540px){ .rsv-row { grid-template-columns: 1fr; } }
+    .fgg { display: flex; flex-direction: column; gap: .4rem; }
+    .fgg label { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(245,236,216,.35); }
+    .fgg input, .fgg select, .fgg textarea {
+      background: rgba(245,236,216,.05); border: 1px solid rgba(245,236,216,.12);
+      padding: .85rem 1rem; color: var(--cream);
+      font-family: var(--font-body); font-size: .9rem; outline: none;
+      transition: border-color .2s;
+    }
+    .fgg input::placeholder, .fgg textarea::placeholder { color: rgba(245,236,216,.2); }
+    .fgg select { appearance: none; cursor: pointer; }
+    .fgg input:focus, .fgg select:focus, .fgg textarea:focus { border-color: var(--gold); }
+    .fgg option { background: var(--espresso); }
+    .btn-rsv {
+      padding: 1rem; background: var(--gold); border: none;
+      color: var(--charcoal); cursor: pointer;
+      font-family: var(--font-body); font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 500;
+      transition: background .2s, transform .15s var(--ease-spring);
+    }
+    .btn-rsv:hover { background: var(--gold-lt); transform: translateY(-2px); }
+
+    /* ─── FOOTER ────────────────────────────────────────────── */
+    footer {
+      background: var(--charcoal); border-top: 1px solid rgba(245,236,216,.06);
+      padding: 2.5rem 5vw;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .foot-logo {
+      font-family: var(--font-display); font-size: 1.2rem; font-style: italic;
+      color: rgba(245,236,216,.4);
+    }
+    .foot-copy { font-size: .72rem; color: rgba(245,236,216,.22); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#inicio" class="nav-logo">Casa <em>Miel</em></a>
+    <ul class="nav-links">
+      <li><a href="#nosotros">Cocina</a></li>
+      <li><a href="#menu">Menú</a></li>
+      <li><a href="#galeria">Galería</a></li>
+      <li><a href="#reservas">Reservas</a></li>
+    </ul>
+    <a href="#reservas" class="nav-reserva">Reservar mesa →</a>
+  </nav>
+
+  <!-- HERO -->
+  <section id="inicio">
+    <div class="hero-bg">
+      <div class="hero-bg-fallback"></div>
+      <img src="assets/hero.jpg" alt="Comedor de Casa Miel — luz cálida de velas, mesas preparadas"
+           loading="eager" onload="this.classList.add('loaded')">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow" data-aos="fade-right" data-aos-delay="100">Cocina Mediterránea · Madrid, Malasaña</div>
+      <h1 class="hero-h1" data-aos="fade-up" data-aos-delay="200">
+        Sabor que<br><em>se queda.</em>
+      </h1>
+      <p class="hero-sub" data-aos="fade-up" data-aos-delay="320">
+        Cocina de autor mediterránea con producto de temporada. Carta reducida, menú degustación y bodega seleccionada. Abierto de martes a domingo.
+      </p>
+      <div class="hero-cta-row" data-aos="fade-up" data-aos-delay="420">
+        <a href="#reservas" class="btn-gold">Reservar ahora →</a>
+        <a href="#menu" class="btn-line">Ver la carta</a>
+      </div>
+    </div>
+    <div class="hero-stats" data-aos="fade-up" data-aos-delay="500">
+      <div class="hstat">
+        <div class="hstat-num">12</div>
+        <div class="hstat-lbl">Años en Malasaña</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">4.8</div>
+        <div class="hstat-lbl">Puntuación Google</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">100%</div>
+        <div class="hstat-lbl">Producto local</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE NOSOTROS -->
+  <section id="nosotros">
+    <div class="nosotros-img" data-aos="fade-right">
+      <div class="nosotros-img-fallback"></div>
+      <img src="assets/interior.jpg" alt="Interior de Casa Miel — ambiente íntimo y cálido"
+           loading="lazy" onerror="this.style.display='none'">
+      <div class="nosotros-img-badge">desde 2013</div>
+    </div>
+    <div class="nosotros-text" data-aos="fade-left" data-aos-delay="150">
+      <span class="sec-label">La cocina</span>
+      <h2 class="sec-h2">
+        Producto honesto,<br><em>técnica invisible.</em>
+      </h2>
+      <p>Casa Miel nació de una convicción: que la buena cocina mediterránea no necesita artificios. Solo producto de temporada, técnica aprendida y el respeto por el sabor original.</p>
+      <p>Cada carta cambia con la estación. En verano, salazones del sur y tomates de huerta. En invierno, guisos lentos de legumbres castellanas y caza menor. La bodega sigue el mismo criterio: productores pequeños, vinos con historia.</p>
+      <div class="chef-firma">
+        <div class="chef-circle">R</div>
+        <div>
+          <div class="chef-name">Rafael Andrade</div>
+          <div class="chef-title">Chef y propietario</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENÚ -->
+  <section id="menu">
+    <div class="menu-header">
+      <div>
+        <span class="sec-label" style="color:rgba(200,150,59,.8);" data-aos="fade-right">Primavera 2025</span>
+        <h2 class="sec-h2 sec-h2-light" data-aos="fade-up" data-aos-delay="100">
+          La carta<br><em>de temporada.</em>
+        </h2>
+      </div>
+      <div class="menu-tabs" data-aos="fade-left" data-aos-delay="200">
+        <button class="menu-tab active">Entrantes</button>
+        <button class="menu-tab">Principales</button>
+        <button class="menu-tab">Postres</button>
+      </div>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-item" data-aos="fade-up" data-aos-delay="0">
+        <div class="menu-item-header">
+          <div class="menu-name">Tartar de vieira con pil-pil de ajo negro</div>
+          <div class="menu-price">18€</div>
+        </div>
+        <p class="menu-desc">Vieiras gallegas crudas, aliño de lima, aceite de ajo negro, caviar de esturión ibérico y chips de algas.</p>
+        <span class="menu-badge">Firma de la casa</span>
+      </div>
+      <div class="menu-item" data-aos="fade-up" data-aos-delay="60">
+        <div class="menu-item-header">
+          <div class="menu-name">Ensalada de tomate de temporada</div>
+          <div class="menu-price">14€</div>
+        </div>
+        <p class="menu-desc">Tomates raf y kumato de Almería, burrata fresca, aceite virgen extra Picual y sal Maldon.</p>
+      </div>
+      <div class="menu-item" data-aos="fade-up" data-aos-delay="120">
+        <div class="menu-item-header">
+          <div class="menu-name">Croquetas de puchero sevillano</div>
+          <div class="menu-price">12€</div>
+        </div>
+        <p class="menu-desc">Bechamel de tutano con pollo de corral, jamón de guijuelo y puntilla andaluza. 6 unidades.</p>
+      </div>
+      <div class="menu-item" data-aos="fade-up" data-aos-delay="180">
+        <div class="menu-item-header">
+          <div class="menu-name">Gazpacho de cereza y frutos rojos</div>
+          <div class="menu-price">11€</div>
+        </div>
+        <p class="menu-desc">Interpretación estival del gazpacho clásico, con caldo de cereza, vinagre de Jerez y aceite de arbequina.</p>
+        <span class="menu-badge">Vegetariano</span>
+      </div>
+      <div class="menu-item" data-aos="fade-up" data-aos-delay="240">
+        <div class="menu-item-header">
+          <div class="menu-name">Alcachofas a la plancha con anchoa del Cantábrico</div>
+          <div class="menu-price">16€</div>
+        </div>
+        <p class="menu-desc">Alcachofas de Tudela, aceite de arbequina, anchoa de Santoña L00 y ralladura de limón.</p>
+      </div>
+      <div class="menu-item" data-aos="fade-up" data-aos-delay="300">
+        <div class="menu-item-header">
+          <div class="menu-name">Tabla de quesos artesanos</div>
+          <div class="menu-price">20€</div>
+        </div>
+        <p class="menu-desc">Selección de cinco quesos ibéricos de temporada, membrillo de Puente Genil, nueces y pan de pasas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERÍA -->
+  <section id="galeria">
+    <span class="sec-label" data-aos="fade-right">El ambiente</span>
+    <h2 class="sec-h2" data-aos="fade-up" data-aos-delay="100">
+      Donde cada detalle<br><em>importa.</em>
+    </h2>
+    <div class="gal-grid">
+      <div class="gal-card" data-aos="fade-right" data-aos-delay="0">
+        <div class="gal-inner gal-bg-1"></div>
+        <span class="gal-label">Sala principal</span>
+      </div>
+      <div class="gal-card" data-aos="fade-up" data-aos-delay="80">
+        <div class="gal-inner gal-bg-2"></div>
+        <span class="gal-label">Platos de temporada</span>
+      </div>
+      <div class="gal-card" data-aos="fade-up" data-aos-delay="160">
+        <div class="gal-inner gal-bg-3"></div>
+        <span class="gal-label">La bodega</span>
+      </div>
+      <div class="gal-card" data-aos="fade-up" data-aos-delay="240">
+        <div class="gal-inner gal-bg-4"></div>
+        <span class="gal-label">Mesa privada</span>
+      </div>
+      <div class="gal-card" data-aos="fade-up" data-aos-delay="320">
+        <div class="gal-inner gal-bg-5"></div>
+        <span class="gal-label">Postres de autor</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVAS -->
+  <section id="reservas">
+    <div class="rsv-info">
+      <span class="sec-label" data-aos="fade-right">Reservas</span>
+      <h2 class="sec-h2" data-aos="fade-up" data-aos-delay="100">
+        Tu mesa<br><em>te espera.</em>
+      </h2>
+      <p data-aos="fade-up" data-aos-delay="180">Reserva online o llámanos. Confirmamos en menos de 2 horas. Para grupos de más de 8 personas, escríbenos directamente.</p>
+      <p data-aos="fade-up" data-aos-delay="220">Menú degustación disponible con reserva previa de 48h. Maridaje opcional con 7 vinos de pequeños productores.</p>
+      <div class="rsv-hours" data-aos="fade-up" data-aos-delay="280">
+        <div class="rsv-hour-row">
+          <span class="rsv-day">Martes – Jueves</span>
+          <span class="rsv-time">13:30 – 15:30 · 21:00 – 23:00</span>
+        </div>
+        <div class="rsv-hour-row">
+          <span class="rsv-day">Viernes – Sábado</span>
+          <span class="rsv-time">13:30 – 16:00 · 21:00 – 00:00</span>
+        </div>
+        <div class="rsv-hour-row">
+          <span class="rsv-day">Domingo</span>
+          <span class="rsv-time">14:00 – 16:30 · cerrado noche</span>
+        </div>
+        <div class="rsv-hour-row">
+          <span class="rsv-day">Lunes</span>
+          <span class="rsv-time" style="color:rgba(245,236,216,.3);">Cerrado</span>
+        </div>
+      </div>
+    </div>
+    <div data-aos="fade-left" data-aos-delay="150">
+      <form class="rsv-form" action="#" method="POST" novalidate>
+        <div class="rsv-row">
+          <div class="fgg">
+            <label for="r-nombre">Nombre</label>
+            <input type="text" id="r-nombre" name="nombre" placeholder="Tu nombre" required>
+          </div>
+          <div class="fgg">
+            <label for="r-tel">Teléfono</label>
+            <input type="tel" id="r-tel" name="telefono" placeholder="+34 600 000 000" required>
+          </div>
+        </div>
+        <div class="rsv-row">
+          <div class="fgg">
+            <label for="r-fecha">Fecha</label>
+            <input type="date" id="r-fecha" name="fecha" required>
+          </div>
+          <div class="fgg">
+            <label for="r-hora">Turno</label>
+            <select id="r-hora" name="turno">
+              <option value="">Seleccionar</option>
+              <option>Comida (13:30)</option>
+              <option>Comida (14:30)</option>
+              <option>Cena (21:00)</option>
+              <option>Cena (22:00)</option>
+            </select>
+          </div>
+        </div>
+        <div class="fgg">
+          <label for="r-personas">Número de personas</label>
+          <select id="r-personas" name="personas">
+            <option value="1">1 persona</option>
+            <option value="2" selected>2 personas</option>
+            <option value="3">3 personas</option>
+            <option value="4">4 personas</option>
+            <option value="5">5 personas</option>
+            <option value="6">6 personas</option>
+            <option value="7+">7 o más</option>
+          </select>
+        </div>
+        <div class="fgg">
+          <label for="r-nota">Nota (alergias, ocasiones especiales)</label>
+          <textarea id="r-nota" name="nota" placeholder="Cualquier detalle que debamos saber…"></textarea>
+        </div>
+        <button type="submit" class="btn-rsv">Confirmar reserva →</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="foot-logo">Casa Miel</span>
+    <span class="foot-copy">Calle del Pez, 24 · Madrid · hola@casamiel.es · +34 910 000 000</span>
+  </footer>
+
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 900, easing: 'ease-out-quart', once: true, offset: 50 });
+
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 80);
+    }, { passive: true });
+
+    // Menu tabs
+    document.querySelectorAll('.menu-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -37,3 +37,57 @@ Thumbs.db
 
 # Screenshots (local review only)
 temporary screenshots/
+
+# Client database — never commit
+data/
+
+# Private dashboards
+output/dashboard.html
+
+# Security scan data
+.security/
+
+# Local-only Claude settings (contains machine-specific paths)
+.claude/settings.local.json
+
+# Graphify analysis artifacts
+.graphify_*.json
+.graphify_python
+graphify-out/
+
+# Inspection/parse scripts (internal tooling)
+.inspect*.py
+.parse_results.py
+.build_semantic.py
+
+# Accidentally created files (garbage from shell errors)
+0x20
+1
+10
+5.1f}
+6
+None
+Path
+default,+
+dict
+div
+enter
+modern
+pdf.mjs
+setTimeout(r
+str
+tuple[str
+{
+security-review/
+skills-lock.json
+
+# Output artifacts (not source)
+output/ab_tests/
+output/audits/
+output/proposals/
+output/social/
+output/practice_runs/
+output/prompts/
+output/agency_overview*.html
+output/agency_overview*.pdf
+output/index.html

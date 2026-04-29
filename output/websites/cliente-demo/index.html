@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URDIMBRE — Tejidos de Alta Calidad</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+  <!-- AOS -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+
+  <style>
+    /* ============================================================
+       ANIMATION PLAN:
+       Hero: word-split GSAP stagger + parallax scroll on hero image
+       Services: slide-left → slide-right → clip-reveal (ScrollTrigger)
+       Stats: stagger-up with 0.9 dark overlay + GSAP textContent counter snap
+       CTA: scale-up with data-persist, shimmer border, ripple on click
+       ============================================================ */
+
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --copper:     #C17A3A;
+      --copper-lt:  #D9944E;
+      --copper-dk:  #8A5225;
+      --linen:      #F5EDD6;
+      --linen-dk:   #E8DBC0;
+      --charcoal:   #1A1410;
+      --charcoal-md:#2C2018;
+      --charcoal-lt:#3E2E1E;
+      --text-on-dk: #F0E8D4;
+      --text-body:  #4A3825;
+
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+
+      --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --reveal:  cubic-bezier(0, 1, 0.5, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html { scroll-behavior: auto; } /* Lenis handles smooth scroll */
+
+    body {
+      font-family: var(--font-body);
+      background: var(--linen);
+      color: var(--text-body);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SVG GRAIN OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    }
+
+    /* ── LOADER ── */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: var(--charcoal);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      gap: 2rem;
+      transition: opacity 0.6s var(--ease-out), visibility 0.6s;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+
+    .loader-wordmark {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 6vw, 5rem);
+      font-weight: 300;
+      letter-spacing: 0.35em;
+      color: var(--linen);
+      text-transform: uppercase;
+    }
+    .loader-wordmark span { color: var(--copper); }
+
+    .loader-bar-wrap {
+      width: clamp(160px, 30vw, 320px);
+      height: 1px;
+      background: rgba(240,232,212,0.15);
+      overflow: hidden;
+    }
+    #loader-bar {
+      height: 100%;
+      background: var(--copper);
+      width: 0%;
+      transition: width 0.4s var(--ease-out);
+    }
+    #loader-percent {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: rgba(240,232,212,0.4);
+      text-transform: uppercase;
+    }
+
+    /* ── NAVIGATION ── */
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 1.8rem 4vw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: padding 0.4s var(--ease-out), background 0.4s;
+    }
+    .site-nav.scrolled {
+      padding: 1rem 4vw;
+      background: rgba(26, 20, 16, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .nav-wordmark {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 400;
+      letter-spacing: 0.28em;
+      color: var(--linen);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .nav-wordmark span { color: var(--copper); }
+
+    .nav-links {
+      display: flex;
+      gap: 3rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(240,232,212,0.7);
+      text-decoration: none;
+      transition: color 0.25s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0; right: 100%;
+      height: 1px;
+      background: var(--copper);
+      transition: right 0.3s var(--ease-out);
+    }
+    .nav-links a:hover { color: var(--linen); }
+    .nav-links a:hover::after { right: 0; }
+
+    .nav-cta {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      background: var(--copper);
+      border: none;
+      padding: 0.65rem 1.6rem;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.2s var(--spring);
+    }
+    .nav-cta:hover { background: var(--copper-lt); transform: scale(1.03); }
+
+    /* ── HERO ── */
+    .hero-section {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 75% 40%, rgba(193,122,58,0.22) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 20% 80%, rgba(138,82,37,0.15) 0%, transparent 55%),
+        linear-gradient(160deg, #1A1410 0%, #2C1C0E 50%, #1A1410 100%);
+      z-index: 0;
+    }
+
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.28;
+      mix-blend-mode: luminosity;
+      z-index: 1;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(26,20,16,0.3) 0%,
+        rgba(26,20,16,0.1) 40%,
+        rgba(26,20,16,0.5) 80%,
+        rgba(26,20,16,0.85) 100%
+      );
+      z-index: 2;
+    }
+
+    .hero-texture {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      opacity: 0.06;
+      background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23C17A3A' fill-opacity='1'%3E%3Cpath d='M0 0h1v1H0zM2 0h1v1H2zM4 0h1v1H4zM1 1h1v1H1zM3 1h1v1H3zM0 2h1v1H0zM2 2h1v1H2zM4 2h1v1H4z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    /* ── HERO WATERMARK ── */
+    .hero-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 4;
+      font-family: var(--font-display);
+      font-size: clamp(6rem, 22vw, 22rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(193,122,58,0.22);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 0 5vw;
+      max-width: 1100px;
+    }
+
+    .hero-eyebrow {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--copper-lt);
+      margin-bottom: 2rem;
+      opacity: 0;
+    }
+
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(52px, 10vw, 128px);
+      font-weight: 300;
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      color: var(--linen);
+      overflow: hidden;
+    }
+    .hero-h1 .word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    .hero-h1 em {
+      font-style: italic;
+      color: var(--copper);
+      font-weight: 300;
+    }
+
+    .hero-tagline {
+      margin-top: 2.5rem;
+      font-family: var(--font-body);
+      font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+      font-weight: 300;
+      line-height: 1.6;
+      color: rgba(240,232,212,0.65);
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0;
+    }
+
+    .hero-cta-group {
+      margin-top: 3rem;
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+    }
+
+    .btn-primary {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      background: var(--copper);
+      border: none;
+      padding: 1rem 2.4rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.25s, transform 0.2s var(--spring);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-primary:hover { background: var(--copper-lt); transform: scale(1.03); }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+    .btn-primary:active::before { background: rgba(255,255,255,0.2); }
+
+    /* ripple */
+    .btn-primary .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      transform: scale(0);
+      animation: rippleAnim 0.6s linear;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    .btn-ghost {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(240,232,212,0.6);
+      background: transparent;
+      border: 1px solid rgba(240,232,212,0.2);
+      padding: 1rem 2.4rem;
+      cursor: pointer;
+      transition: color 0.25s, border-color 0.25s, transform 0.2s var(--spring);
+      text-decoration: none;
+    }
+    .btn-ghost:hover {
+      color: var(--linen);
+      border-color: rgba(240,232,212,0.5);
+      transform: scale(1.03);
+    }
+
+    .hero-scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .hero-scroll-indicator span {
+      font-family: var(--font-body);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(240,232,212,0.4);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, rgba(193,122,58,0.8), transparent);
+      animation: scrollBob 1.8s ease-in-out infinite;
+    }
+    @keyframes scrollBob {
+      0%, 100% { transform: scaleY(1); opacity: 0.8; }
+      50% { transform: scaleY(0.5); opacity: 0.3; }
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-section {
+      overflow: hidden;
+      background: var(--charcoal-md);
+      padding: 3.5rem 0;
+      position: relative;
+      border-top: 1px solid rgba(193,122,58,0.15);
+      border-bottom: 1px solid rgba(193,122,58,0.15);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 4rem;
+      white-space: nowrap;
+      width: max-content;
+    }
+    .marquee-item {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 10vw, 8rem);
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(240,232,212,0.42);
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .marquee-item .copper { color: rgba(193,122,58,0.85); }
+    .marquee-dot {
+      color: var(--copper);
+      opacity: 0.5;
+      font-size: 0.5em;
+      vertical-align: middle;
+      padding: 0 2rem;
+    }
+
+    /* ── SECTIONS COMMON ── */
+    section { position: relative; }
+
+    .section-label {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--copper);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-eyebrow {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--copper);
+      display: block;
+      margin-bottom: 1.2rem;
+    }
+
+    /* ── SERVICIOS ── */
+    .servicios-section {
+      background: var(--linen);
+      padding: 10rem 0 8rem;
+    }
+
+    .servicios-header {
+      padding: 0 8vw;
+      margin-bottom: 6rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 4rem;
+    }
+
+    .servicios-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 5vw, 5.5rem);
+      font-weight: 300;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      color: var(--charcoal);
+      max-width: 580px;
+    }
+    .servicios-title em { font-style: italic; color: var(--copper-dk); }
+
+    .servicios-desc {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--text-body);
+      max-width: 360px;
+      flex-shrink: 0;
+      opacity: 0.75;
+    }
+
+    /* 3-column service grid */
+    .servicios-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      padding: 0 8vw;
+      perspective: 1000px;
+    }
+
+    .service-card {
+      position: relative;
+      background: var(--charcoal);
+      padding: 4rem 3rem;
+      cursor: default;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(193,122,58,0.06) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .service-card:hover::before { opacity: 1; }
+
+    .service-card-specular {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(193,122,58,0.18) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .service-card:hover .service-card-specular { opacity: 1; }
+
+    .service-number {
+      font-family: var(--font-display);
+      font-size: 5rem;
+      font-weight: 300;
+      color: rgba(193,122,58,0.12);
+      line-height: 1;
+      margin-bottom: 3rem;
+      display: block;
+      letter-spacing: -0.04em;
+    }
+
+    .service-name {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+      font-weight: 400;
+      line-height: 1.1;
+      color: var(--linen);
+      margin-bottom: 1.2rem;
+      letter-spacing: -0.01em;
+    }
+
+    .service-desc {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: rgba(240,232,212,0.65);
+    }
+
+    .service-line {
+      width: 2rem;
+      height: 1px;
+      background: var(--copper);
+      margin: 2rem 0;
+      transition: width 0.4s var(--ease-out);
+    }
+    .service-card:hover .service-line { width: 4rem; }
+
+    /* ── PROCESO ── */
+    .proceso-section {
+      background: var(--charcoal-md);
+      padding: 10rem 8vw;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8rem;
+      align-items: center;
+    }
+
+    .proceso-left {
+      position: relative;
+    }
+
+    .proceso-image-stack {
+      position: relative;
+      height: 540px;
+    }
+
+    .proceso-img-main {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 75%;
+      height: 80%;
+      object-fit: cover;
+      filter: sepia(0.3) contrast(1.05);
+    }
+
+    .proceso-img-accent {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 55%;
+      height: 55%;
+      object-fit: cover;
+      border: 4px solid var(--charcoal-md);
+      filter: sepia(0.2) contrast(1.1);
+    }
+
+    .proceso-copper-block {
+      position: absolute;
+      top: 3rem;
+      right: 2rem;
+      width: 100px;
+      height: 100px;
+      background: var(--copper);
+      opacity: 0.15;
+    }
+
+    .proceso-right {}
+
+    .proceso-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 4vw, 4.5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--linen);
+      margin-bottom: 2.5rem;
+    }
+    .proceso-title em { font-style: italic; color: var(--copper); }
+
+    .proceso-body {
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      line-height: 1.8;
+      color: rgba(240,232,212,0.6);
+      margin-bottom: 2.5rem;
+    }
+
+    .proceso-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .proceso-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(193,122,58,0.12);
+    }
+    .proceso-step:last-child { border-bottom: none; }
+
+    .step-num {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: var(--copper);
+      opacity: 0.6;
+      min-width: 2.5rem;
+      line-height: 1;
+      padding-top: 0.1rem;
+    }
+
+    .step-text {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: rgba(240,232,212,0.55);
+    }
+    .step-text strong {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: rgba(240,232,212,0.9);
+      margin-bottom: 0.2rem;
+    }
+
+    /* ── STATS ── */
+    .stats-section {
+      background: var(--charcoal);
+      padding: 8rem 8vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stats-bg-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-display);
+      font-size: clamp(8rem, 20vw, 22rem);
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      color: rgba(193,122,58,0.04);
+      white-space: nowrap;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .stats-inner {
+      position: relative;
+      z-index: 2;
+    }
+
+    .stats-eyebrow {
+      text-align: center;
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--copper);
+      margin-bottom: 5rem;
+      display: block;
+    }
+
+    .stats-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 4rem 2rem;
+      border-right: 1px solid rgba(193,122,58,0.12);
+    }
+    .stat-item:last-child { border-right: none; }
+
+    .stat-value-wrap {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 6vw, 6rem);
+      font-weight: 300;
+      color: var(--linen);
+      line-height: 1;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.15em;
+    }
+
+    .stat-number {
+      display: inline-block;
+    }
+
+    .stat-suffix {
+      font-size: 0.45em;
+      color: var(--copper);
+      font-weight: 400;
+    }
+
+    .stat-label {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(240,232,212,0.5);
+      margin-top: 1rem;
+    }
+
+    /* ── CALIDAD / ABOUT ── */
+    .calidad-section {
+      background: var(--linen-dk);
+      padding: 10rem 8vw;
+    }
+
+    .calidad-inner {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 8rem;
+      align-items: start;
+    }
+
+    .calidad-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-top: 0.5rem;
+    }
+
+    .calidad-copper-rule {
+      width: 1px;
+      height: 120px;
+      background: linear-gradient(to bottom, var(--copper), transparent);
+      margin-top: 2rem;
+      opacity: 0.45;
+    }
+
+    .calidad-label-vertical {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--copper-dk);
+      opacity: 0.6;
+      margin-bottom: 2rem;
+    }
+
+    .calidad-right {}
+
+    .calidad-title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 5.5vw, 6.5rem);
+      font-weight: 300;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: var(--charcoal);
+      margin-bottom: 3rem;
+    }
+    .calidad-title em { font-style: italic; color: var(--copper-dk); display: block; }
+
+    .calidad-body {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--text-body);
+      max-width: 580px;
+      margin-bottom: 3.5rem;
+    }
+
+    .calidad-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .feature-item {
+      padding: 2rem;
+      background: rgba(26,20,16,0.04);
+      border-left: 2px solid var(--copper);
+    }
+
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-desc {
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: rgba(74,56,37,0.7);
+    }
+
+    /* ── REVIEWS ── */
+    .reviews-section {
+      background: var(--charcoal);
+      padding: 9rem 8vw;
+    }
+
+    .reviews-header {
+      text-align: center;
+      margin-bottom: 5rem;
+    }
+
+    .reviews-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4vw, 4rem);
+      font-weight: 300;
+      color: var(--linen);
+      line-height: 1.1;
+    }
+    .reviews-title em { font-style: italic; color: var(--copper); }
+
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .review-card {
+      background: rgba(240,232,212,0.04);
+      padding: 3rem;
+      border-top: 2px solid rgba(193,122,58,0.3);
+      transition: background 0.3s;
+    }
+    .review-card:hover { background: rgba(240,232,212,0.07); }
+
+    .review-stars {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .review-stars svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--copper);
+    }
+
+    .review-text {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-style: italic;
+      font-weight: 300;
+      line-height: 1.6;
+      color: rgba(240,232,212,0.8);
+      margin-bottom: 2rem;
+    }
+
+    .review-meta {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(240,232,212,0.3);
+    }
+    .review-meta strong {
+      display: block;
+      color: rgba(240,232,212,0.6);
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+
+    /* ── CTA + CONTACT ── */
+    .cta-section {
+      background: var(--linen);
+      padding: 10rem 8vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-bg-pattern {
+      position: absolute;
+      inset: 0;
+      opacity: 0.025;
+      background-image: repeating-linear-gradient(
+        45deg,
+        var(--copper) 0,
+        var(--copper) 1px,
+        transparent 0,
+        transparent 50%
+      );
+      background-size: 24px 24px;
+    }
+
+    .cta-inner {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8rem;
+      align-items: start;
+    }
+
+    .cta-left {}
+
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 5vw, 6rem);
+      font-weight: 300;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: var(--charcoal);
+      margin-bottom: 2.5rem;
+    }
+    .cta-title em { font-style: italic; display: block; color: var(--copper-dk); }
+
+    .cta-body {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--text-body);
+      opacity: 0.7;
+      margin-bottom: 3rem;
+      max-width: 420px;
+    }
+
+    /* shimmer CTA button */
+    .btn-shimmer {
+      position: relative;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--linen);
+      background: var(--charcoal);
+      border: none;
+      padding: 1.2rem 3rem;
+      cursor: pointer;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: transform 0.2s var(--spring);
+    }
+    .btn-shimmer:hover { transform: scale(1.03); }
+
+    .btn-shimmer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        120deg,
+        transparent 30%,
+        rgba(193,122,58,0.35) 50%,
+        transparent 70%
+      );
+      transform: translateX(-100%);
+      transition: none;
+    }
+    .btn-shimmer:hover::before {
+      transform: translateX(100%);
+      transition: transform 0.7s ease;
+    }
+
+    .btn-shimmer-border {
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(193,122,58,0.5);
+      pointer-events: none;
+    }
+
+    .btn-shimmer .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(193,122,58,0.3);
+      transform: scale(0);
+      animation: rippleAnim 0.6s linear;
+      pointer-events: none;
+    }
+
+    .cta-sub {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-top: 1.5rem;
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      color: var(--text-body);
+      opacity: 0.45;
+    }
+    .cta-sub::before {
+      content: '';
+      width: 1.5rem;
+      height: 1px;
+      background: var(--copper-dk);
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    .cta-right {}
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-family: var(--font-body);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-body);
+      opacity: 0.55;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--charcoal);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(74,56,37,0.25);
+      padding: 0.75rem 0;
+      outline: none;
+      transition: border-color 0.25s;
+      resize: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--copper);
+    }
+    .form-group textarea { min-height: 100px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      background: var(--charcoal);
+      padding: 5rem 8vw 3rem;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 4rem;
+      padding-bottom: 4rem;
+      border-bottom: 1px solid rgba(193,122,58,0.12);
+      margin-bottom: 3rem;
+    }
+
+    .footer-wordmark {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      color: var(--linen);
+      text-transform: uppercase;
+    }
+    .footer-wordmark span { color: var(--copper); }
+
+    .footer-tagline {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: rgba(240,232,212,0.3);
+      margin-top: 0.75rem;
+      max-width: 240px;
+    }
+
+    .footer-links {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .footer-col-title {
+      font-family: var(--font-body);
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--copper);
+      margin-bottom: 1.25rem;
+      display: block;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .footer-col a {
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      color: rgba(240,232,212,0.4);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: rgba(240,232,212,0.8); }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy {
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      color: rgba(240,232,212,0.2);
+      letter-spacing: 0.08em;
+    }
+
+    .footer-copy a {
+      color: rgba(193,122,58,0.5);
+      text-decoration: none;
+    }
+
+    /* ── UTILITY ── */
+    .visually-hidden { clip: rect(0 0 0 0); clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; white-space: nowrap; width: 1px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .servicios-header { flex-direction: column; gap: 2rem; }
+      .servicios-grid { grid-template-columns: 1fr; gap: 2px; }
+      .proceso-section { grid-template-columns: 1fr; }
+      .proceso-image-stack { height: 300px; }
+      .stats-grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .calidad-inner { grid-template-columns: 1fr; }
+      .calidad-left { display: none; }
+      .reviews-grid { grid-template-columns: 1fr; }
+      .cta-inner { grid-template-columns: 1fr; }
+      .footer-top { flex-direction: column; gap: 3rem; }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-grid-4 { grid-template-columns: 1fr 1fr; }
+      .calidad-features { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════ LOADER ═══════════════════════════════ -->
+  <div id="loader" role="status" aria-label="Cargando">
+    <div class="loader-wordmark">URD<span>I</span>MBRE</div>
+    <div class="loader-bar-wrap">
+      <div id="loader-bar"></div>
+    </div>
+    <div id="loader-percent">0%</div>
+  </div>
+
+  <!-- ═══════════════════════════════ NAV ═══════════════════════════════ -->
+  <nav class="site-nav" id="siteNav">
+    <a href="#inicio" class="nav-wordmark">URD<span>I</span>MBRE</a>
+    <ul class="nav-links">
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#proceso">Proceso</a></li>
+      <li><a href="#calidad">Calidad</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+    <button class="nav-cta" onclick="document.getElementById('contacto').scrollIntoView({behavior:'smooth'})">
+      Consultar →
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+  <section class="hero-section" id="inicio">
+    <div class="hero-bg"></div>
+    <div class="hero-watermark" aria-hidden="true">URDIMBRE</div>
+    <!-- Hero image: replace src with output/assets/urdimbre/hero.jpg once generated -->
+    <img
+      class="hero-img"
+      src="https://placehold.co/1920x1080/2C1C0E/C17A3A?text=URDIMBRE"
+      alt="Taller textil URDIMBRE"
+      loading="eager"
+    >
+    <div class="hero-overlay"></div>
+    <div class="hero-texture"></div>
+
+    <div class="hero-content">
+      <span class="hero-eyebrow" id="heroEyebrow">001 — Artesanía Textil</span>
+
+      <h1 class="hero-h1" id="heroH1" aria-label="El Arte de Tejer">
+        <span class="word">El&nbsp;</span><span class="word">Arte&nbsp;</span><span class="word">de&nbsp;</span><span class="word"><em>Tejer</em></span>
+      </h1>
+
+      <p class="hero-tagline" id="heroTagline">
+        Tejidos de alta calidad para la industria textil.<br>Precisión artesanal, hilo a hilo.
+      </p>
+
+      <div class="hero-cta-group" id="heroCta">
+        <a href="#servicios" class="btn-primary" id="ctaPrimary">
+          Ver servicios
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#contacto" class="btn-ghost">Consultar proyecto</a>
+      </div>
+    </div>
+
+    <div class="hero-scroll-indicator" id="heroScroll" onclick="document.getElementById('marquee').scrollIntoView({behavior:'smooth'})">
+      <span>Desplazar</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ MARQUEE ═══════════════════════════════ -->
+  <div class="marquee-section" id="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack">
+      <span class="marquee-item">URD<span class="copper">I</span>MBRE</span>
+      <span class="marquee-dot">·</span>
+      <span class="marquee-item">Tejidos</span>
+      <span class="marquee-dot">·</span>
+      <span class="marquee-item">URD<span class="copper">I</span>MBRE</span>
+      <span class="marquee-dot">·</span>
+      <span class="marquee-item">Artesanía</span>
+      <span class="marquee-dot">·</span>
+      <span class="marquee-item">URD<span class="copper">I</span>MBRE</span>
+      <span class="marquee-dot">·</span>
+      <span class="marquee-item">Calidad</span>
+      <span class="marquee-dot">·</span>
+      <span class="marquee-item">URD<span class="copper">I</span>MBRE</span>
+      <span class="marquee-dot">·</span>
+      <span class="marquee-item">Tejidos</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SERVICIOS ═══════════════════════════════ -->
+  <section class="servicios-section" id="servicios">
+    <div class="servicios-header">
+      <h2 class="servicios-title" data-aos="fade-up" data-aos-duration="900">
+        Lo que<br><em>hacemos</em>
+      </h2>
+      <p class="servicios-desc" data-aos="fade-up" data-aos-duration="900" data-aos-delay="120">
+        Desde el hilo hasta el tejido terminado, cada proceso refleja décadas de conocimiento técnico aplicado con rigor.
+      </p>
+    </div>
+
+    <div class="servicios-grid" id="serviciosGrid">
+
+      <article class="service-card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="0">
+        <div class="service-card-specular"></div>
+        <span class="service-number">01</span>
+        <div class="service-line"></div>
+        <h3 class="service-name">Fabricación<br>de Tejidos</h3>
+        <p class="service-desc">Producción de tejidos planos y de punto con control exhaustivo de la densidad, el gramaje y la resistencia del hilo.</p>
+      </article>
+
+      <article class="service-card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+        <div class="service-card-specular"></div>
+        <span class="service-number">02</span>
+        <div class="service-line"></div>
+        <h3 class="service-name">Acabados<br>Textiles</h3>
+        <p class="service-desc">Tratamientos de ennobling, tintado, sanforizado y acabados funcionales que otorgan al tejido las propiedades deseadas.</p>
+      </article>
+
+      <article class="service-card" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+        <div class="service-card-specular"></div>
+        <span class="service-number">03</span>
+        <div class="service-line"></div>
+        <h3 class="service-name">Diseño de<br>Patrones</h3>
+        <p class="service-desc">Desarrollo de ligamentos, jacquards y estructuras personalizadas según los requerimientos técnicos y estéticos del cliente.</p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ PROCESO ═══════════════════════════════ -->
+  <section class="proceso-section" id="proceso">
+
+    <div class="proceso-left" data-aos="fade-right" data-aos-duration="1000">
+      <div class="proceso-image-stack">
+        <div class="proceso-copper-block"></div>
+        <img
+          class="proceso-img-main"
+          src="https://placehold.co/600x480/2C1C0E/8A5225?text=Proceso+1"
+          alt="Proceso de fabricación textil"
+          loading="lazy"
+        >
+        <img
+          class="proceso-img-accent"
+          src="https://placehold.co/400x320/1A1410/C17A3A?text=Detalle"
+          alt="Detalle del tejido"
+          loading="lazy"
+        >
+      </div>
+    </div>
+
+    <div class="proceso-right" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="150">
+      <span class="section-eyebrow">002 — Método</span>
+      <h2 class="proceso-title">Un proceso<br><em>riguroso</em></h2>
+      <p class="proceso-body">
+        Cada tejido que sale de URDIMBRE ha pasado por un protocolo de control técnico que garantiza uniformidad, resistencia y fidelidad al diseño original.
+      </p>
+
+      <div class="proceso-steps">
+        <div class="proceso-step">
+          <span class="step-num">01</span>
+          <div class="step-text">
+            <strong>Selección de materias primas</strong>
+            Evaluación de fibras naturales y sintéticas según parámetros técnicos del proyecto.
+          </div>
+        </div>
+        <div class="proceso-step">
+          <span class="step-num">02</span>
+          <div class="step-text">
+            <strong>Preparación del hilo</strong>
+            Peinado, retorcido y bobinado para garantizar la tensión correcta durante el proceso de tejido.
+          </div>
+        </div>
+        <div class="proceso-step">
+          <span class="step-num">03</span>
+          <div class="step-text">
+            <strong>Tejido y control en proceso</strong>
+            Supervisión continua de parámetros de densidad, ligamento y tensión en cada pasada.
+          </div>
+        </div>
+        <div class="proceso-step">
+          <span class="step-num">04</span>
+          <div class="step-text">
+            <strong>Acabado e inspección final</strong>
+            Revisión metro a metro antes de entrega, con informe de conformidad adjunto.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═══════════════════════════════ STATS ═══════════════════════════════ -->
+  <section class="stats-section" id="stats">
+    <div class="stats-bg-text" aria-hidden="true">URDIMBRE</div>
+    <div class="stats-inner">
+      <span class="stats-eyebrow" data-aos="fade-up">003 — En números</span>
+      <div class="stats-grid-4">
+
+        <div class="stat-item" data-aos="fade-up" data-aos-delay="0">
+          <div class="stat-value-wrap">
+            <span class="stat-number" data-value="30" data-decimals="0">0</span>
+            <span class="stat-suffix">+</span>
+          </div>
+          <span class="stat-label">Años en el sector</span>
+        </div>
+
+        <div class="stat-item" data-aos="fade-up" data-aos-delay="80">
+          <div class="stat-value-wrap">
+            <span class="stat-number" data-value="200" data-decimals="0">0</span>
+            <span class="stat-suffix">+</span>
+          </div>
+          <span class="stat-label">Referencias de tejido</span>
+        </div>
+
+        <div class="stat-item" data-aos="fade-up" data-aos-delay="160">
+          <div class="stat-value-wrap">
+            <span class="stat-number" data-value="50" data-decimals="0">0</span>
+            <span class="stat-suffix">+</span>
+          </div>
+          <span class="stat-label">Clientes activos</span>
+        </div>
+
+        <div class="stat-item" data-aos="fade-up" data-aos-delay="240">
+          <div class="stat-value-wrap">
+            <span class="stat-number" data-value="100" data-decimals="0">0</span>
+            <span class="stat-suffix">%</span>
+          </div>
+          <span class="stat-label">Inspección final</span>
+        </div>
+
+      </div>
+      <p style="text-align:center;font-family:var(--font-body);font-size:0.6rem;color:rgba(240,232,212,0.18);margin-top:2rem;letter-spacing:0.15em;text-transform:uppercase;">
+        [Datos orientativos — actualizar con cifras verificadas]
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ CALIDAD ═══════════════════════════════ -->
+  <section class="calidad-section" id="calidad">
+    <div class="calidad-inner">
+
+      <div class="calidad-left" data-aos="fade-right" data-aos-duration="900">
+        <span class="calidad-label-vertical">URDIMBRE — Calidad</span>
+        <div class="calidad-copper-rule"></div>
+      </div>
+
+      <div class="calidad-right">
+        <span class="section-eyebrow" data-aos="zoom-in" data-aos-duration="700">004 — Compromiso</span>
+        <h2 class="calidad-title" data-aos="fade-up" data-aos-duration="900" data-aos-delay="80">
+          Calidad<br>que se<br><em>toca</em>
+        </h2>
+        <p class="calidad-body" data-aos="fade-up" data-aos-duration="900" data-aos-delay="180">
+          La calidad en textil no es un concepto abstracto. Se mide en la uniformidad del ligamento, en la resistencia del hilo bajo tracción y en la fidelidad del color tras múltiples lavados. Cada pieza que abandona nuestras instalaciones cumple con los estándares técnicos acordados con el cliente.
+        </p>
+
+        <div class="calidad-features">
+          <div class="feature-item" data-aos="fade-up" data-aos-delay="0">
+            <div class="feature-title">Control de gramaje</div>
+            <div class="feature-desc">Medición sistemática del peso por metro cuadrado en cada lote producido.</div>
+          </div>
+          <div class="feature-item" data-aos="fade-up" data-aos-delay="80">
+            <div class="feature-title">Solidez del color</div>
+            <div class="feature-desc">Pruebas de solidez al lavado, al frote y a la luz según normativa EN ISO.</div>
+          </div>
+          <div class="feature-item" data-aos="fade-up" data-aos-delay="160">
+            <div class="feature-title">Resistencia a la tracción</div>
+            <div class="feature-desc">Ensayos mecánicos de resistencia a la rotura y al desgarro en cada referencia.</div>
+          </div>
+          <div class="feature-item" data-aos="fade-up" data-aos-delay="240">
+            <div class="feature-title">Trazabilidad del lote</div>
+            <div class="feature-desc">Registro completo de materias primas, proceso y acabados para cada pedido.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ REVIEWS ═══════════════════════════════ -->
+  <section class="reviews-section" id="reviews">
+    <div class="reviews-header">
+      <span class="section-eyebrow" style="justify-content:center;display:block;" data-aos="fade-up">005 — Clientes</span>
+      <h2 class="reviews-title" data-aos="fade-up" data-aos-delay="80">
+        Lo que dicen<br><em>quienes trabajan con nosotros</em>
+      </h2>
+    </div>
+
+    <div class="reviews-grid">
+      <div class="review-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="review-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="review-text">"La uniformidad en el gramaje y la precisión en los ligamentos superaron nuestras expectativas. El equipo técnico respondió a cada especificación sin dilaciones."</p>
+        <div class="review-meta">
+          <strong>[Empresa cliente — Actualizar]</strong>
+          Director técnico · Sector confección
+        </div>
+      </div>
+
+      <div class="review-card" data-aos="fade-up" data-aos-delay="120">
+        <div class="review-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="review-text">"Trabajamos con tejidos técnicos de alta exigencia. URDIMBRE cumplió con todas las especificaciones de resistencia y solidez del color en el primer lote."</p>
+        <div class="review-meta">
+          <strong>[Empresa cliente — Actualizar]</strong>
+          Responsable de compras · Textil industrial
+        </div>
+      </div>
+
+      <div class="review-card" data-aos="fade-up" data-aos-delay="240">
+        <div class="review-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="review-text">"La comunicación técnica y la capacidad de adaptación a patrones personalizados marcan la diferencia. Llevan varios años siendo nuestro proveedor principal."</p>
+        <div class="review-meta">
+          <strong>[Empresa cliente — Actualizar]</strong>
+          Diseñadora textil · Moda y decoración
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ CTA + CONTACTO ═══════════════════════════════ -->
+  <section class="cta-section" id="contacto">
+    <div class="cta-bg-pattern"></div>
+    <div class="cta-inner">
+
+      <div class="cta-left" data-aos="fade-right" data-aos-duration="900">
+        <span class="section-eyebrow" style="color:var(--copper-dk)">006 — Contacto</span>
+        <h2 class="cta-title">
+          Hablemos de<br><em>su proyecto</em>
+        </h2>
+        <p class="cta-body">
+          Indíquenos las especificaciones técnicas de su tejido. Le responderemos con una propuesta detallada en menos de 48 horas.
+        </p>
+
+        <button class="btn-shimmer" id="ctaShimmer">
+          <div class="btn-shimmer-border"></div>
+          Enviar consulta técnica
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+
+        <div class="cta-sub">Respuesta garantizada en 48 h laborables</div>
+      </div>
+
+      <div class="cta-right" data-aos="fade-left" data-aos-duration="900" data-aos-delay="150">
+        <form class="contact-form" onsubmit="return false;">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input type="text" id="nombre" name="nombre" placeholder="Su nombre" required>
+            </div>
+            <div class="form-group">
+              <label for="empresa">Empresa</label>
+              <input type="text" id="empresa" name="empresa" placeholder="Su empresa">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" name="email" placeholder="nombre@empresa.com" required>
+          </div>
+          <div class="form-group">
+            <label for="mensaje">Descripción del proyecto</label>
+            <textarea id="mensaje" name="mensaje" placeholder="Tipo de tejido, gramaje, cantidad, plazo estimado..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary" id="formSubmit">
+            Enviar consulta
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div>
+        <div class="footer-wordmark">URD<span>I</span>MBRE</div>
+        <p class="footer-tagline">Tejidos de alta calidad para la industria textil. Precisión artesanal.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <span class="footer-col-title">Servicios</span>
+          <ul>
+            <li><a href="#servicios">Fabricación de tejidos</a></li>
+            <li><a href="#servicios">Acabados textiles</a></li>
+            <li><a href="#servicios">Diseño de patrones</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <span class="footer-col-title">Empresa</span>
+          <ul>
+            <li><a href="#proceso">Nuestro proceso</a></li>
+            <li><a href="#calidad">Calidad</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2024 URDIMBRE. Todos los derechos reservados.</p>
+      <p class="footer-copy">Tejidos de <a href="#">alta calidad</a></p>
+    </div>
+  </footer>
+
+
+  <!-- ═══════════════════════════════ SCRIPTS ═══════════════════════════════ -->
+
+  <!-- Lenis -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+  <!-- AOS -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <script>
+    // ═══════════════════════════════════════════════════
+    //  LOADER
+    // ═══════════════════════════════════════════════════
+    (function() {
+      const bar = document.getElementById('loader-bar');
+      const pct = document.getElementById('loader-percent');
+      const loader = document.getElementById('loader');
+      let progress = 0;
+
+      const tick = setInterval(() => {
+        progress += Math.random() * 18 + 8;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(tick);
+          bar.style.width = '100%';
+          pct.textContent = '100%';
+          setTimeout(() => {
+            loader.classList.add('hidden');
+            initAnimations();
+          }, 400);
+        } else {
+          bar.style.width = progress + '%';
+          pct.textContent = Math.round(progress) + '%';
+        }
+      }, 120);
+    })();
+
+
+    // ═══════════════════════════════════════════════════
+    //  MAIN INIT (runs after loader)
+    // ═══════════════════════════════════════════════════
+    function initAnimations() {
+
+      // ── Lenis smooth scroll ──────────────────────────
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true
+      });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(time => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+
+
+      // ── AOS ──────────────────────────────────────────
+      AOS.init({
+        duration: 800,
+        easing: 'ease-out-cubic',
+        once: true,
+        offset: 60
+      });
+
+
+      // ── HERO word-split stagger ───────────────────────
+      const tl = gsap.timeline({ delay: 0.1 });
+
+      tl.to('#heroEyebrow', {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: 'power3.out'
+      });
+
+      tl.to('.hero-h1 .word', {
+        opacity: 1,
+        y: 0,
+        duration: 0.9,
+        stagger: 0.12,
+        ease: 'power3.out'
+      }, '-=0.3');
+
+      tl.to('#heroTagline', {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: 'power3.out'
+      }, '-=0.4');
+
+      tl.to('#heroCta', {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power3.out'
+      }, '-=0.3');
+
+      tl.to('#heroScroll', {
+        opacity: 1,
+        duration: 0.5,
+        ease: 'power2.out'
+      }, '-=0.2');
+
+
+      // ── Nav scroll-shrink ─────────────────────────────
+      const nav = document.getElementById('siteNav');
+      ScrollTrigger.create({
+        start: '80px top',
+        onEnter: () => nav.classList.add('scrolled'),
+        onLeaveBack: () => nav.classList.remove('scrolled')
+      });
+
+
+      // ── Hero parallax ─────────────────────────────────
+      gsap.to('.hero-img', {
+        yPercent: 20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+
+      // Hero content subtle exit
+      gsap.to('.hero-content', {
+        opacity: 0,
+        y: -40,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: '50% top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+
+
+      // ── Marquee scroll-driven ─────────────────────────
+      gsap.to('#marqueeTrack', {
+        xPercent: -30,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.marquee-section',
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+
+
+      // ── Service cards 3D tilt ─────────────────────────
+      document.querySelectorAll('.service-card').forEach(card => {
+        const specular = card.querySelector('.service-card-specular');
+
+        card.addEventListener('mousemove', e => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+
+          const rotX = ((y - cy) / cy) * -8;
+          const rotY = ((x - cx) / cx) * 8;
+
+          gsap.to(card, {
+            rotationX: rotX,
+            rotationY: rotY,
+            transformPerspective: 1000,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+
+          if (specular) {
+            specular.style.left = x + 'px';
+            specular.style.top  = y + 'px';
+          }
+        });
+
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            rotationX: 0,
+            rotationY: 0,
+            duration: 0.6,
+            ease: 'elastic.out(1, 0.5)'
+          });
+        });
+      });
+
+
+      // ── Stats counters ────────────────────────────────
+      document.querySelectorAll('.stat-number').forEach(el => {
+        const target   = parseFloat(el.dataset.value);
+        const decimals = parseInt(el.dataset.decimals || '0');
+        const obj = { val: 0 };
+
+        ScrollTrigger.create({
+          trigger: el.closest('.stat-item'),
+          start: 'top 80%',
+          once: true,
+          onEnter: () => {
+            gsap.to(obj, {
+              val: target,
+              duration: 2.2,
+              ease: 'power1.out',
+              onUpdate() {
+                el.textContent = decimals === 0
+                  ? Math.round(obj.val)
+                  : obj.val.toFixed(decimals);
+              }
+            });
+          }
+        });
+      });
+
+
+      // ── Calidad clip-reveal ────────────────────────────
+      gsap.from('.calidad-title', {
+        clipPath: 'inset(100% 0 0 0)',
+        opacity: 0,
+        duration: 1.1,
+        ease: 'power4.inOut',
+        scrollTrigger: {
+          trigger: '.calidad-title',
+          start: 'top 85%',
+          once: true
+        }
+      });
+
+
+      // ── CTA shimmer button ripple ─────────────────────
+      function addRipple(btn, e) {
+        const ripple = document.createElement('span');
+        const rect   = btn.getBoundingClientRect();
+        const size   = Math.max(rect.width, rect.height);
+        ripple.classList.add('ripple');
+        ripple.style.cssText = `
+          width: ${size}px; height: ${size}px;
+          left: ${e.clientX - rect.left - size / 2}px;
+          top:  ${e.clientY - rect.top  - size / 2}px;
+        `;
+        btn.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 700);
+      }
+
+      document.getElementById('ctaShimmer').addEventListener('click', function(e) {
+        addRipple(this, e);
+        document.getElementById('nombre').focus();
+      });
+
+      document.getElementById('ctaPrimary').addEventListener('click', function(e) {
+        addRipple(this, e);
+      });
+
+      document.getElementById('formSubmit').addEventListener('click', function(e) {
+        addRipple(this, e);
+      });
+
+
+      // ── Footer fade-up ────────────────────────────────
+      gsap.from('.footer-top > *', {
+        y: 30,
+        opacity: 0,
+        stagger: 0.15,
+        duration: 0.8,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.site-footer',
+          start: 'top 90%',
+          once: true
+        }
+      });
+
+    } // end initAnimations
+  </script>
+
+
+  <!-- WAT WhatsApp Widget -->
+  <style>
+    .wat-wa-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; }
+    .wat-wa-btn {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #C17A3A;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px #C17A3A55;
+      cursor: pointer; text-decoration: none;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+    .wat-wa-btn:hover { transform: scale(1.1); box-shadow: 0 6px 24px #C17A3A55; }
+    .wat-wa-btn svg { width: 28px; height: 28px; fill: white; }
+    .wat-wa-tooltip {
+      margin-bottom: 8px;
+      background: white; border-radius: 8px;
+      padding: 8px 12px; font-size: 13px; color: #333;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease;
+      white-space: nowrap; max-width: 240px;
+      font-family: system-ui, sans-serif;
+    }
+    .wat-wa-wrap:hover .wat-wa-tooltip { opacity: 1; }
+  </style>
+  <div class="wat-wa-wrap">
+    <div class="wat-wa-tooltip">Lunes a Viernes 9h–18h</div>
+    <a
+      data-wat-whatsapp="1"
+      class="wat-wa-btn"
+      href="https://wa.me/34600000000?text=Hola%2C+%C2%BFen+qu%C3%A9+podemos+ayudarte%3F"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Contactar por WhatsApp"
+    >
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </a>
+  </div>
+  <!-- /WAT WhatsApp Widget -->
+</body>
+</html>
