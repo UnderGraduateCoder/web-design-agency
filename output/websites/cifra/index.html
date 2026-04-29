@@ -129,6 +129,16 @@
     }
     .btn-outline:hover { background: var(--blue); color: var(--white); border-color: var(--blue); transform: scale(1.03); }
 
+    /* ── Floating 3D hover — hero CTAs */
+    .btn-float {
+      transition: transform .45s cubic-bezier(.34,1.56,.64,1),
+                  box-shadow .45s cubic-bezier(.34,1.56,.64,1);
+      will-change: transform;
+    }
+    .btn-float--delay { transition-delay: .05s; }
+    .btn-float:hover  { transform: translateY(-4px) scale(1.05); box-shadow: 0 12px 28px rgba(0,0,0,.18); }
+    .btn-float:active { transform: translateY(-1px) scale(.98); transition-duration: .15s; }
+
     /* ── Section labels & headings ──────────────────────── */
     .sec-label {
       display: block; font-family: var(--font-body);
@@ -381,49 +391,34 @@
     .proc-visual { position: relative; padding-top: 1.5rem; }
     .proc-img-stack { position: relative; height: 520px; }
 
-    /* Code editor mock */
+    /* Code editor mock — imagen generada con KIE (laptop + web design) */
     .proc-img-back {
       position: absolute; top: 0; left: 0; width: 82%; height: 88%;
       border-radius: 8px; overflow: hidden; background: #0D1117;
+      background-image: url('assets/proc-img-back.jpg');
+      background-size: cover; background-position: center;
       box-shadow: 0 20px 50px rgba(0,0,0,.55);
     }
     .proc-img-back::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 32px;
-      background: #161B22; border-bottom: 1px solid rgba(255,255,255,.06); z-index: 1;
+      background: rgba(22,27,34,.85); border-bottom: 1px solid rgba(255,255,255,.06); z-index: 1;
     }
-    .proc-img-back::after {
-      content: ''; position: absolute; top: 44px; left: 20px; right: 20px; bottom: 20px;
-      background:
-        linear-gradient(rgba(96,165,250,.75) 0%,rgba(96,165,250,.75) 1.5px,transparent 1.5px) 0 0   /100% 20px,
-        linear-gradient(rgba(26,86,219,.55)  0%,rgba(26,86,219,.55)  1.5px,transparent 1.5px) 0 24px/60% 20px,
-        linear-gradient(rgba(255,255,255,.14)0%,rgba(255,255,255,.14)1.5px,transparent 1.5px) 0 48px/80% 20px,
-        linear-gradient(rgba(255,255,255,.08)0%,rgba(255,255,255,.08)1.5px,transparent 1.5px) 0 72px/48% 20px,
-        linear-gradient(rgba(96,165,250,.40) 0%,rgba(96,165,250,.40) 1.5px,transparent 1.5px) 0 96px/70% 20px,
-        linear-gradient(rgba(255,255,255,.06)0%,rgba(255,255,255,.06)1.5px,transparent 1.5px) 0 120px/55% 20px,
-        linear-gradient(rgba(26,86,219,.30)  0%,rgba(26,86,219,.30)  1.5px,transparent 1.5px) 0 144px/42% 20px,
-        linear-gradient(rgba(255,255,255,.07)0%,rgba(255,255,255,.07)1.5px,transparent 1.5px) 0 168px/66% 20px;
-    }
+    .proc-img-back::after { content: none; }
 
-    /* Browser preview mock */
+    /* Browser preview mock — imagen generada con KIE (tablet + growth chart) */
     .proc-img-front {
       position: absolute; bottom: 0; right: 0; width: 58%; height: 62%;
       border-radius: 8px; overflow: hidden;
-      border: 1px solid rgba(26,86,219,.22); background: var(--white);
+      border: 1px solid rgba(26,86,219,.22);
+      background-image: url('assets/proc-img-front.jpg');
+      background-size: cover; background-position: top center;
       box-shadow: 0 12px 40px rgba(0,0,0,.45);
     }
     .proc-img-front::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 28px;
-      background: #F1F3F4; border-bottom: 1px solid rgba(0,0,0,.08); z-index: 2;
+      background: rgba(241,243,244,.88); border-bottom: 1px solid rgba(0,0,0,.08); z-index: 2;
     }
-    .proc-img-front::after {
-      content: ''; position: absolute; top: 28px; left: 0; right: 0; bottom: 0;
-      background:
-        linear-gradient(var(--navy) 0%,var(--navy) 100%) 0 0 /100% 12% no-repeat,
-        linear-gradient(135deg,rgba(26,86,219,.8),rgba(96,165,250,.6)) 0 12%/100% 38% no-repeat,
-        linear-gradient(#f1f5f9 0%,#f1f5f9 100%) 0 50%/100% 35% no-repeat,
-        linear-gradient(var(--navy-md) 0%,var(--navy-md) 100%) 0 85%/100% 15% no-repeat,
-        var(--white);
-    }
+    .proc-img-front::after { content: none; }
     .proc-accent { position: absolute; top: 2rem; right: 2.2rem; width: 4.5rem; height: 4.5rem; border: 1px solid rgba(26,86,219,.22); }
     .proc-head { margin-bottom: 4rem; }
     .proc-step { display: flex; gap: 2.5rem; align-items: flex-start; padding: 2.5rem 0; border-bottom: 1px solid rgba(232,240,255,.06); }
@@ -627,7 +622,7 @@
       background: var(--white); padding: 3rem 2.5rem; border: 1px solid rgba(10,22,40,.08);
       position: relative; display: flex; flex-direction: column;
       transform-style: preserve-3d;
-      transition: border-color .3s, box-shadow .3s;
+      transition: border-color .3s, box-shadow .3s, transform 0.15s ease-out;
       will-change: transform;
     }
     .price-card:hover { border-color: rgba(26,86,219,.28); box-shadow: 0 8px 30px rgba(26,86,219,.07); }
@@ -721,7 +716,7 @@
     <div class="h-watermark"    aria-hidden="true">CIFRA</div>
 
     <div class="h-content">
-      <span class="h-eyebrow" id="h-eyebrow">Cifra Studios — Madrid</span>
+      <span class="h-eyebrow" id="h-eyebrow">Cifra Studios</span>
       <h1 class="h-h1" id="h-h1" aria-label="Construimos lo que ves. Protegemos lo que importa.">
         <span class="ww"><span class="w">Construimos</span></span>
         <span class="ww"><span class="w">lo que </span><em class="w">ves.</em></span>
@@ -732,8 +727,8 @@
         Diseño web, ciberseguridad e IA para negocios que no pueden permitirse ser invisibles ni vulnerables.
       </p>
       <div class="h-cta" id="h-cta">
-        <a href="#portfolio" class="btn-primary magnetic">Ver trabajos →</a>
-        <a href="#contacto"  class="btn-ghost   magnetic">Hablar con nosotros</a>
+        <a href="#portfolio" class="btn-primary btn-float">Ver trabajos →</a>
+        <a href="#contacto"  class="btn-ghost   btn-float btn-float--delay">Hablar con nosotros</a>
       </div>
     </div>
 
@@ -752,12 +747,10 @@
       <span>DISEÑO WEB</span><span class="mq-dot">·</span>
       <span>CIBERSEGURIDAD</span><span class="mq-dot">·</span>
       <span>AUTOMATIZACIÓN CON IA</span><span class="mq-dot">·</span>
-      <span>MADRID</span><span class="mq-dot">·</span>
       <span>CIFRA STUDIOS</span><span class="mq-dot">·</span>
       <span>DISEÑO WEB</span><span class="mq-dot">·</span>
       <span>CIBERSEGURIDAD</span><span class="mq-dot">·</span>
       <span>AUTOMATIZACIÓN CON IA</span><span class="mq-dot">·</span>
-      <span>MADRID</span><span class="mq-dot">·</span>
     </div>
   </div>
 
@@ -869,17 +862,9 @@
 
   <!-- ══ PORTFOLIO / HABILIDADES ════════════════════════════ -->
   <!--
-    VIDEO UPGRADE — sin tocar código:
-    1. Graba la pantalla scrolleando por cada web de ejemplo (OBS, QuickTime, etc.)
-    2. Exporta los MP4 a la carpeta output/websites/cifra/assets/:
-       demo-ecommerce.mp4    → tiendamoda.es
-       demo-clinica.mp4      → clinicasalud.es
-       demo-restaurante.mp4  → restaurantegourmet.es
-       demo-textil.mp4       → output/websites/textil/index.html
-       demo-casamiel.mp4     → output/websites/restaurante/index.html
-       demo-inmobiliaria.mp4 → output/websites/inmobiliaria/index.html
-    3. El vídeo se activa automáticamente al hover; el CSS scroll desaparece.
-    Formato recomendado: 1280×800 · 30fps · H.264 · max 3MB por clip
+    PORTFOLIO: Screenshots reales capturados con Playwright desde los sitios de ejemplo.
+    Para regenerar: python tools/scripts/screenshot_sites.py
+    Assets: output/websites/cifra/assets/screenshot-{textil,inmobiliaria,restaurante}.jpg
   -->
   <section id="portfolio" aria-label="Ejemplos de habilidades">
     <div class="port-header">
@@ -887,84 +872,54 @@
         <span class="sec-label on-dark">Habilidades</span>
         <h2 class="sec-h2 on-dark reveal-heading">Ejemplos de lo que<br><em>podemos construir.</em></h2>
         <p class="port-intro">
-          Seis demos en sectores distintos: moda, hostelería, salud, textil, inmobiliaria y más. Webs reales que entregamos con código propio y sin plantillas.
+          Tres proyectos reales entregados en textil, inmobiliaria y hostelería. Código propio, sin plantillas, con diseño a medida para cada sector.
         </p>
       </div>
     </div>
 
     <div class="port-grid">
 
-      <!-- ── E-commerce Moda ── -->
+      <!-- ── Textil Urdimbre (primero — nicho principal) ── -->
       <div class="port-item" data-aos="fade-up" data-aos-delay="0">
         <div class="port-browser">
           <div class="port-browser-bar">
             <span class="pbb-dot pbb-r"></span>
             <span class="pbb-dot pbb-y"></span>
             <span class="pbb-dot pbb-g"></span>
-            <div class="pbb-url">tiendamoda.es</div>
+            <div class="pbb-url">urdimbre.es</div>
           </div>
-          <div class="port-browser-viewport">
-            <video class="port-video" src="assets/demo-ecommerce.mp4"
-                   autoplay loop muted playsinline aria-hidden="true"></video>
-            <div class="port-scroll-inner mock-ec">
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-label"></div>
-              <div class="ms-prods"><div class="ms-p1"></div><div class="ms-p2"></div><div class="ms-p3"></div></div>
-              <div class="ms-cta"></div>
-              <div class="ms-footer"></div>
-              <!-- repeated for seamless CSS scroll loop -->
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-label"></div>
-              <div class="ms-prods"><div class="ms-p1"></div><div class="ms-p2"></div><div class="ms-p3"></div></div>
-              <div class="ms-cta"></div>
-              <div class="ms-footer"></div>
-            </div>
+          <div class="port-browser-viewport" style="background:#1a1208;">
+            <img src="assets/screenshot-textil.jpg"
+                 style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
+                 alt="Urdimbre — Telas de Autor website screenshot" loading="lazy">
           </div>
         </div>
         <div class="port-info">
-          <span class="port-demo-badge">Ejemplo de trabajo</span>
-          <span class="port-tag">E-commerce · Diseño Web</span>
-          <span class="port-name">Tienda de Moda Online</span>
+          <span class="port-demo-badge">Demo del Sector</span>
+          <span class="port-tag">Textil · E-commerce · Branding</span>
+          <span class="port-name">Urdimbre — Telas de Autor</span>
         </div>
       </div>
 
-      <!-- ── Clínica Médica ── -->
+      <!-- ── Arco Inmobiliaria ── -->
       <div class="port-item" data-aos="fade-up" data-aos-delay="110">
         <div class="port-browser">
           <div class="port-browser-bar">
             <span class="pbb-dot pbb-r"></span>
             <span class="pbb-dot pbb-y"></span>
             <span class="pbb-dot pbb-g"></span>
-            <div class="pbb-url">clinicasalud.es</div>
+            <div class="pbb-url">arcoinmobiliaria.es</div>
           </div>
-          <div class="port-browser-viewport">
-            <video class="port-video" src="assets/demo-clinica.mp4"
-                   autoplay loop muted playsinline aria-hidden="true"></video>
-            <div class="port-scroll-inner mock-clinic">
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-cards"><div></div><div></div><div></div></div>
-              <div class="ms-strip"></div>
-              <div class="ms-testimonial"><div></div><div></div></div>
-              <div class="ms-cta"></div>
-              <div class="ms-footer"></div>
-              <!-- loop -->
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-cards"><div></div><div></div><div></div></div>
-              <div class="ms-strip"></div>
-              <div class="ms-testimonial"><div></div><div></div></div>
-              <div class="ms-cta"></div>
-              <div class="ms-footer"></div>
-            </div>
+          <div class="port-browser-viewport" style="background:#0f1623;">
+            <img src="assets/screenshot-inmobiliaria.jpg"
+                 style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
+                 alt="Arco Inmobiliaria Madrid website screenshot" loading="lazy">
           </div>
         </div>
         <div class="port-info">
-          <span class="port-demo-badge">Ejemplo de trabajo</span>
-          <span class="port-tag">Salud · Reservas Online · IA</span>
-          <span class="port-name">Clínica &amp; Centro de Salud</span>
+          <span class="port-demo-badge">Demo del Sector</span>
+          <span class="port-tag">Inmobiliaria · Propiedades · Diseño Web</span>
+          <span class="port-name">Arco Inmobiliaria Madrid</span>
         </div>
       </div>
 
@@ -977,132 +932,16 @@
             <span class="pbb-dot pbb-g"></span>
             <div class="pbb-url">restaurantegourmet.es</div>
           </div>
-          <div class="port-browser-viewport">
-            <video class="port-video" src="assets/demo-restaurante.mp4"
-                   autoplay loop muted playsinline aria-hidden="true"></video>
-            <div class="port-scroll-inner mock-resto">
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-divider"></div>
-              <div class="ms-menu"><div></div><div></div><div></div></div>
-              <div class="ms-gallery"><div class="ms-g1"></div><div class="ms-g2"></div><div class="ms-g3"></div><div class="ms-g4"></div></div>
-              <div class="ms-book"></div>
-              <!-- loop -->
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-divider"></div>
-              <div class="ms-menu"><div></div><div></div><div></div></div>
-              <div class="ms-gallery"><div class="ms-g1"></div><div class="ms-g2"></div><div class="ms-g3"></div><div class="ms-g4"></div></div>
-              <div class="ms-book"></div>
-            </div>
+          <div class="port-browser-viewport" style="background:#1a1008;">
+            <img src="assets/screenshot-restaurante.jpg"
+                 style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;"
+                 alt="Restaurante Gourmet website screenshot" loading="lazy">
           </div>
         </div>
         <div class="port-info">
-          <span class="port-demo-badge">Ejemplo de trabajo</span>
+          <span class="port-demo-badge">Concepto de Diseño</span>
           <span class="port-tag">Hostelería · Reservas · Branding</span>
           <span class="port-name">Restaurante Gourmet</span>
-        </div>
-      </div>
-
-      <!-- ── Textil Urdimbre ── -->
-      <div class="port-item" data-aos="fade-up" data-aos-delay="0">
-        <div class="port-browser">
-          <div class="port-browser-bar">
-            <span class="pbb-dot pbb-r"></span>
-            <span class="pbb-dot pbb-y"></span>
-            <span class="pbb-dot pbb-g"></span>
-            <div class="pbb-url">urdimbre.es</div>
-          </div>
-          <div class="port-browser-viewport">
-            <video class="port-video" src="assets/demo-textil.mp4"
-                   autoplay loop muted playsinline aria-hidden="true"></video>
-            <div class="port-scroll-inner mock-textil">
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-cols"><div class="ms-col1"></div><div class="ms-col2"></div><div class="ms-col3"></div><div class="ms-col4"></div></div>
-              <div class="ms-cta"></div>
-              <div class="ms-footer"></div>
-              <!-- loop -->
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-cols"><div class="ms-col1"></div><div class="ms-col2"></div><div class="ms-col3"></div><div class="ms-col4"></div></div>
-              <div class="ms-cta"></div>
-              <div class="ms-footer"></div>
-            </div>
-          </div>
-        </div>
-        <div class="port-info">
-          <span class="port-demo-badge">Ejemplo de trabajo</span>
-          <span class="port-tag">Textil · E-commerce · Branding</span>
-          <span class="port-name">Urdimbre — Telas de Autor</span>
-        </div>
-      </div>
-
-      <!-- ── Casa Miel Restaurante ── -->
-      <div class="port-item" data-aos="fade-up" data-aos-delay="110">
-        <div class="port-browser">
-          <div class="port-browser-bar">
-            <span class="pbb-dot pbb-r"></span>
-            <span class="pbb-dot pbb-y"></span>
-            <span class="pbb-dot pbb-g"></span>
-            <div class="pbb-url">casamiel.es</div>
-          </div>
-          <div class="port-browser-viewport">
-            <video class="port-video" src="assets/demo-casamiel.mp4"
-                   autoplay loop muted playsinline aria-hidden="true"></video>
-            <div class="port-scroll-inner mock-cmiel">
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-menu"><div></div><div></div><div></div></div>
-              <div class="ms-gal"><div class="ms-ga"></div><div class="ms-gb"></div><div class="ms-gc"></div></div>
-              <div class="ms-book"></div>
-              <!-- loop -->
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-menu"><div></div><div></div><div></div></div>
-              <div class="ms-gal"><div class="ms-ga"></div><div class="ms-gb"></div><div class="ms-gc"></div></div>
-              <div class="ms-book"></div>
-            </div>
-          </div>
-        </div>
-        <div class="port-info">
-          <span class="port-demo-badge">Ejemplo de trabajo</span>
-          <span class="port-tag">Restaurante · Reservas · Carta online</span>
-          <span class="port-name">Casa Miel — Cocina de Autor</span>
-        </div>
-      </div>
-
-      <!-- ── Arco Inmobiliaria ── -->
-      <div class="port-item" data-aos="fade-up" data-aos-delay="220">
-        <div class="port-browser">
-          <div class="port-browser-bar">
-            <span class="pbb-dot pbb-r"></span>
-            <span class="pbb-dot pbb-y"></span>
-            <span class="pbb-dot pbb-g"></span>
-            <div class="pbb-url">arcoinmobiliaria.es</div>
-          </div>
-          <div class="port-browser-viewport">
-            <video class="port-video" src="assets/demo-inmobiliaria.mp4"
-                   autoplay loop muted playsinline aria-hidden="true"></video>
-            <div class="port-scroll-inner mock-inmo">
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-props"><div class="ms-pr1"></div><div class="ms-pr2"></div><div class="ms-pr3"></div></div>
-              <div class="ms-cta"></div>
-              <div class="ms-footer"></div>
-              <!-- loop -->
-              <div class="ms-nav"></div>
-              <div class="ms-hero"></div>
-              <div class="ms-props"><div class="ms-pr1"></div><div class="ms-pr2"></div><div class="ms-pr3"></div></div>
-              <div class="ms-cta"></div>
-              <div class="ms-footer"></div>
-            </div>
-          </div>
-        </div>
-        <div class="port-info">
-          <span class="port-demo-badge">Ejemplo de trabajo</span>
-          <span class="port-tag">Inmobiliaria · Propiedades · CRM</span>
-          <span class="port-name">Arco Inmobiliaria Madrid</span>
         </div>
       </div>
 
@@ -1127,7 +966,7 @@
           <li>Hasta 5 páginas</li><li>Responsivo</li><li>Formulario de contacto</li>
           <li>SEO básico</li><li>1 ronda de revisión</li>
         </ul>
-        <a href="mailto:cifra.studios@gmail.com?subject=Plan%20Básico" class="btn-outline">Empezar →</a>
+        <a href="#contacto" class="btn-outline">Empezar →</a>
       </div>
       <div class="price-card" data-aos="fade-up" data-aos-delay="80">
         <span class="price-plan">Estándar</span>
@@ -1138,7 +977,7 @@
           <li>Hasta 10 páginas</li><li>Blog o catálogo</li><li>CRM básico</li>
           <li>SEO avanzado</li><li>3 rondas de revisión</li>
         </ul>
-        <a href="mailto:cifra.studios@gmail.com?subject=Plan%20Estándar" class="btn-outline">Empezar →</a>
+        <a href="#contacto" class="btn-outline">Empezar →</a>
       </div>
       <div class="price-card pop" data-aos="fade-up" data-aos-delay="160">
         <span class="price-badge">Más popular</span>
@@ -1150,7 +989,7 @@
           <li>Páginas ilimitadas + IA</li><li>Automatizaciones a medida</li>
           <li>Auditoría de seguridad</li><li>Analítica personalizada</li><li>3 meses de soporte</li>
         </ul>
-        <a href="mailto:cifra.studios@gmail.com?subject=Plan%20Premium" class="btn-primary">Empezar →</a>
+        <a href="#contacto" class="btn-primary">Empezar →</a>
       </div>
       <div class="price-card" data-aos="fade-up" data-aos-delay="240">
         <span class="price-plan">Enterprise</span>
@@ -1161,7 +1000,7 @@
           <li>Arquitectura personalizada</li><li>Seguridad &amp; compliance</li>
           <li>Agentes IA propios</li><li>SLA garantizado</li><li>Account manager dedicado</li>
         </ul>
-        <a href="mailto:cifra.studios@gmail.com?subject=Plan%20Enterprise" class="btn-outline">Hablar →</a>
+        <a href="#contacto" class="btn-outline">Hablar →</a>
       </div>
     </div>
   </section>
@@ -1188,14 +1027,10 @@
             <span class="cnt-lbl">Email</span>
             <span class="cnt-val"><a href="mailto:cifra.studios@gmail.com">cifra.studios@gmail.com</a></span>
           </div>
-          <div class="cnt-detail-item">
-            <span class="cnt-lbl">Ubicación</span>
-            <span class="cnt-val">Madrid, España — remoto global</span>
-          </div>
         </div>
       </div>
       <div data-aos="fade-up" data-aos-delay="80">
-        <form class="cnt-form" action="https://formspree.io/f/placeholder" method="POST" novalidate>
+        <form class="cnt-form" action="https://formspree.io/f/mgodwwvl" method="POST" novalidate>
           <div class="fg">
             <label for="nombre">Nombre</label>
             <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required autocomplete="name">
